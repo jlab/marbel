@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meta_tran_sim"
+version = "0.0.1"
+authors = [
+  { name="Timo Wentong Lin", email="ge2317@uni-giessen.de" },
+
+]
+description = "A CLI for creating a simulated metatranscritpome dataset"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+          "License :: OSI Approved :: Apache Software License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+"Homepage" = "" #TODO add homepage
+"Bug Tracker" = "" #TODO add bug tracker
+
+[project.scripts]
+schema2avu = "imcs.schema2avu:main" #change main
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
