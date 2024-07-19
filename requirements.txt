@@ -1,0 +1,5 @@
+arviz==0.18.0
+pymc
+typer
+rpy2
+biopython
