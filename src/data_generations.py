@@ -24,7 +24,7 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
 def draw_orthogroups_by_rate(orthogroup_scales, species):
     orthogroup_scales = pd.Series(orthogroup_scales)
     value_counts = orthogroup_scales.value_counts()
-    orthogroups = pg_overview[species]
+    orthogroups = pg_overview[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x=="-"]), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
@@ -77,14 +77,16 @@ def generate_reads(base_expression_values, replicates_per_sample, filtered_genes
 
 def filter_genes_from_ground(gene_list, output_fasta):
     """
-    Filters sequences from a FASTA file based on a list of gene names and writes them to a new file.
+    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
     
     Parameters:
-    gene_list (list of str): List of gene names to be filtered.
-    input_fasta (str): Path to the input FASTA file.
-    output_fasta (str): Path to the output FASTA file where filtered sequences will be saved.
+    gene_list (list of str): List of gene names.
+    output_fasta (str): Path to the output FASTA file where the sequences will be saved.
     """
-    with open(PATH_TO_GROUND_GENES, "r") as infile, open(output_fasta, "w") as outfile:
-        for record in SeqIO.parse(infile, "fasta"):
-            if any(gene in record.id for gene in gene_list):
-                SeqIO.write(record, outfile, "fasta")
+    ground_genes = SeqIO.index_db(PATH_TO_GROUND_GENES_INDEX)
+    with open(output_fasta, "w") as outfile:
+        for gene in gene_list:
+            if gene in ground_genes:
+                SeqIO.write(ground_genes[gene], outfile, "fasta")
+            else:
+                print(f"Critical Warning: Gene {gene} not found in the ground genes.")

@@ -2,6 +2,9 @@ import random
 import pymc as pm
 import pandas as pd
 
+__version__ = "0.1.0"
+
+
 CPMS_MEAN_LOG = 3.73411080985053
 CPMS_SD_LOG = 1.90214574373138
 READS_MEAN_LOG = 5.57141333132782
@@ -12,7 +15,11 @@ ORTHO_GROUPS_SHAPE = 0.675101585847872
 ORTHO_GROUPS_RATE = 0.00603147150265822
 
 
-PATH_TO_GROUND_GENES = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/full_pangenome_EDGAR_Microbiome_JLAB2.fas"
+MAX_SPECIES = 614
+MAX_ORTHO_GROUPS = 10000000 #this is a placeholder
+
+PATH_TO_GROUND_GENES = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas"
+PATH_TO_GROUND_GENES_INDEX = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.idx"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/pangenome_EDGAR_Microbiome_JLAB2.csv"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_df.csv"
 
