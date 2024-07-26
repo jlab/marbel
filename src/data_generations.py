@@ -2,7 +2,9 @@ import numpy as np
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector, IntVector
-from Bio import SeqIO
+from Bio import SeqIO, bgzf
+from pathlib import Path
+import os
 
 from presets import *
 
@@ -59,19 +61,21 @@ def generate_read_mean_counts(number_of_reads):
     return reads.to_dataframe()["reads"].to_list()
 
 
-def generate_reads(base_expression_values, replicates_per_sample, filtered_genes_file):
+def generate_reads(base_expression_values, replicates_per_sample, filtered_genes_file, outdir, dge_ratio):
     polyester = importr('polyester')
     reads_per_transcript = FloatVector(base_expression_values)
     num_reps = IntVector(replicates_per_sample)
     number_of_transcripts = len(base_expression_values)
-    fold_changes = [[1,1] for _ in range(number_of_transcripts)]
+    dge_genes = random.sample(int(sum(dge_ratio) * number_of_transcripts), range(number_of_transcripts))
+    up_regulated = dge_genes[:int(dge_ratio[0] * len(dge_genes))]
+    fold_changes = [[1,1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts) if i not in dge_genes]
     fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
     polyester.simulate_experiment(
         filtered_genes_file,
         reads_per_transcript=reads_per_transcript,
         num_reps=num_reps,
         fold_changes=fold_changes_r,
-        outdir='simulated_reads'
+        outdir=outdir
     )
 
 
@@ -90,3 +94,43 @@ def filter_genes_from_ground(gene_list, output_fasta):
                 SeqIO.write(ground_genes[gene], outfile, "fasta")
             else:
                 print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+
+
+def extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts):
+    scaled_read_mean_counts, all_species_genes = [], []
+    current_read_index, i = 0, 0
+     
+    species_weights = species_abundances / np.sum(species_abundances)
+
+    for sp in species:
+        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list()
+        scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
+        current_read_index += len(species_genes_list)
+        i += 1
+        all_species_genes += species_genes_list
+    return scaled_read_mean_counts, all_species_genes
+
+
+def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
+    fasta_dir = Path(fasta_dir)
+    for fa_path in fasta_dir.glob("*.fasta"): #TODO parrallelize this?
+        fq_path = fasta_dir / fa_path.with_suffix(".fq.gz").name
+        if gzipped:
+            write_as_fastq_gz(fa_path, fq_path)
+        else:
+            write_as_fastq(fa_path, fq_path)
+        os.remove(fa_path)
+
+
+def write_as_fastq_gz(fa_path, fq_path):
+    with open(fa_path, "r") as fasta, bgzf.BgzfWriter(fq_path, "wb") as fastq_gz:
+        for record in SeqIO.parse(fasta, "fasta"):
+            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
+            SeqIO.write(record, fastq_gz, "fastq")
+
+
+def write_as_fastq(fa_path, fq_path):
+    with open(fa_path, "r") as fasta, open(fq_path, "w") as fastq:
+        for record in SeqIO.parse(fasta, "fasta"):
+            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
+            SeqIO.write(record, fastq, "fastq")

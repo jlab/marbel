@@ -14,6 +14,16 @@ SPECIES_SD_LOG = 1.33546646662937
 ORTHO_GROUPS_SHAPE = 0.675101585847872
 ORTHO_GROUPS_RATE = 0.00603147150265822
 
+DEFAULT_PHRED_QUALITY = 40
+
+rank_distance = { #TODO: these are placeholder values
+    "phylum": 0,
+    "class": 1,
+    "order": 2,
+    "family": 3,
+    "genus": 4
+}
+
 
 MAX_SPECIES = 614
 MAX_ORTHO_GROUPS = 10000000 #this is a placeholder
@@ -22,6 +32,8 @@ PATH_TO_GROUND_GENES = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/ed
 PATH_TO_GROUND_GENES_INDEX = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.idx"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/pangenome_EDGAR_Microbiome_JLAB2.csv"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_df.csv"
+PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/chunks/orthologues_processed_combined_all.csv"
+
 
 pg_overview = pd.read_csv(PANGENOME_OVERVIEW, sep="\t")
 
