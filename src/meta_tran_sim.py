@@ -46,12 +46,23 @@ def sample_callback(value: Optional[Tuple[int, int]]):
         raise typer.BadParameter(f"The minimum number of samples has to be 1")
     return value
 
-def deg_ratio_call_back(value: Optional[Tuple[float, float]]):
+def deg_ratio_callback(value: Optional[Tuple[float, float]]):
     if value[0] < 0 or value[1] < 0:
         raise typer.BadParameter(f"Ratio cannot be negative")
     if sum(value) > 1:
         raise typer.BadParameter(f"Sum of ratios cannot be greater than 1")
     return value    
+
+def rank_species_callback(value: Optional[str]):
+    if value is None:
+        return None
+    try:
+        return rank_distance[value]
+    except KeyError:
+        try:
+            return float(value)
+        except ValueError:
+            raise typer.BadParameter(f"Rank {value} is not a valid rank or a valid float. Choose from {list(rank_distance.keys())} or specify a float.")
 
 def main(n_species: Annotated[int, 
                               typer.Option(callback=species_callback,
@@ -67,16 +78,17 @@ def main(n_species: Annotated[int,
                                             "the second number is the number of samples for group 2"
                                             )] = [10,10],
         outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
-        max_phylo_distance: Annotated[Rank | int, typer.Option(help="Maximimum mean phylogenetic distance for orthologous groups."+
+        max_phylo_distance: Annotated[str, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups."+
                                                                "specify stricter limit, if you want to avoid orthologous groups" + 
-                                                               "with a more diverse phylogenetic distance.")] = 2,
+                                                               "with a more diverse phylogenetic distance.")] = None,
         min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups." + 
-                                                    "Specify for more ")] = 0,
-        deg_ratio: Annotated[Tuple[float, float], typer.Option(callback=deg_ratio_call_back,
+                                                    "Specify for more ")] = None,
+        deg_ratio: Annotated[Tuple[float, float], typer.Option(callback=deg_ratio_callback,
                                                                help="Ratio of up and down regulated genes." + 
                                                                "The first value is the ratio of up regulated genes, the second represents the ratio of" +
                                                                "down regulated genes")] = (0.1, 0.1),
-        output_format: Annotated[OutputFormat, typer.Option(help="Output format for the reads.")] = OutputFormat.fastq,
+        seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
+        output_format: Annotated[OutputFormat, typer.Option(help="Output format for the reads.")] = OutputFormat.fastq_gz,
         _: Annotated[
             Optional[bool], typer.Option("--version", callback=version_callback)
         ] = None,):
@@ -88,19 +100,24 @@ def main(n_species: Annotated[int,
     #generate some plots so the user can see the distribution
     #find out how i can switch the hatching install from source so that changes are directly reflected
 
+    if seed:
+        random.seed(seed)
+        np.random.seed(seed)
+
     species = draw_random_species(number_of_species)
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogous_groups, number_of_species)
-    selected_ortho_groups = draw_orthogroups_by_rate(ortho_group_rates, species)
-    species_abundances = generate_species_abundance(number_of_species)
+    filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
+    selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
+    species_abundances = generate_species_abundance(number_of_species, seed)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
-    read_mean_counts = generate_read_mean_counts(number_of_selected_genes)
+    read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
     scaled_read_mean_counts, all_species_genes = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
 
     tmp_fasta_name = "tmp.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
-    
-    generate_reads(scaled_read_mean_counts, number_of_sample, tmp_fasta_name, outdir, deg_ratio)
+    generate_reads(scaled_read_mean_counts, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed)
     os.remove("tmp.fasta")
+
     if output_format == OutputFormat.fastq:
         convert_fasta_dir_to_fastq_dir(outdir, gzipped=False)
     elif output_format == OutputFormat.fastq_gz:

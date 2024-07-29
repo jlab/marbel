@@ -1,8 +1,7 @@
-import random
 import pymc as pm
 import pandas as pd
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 CPMS_MEAN_LOG = 3.73411080985053
@@ -16,30 +15,28 @@ ORTHO_GROUPS_RATE = 0.00603147150265822
 
 DEFAULT_PHRED_QUALITY = 40
 
-rank_distance = { #TODO: these are placeholder values
-    "phylum": 0,
-    "class": 1,
-    "order": 2,
-    "family": 3,
-    "genus": 4
+rank_distance = {
+    "phylum": 0.6695424034631783,
+    "class": 0.452175969905506,
+    "order": 0.3307453184266344,
+    "family": 0.21193467921976264,
+    "genus": 0.11303678566362661,
 }
 
 
 MAX_SPECIES = 614
-MAX_ORTHO_GROUPS = 10000000 #this is a placeholder
+MAX_ORTHO_GROUPS = 485687
 
-PATH_TO_GROUND_GENES = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas"
-PATH_TO_GROUND_GENES_INDEX = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.idx"
+PATH_TO_GROUND_GENES = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz"
+PATH_TO_GROUND_GENES_INDEX = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/pangenome_EDGAR_Microbiome_JLAB2.csv"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_df.csv"
 PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/chunks/orthologues_processed_combined_all.csv"
+PANGENOME_OVERVIEW = "/mnt/tlin/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_processed_combined_all.parquet"
 
+pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 
-pg_overview = pd.read_csv(PANGENOME_OVERVIEW, sep="\t")
-
-AVAILABLE_SPECIES = pg_overview.columns.to_list()
-
-random.seed(69)
+AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 
 with pm.Model() as model:
     lognorm_dist = pm.Lognormal('reads', mu=READS_MEAN_LOG, sigma=READS_SD_LOG) #reads

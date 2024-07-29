@@ -1,3 +1,5 @@
 .venv
 *.pyc
 simulated_reads/
+.venv_bcf/
+tmp.fasta
