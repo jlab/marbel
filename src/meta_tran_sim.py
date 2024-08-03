@@ -103,6 +103,7 @@ def main(n_species: Annotated[int,
     if seed:
         random.seed(seed)
         np.random.seed(seed)
+    
 
     species = draw_random_species(number_of_species)
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogous_groups, number_of_species)
@@ -112,7 +113,7 @@ def main(n_species: Annotated[int,
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
     scaled_read_mean_counts, all_species_genes = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
-
+    
     tmp_fasta_name = "tmp.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
     generate_reads(scaled_read_mean_counts, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed)
@@ -122,6 +123,9 @@ def main(n_species: Annotated[int,
         convert_fasta_dir_to_fastq_dir(outdir, gzipped=False)
     elif output_format == OutputFormat.fastq_gz:
         convert_fasta_dir_to_fastq_dir(outdir)
+
+    generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format)
+
 
 if __name__ == "__main__":
     typer.run(main)

@@ -120,16 +120,24 @@ def filter_genes_from_ground(gene_list, output_fasta):
 
 
 def extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts):
+    gene_summary_df = pd.DataFrame()
     scaled_read_mean_counts, all_species_genes = [], []
     current_read_index, i = 0, 0
     species_weights = species_abundances / np.sum(species_abundances)
 
     for sp in species:
-        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list()
+        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list() # prolly the index
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
         i += 1
         all_species_genes += species_genes_list
+
+    gene_summary_df["gene_name"] = all_species_genes
+    gene_summary_df["origin_species"] = [sp for sp in species for _ in range(len(selected_ortho_groups))]
+    gene_summary_df["read_mean_count"] = scaled_read_mean_counts
+    gene_summary_df["base_read_mean"] = read_mean_counts
+    gene_summary_df["species_abundance"] = [sa for sa in species_abundances for _ in range(len(selected_ortho_groups))]
+
     return scaled_read_mean_counts, all_species_genes
 
 
@@ -160,3 +168,43 @@ def write_as_fastq(fa_path, fq_path):
         for record in SeqIO.parse(fasta, "fasta"):
             record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
             SeqIO.write(record, fastq, "fastq")
+
+
+def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample,
+                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, result_file):
+    result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}")
+    result_file.write(f"Number of species: {number_of_species}")
+    result_file.write(f"Number of samples: {number_of_sample}")
+    result_file.write(f"Output directory: {outdir}")
+    result_file.write(f"Max phylogenetic distance: {max_phylo_distance}")
+    result_file.write(f"Min identity: {min_identity}")
+    result_file.write(f"Up and down regulated genes: {deg_ratio}")
+    result_file.write(f"Seed: {seed}")
+    result_file.write(f"Output format: {output_format}")
+
+
+#number of species
+#number of orthogroups
+#number of samples
+#number of reads
+#max phylogenetic distance
+#min identity
+#up and down regulated genes
+#seed
+#output format
+#version
+#actual genes
+#actual orthogroups
+#actual species
+#read mean counts
+#species abundances
+def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
+                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, genes, orthogroups,
+                         species, read_mean_counts, species_abundances):
+    os.mkdir("summary")
+    with open("summary/meta_tran_sim_params.txt", "w") as f:
+        summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
+                             max_phylo_distance, min_identity, deg_ratio, seed, output_format, f)
+    gene_summary = pd.DataFrame(genes, columns=["gene_name", "origin_species", "orthogroup", "read_mean_count",
+                                                "species_abundance", "base_read_mean", "up_regulated", "down_regulated", "fold_change"])
+    gene_summary.to_csv("summary/gene_summary.csv", index=False)        
