@@ -1,0 +1,28 @@
+package:
+  name: meta_tran_sim
+  version: 0.0.1
+
+source:
+  path: .
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python
+    - pip
+    - hatchling
+    - hatch-requirements-txt
+    - r-base >=4.0
+
+  run:
+    - python
+    - r-base >=4.0
+    - numpy
+    - pandas
+
+about:
+  home: https://github.com/jlab/meta_tran_sim_dev
+  license: Apache-2.0
+  summary: "A CLI for creating a simulated metatranscriptome dataset"

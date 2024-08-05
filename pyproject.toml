@@ -22,11 +22,13 @@ classifiers = [
 dynamic = ["dependencies"]
 
 [project.urls]
-"Homepage" = "" #TODO add homepage
-"Bug Tracker" = "" #TODO add bug tracker
+"Homepage" = "https://github.com/jlab/meta_tran_sim_dev" 
+"Bug Tracker" = "https://github.com/jlab/meta_tran_sim_dev/issues" 
 
 [project.scripts]
-schema2avu = "imcs.schema2avu:main" #change main
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/*"]
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]

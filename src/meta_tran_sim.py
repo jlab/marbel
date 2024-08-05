@@ -109,14 +109,16 @@ def main(n_species: Annotated[int,
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogous_groups, number_of_species)
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
+    if selected_ortho_groups is None:
+        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups)
     species_abundances = generate_species_abundance(number_of_species, seed)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
-    scaled_read_mean_counts, all_species_genes = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
-    
+    gene_summarary_df = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
+    all_species_genes = gene_summarary_df["gene_name"].to_list()
     tmp_fasta_name = "tmp.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
-    generate_reads(scaled_read_mean_counts, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed)
+    generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed)
     os.remove("tmp.fasta")
 
     if output_format == OutputFormat.fastq:

@@ -46,21 +46,25 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_scales, species):
     sampled_groups = pd.DataFrame(columns=orthogroups.columns)
     for index in value_counts.index:
         subset_orthogroups = orthogroups[orthogroups["group_size"] == index]
+        if len(subset_orthogroups) < value_counts[index]:
+            print(f"Error: Not enough orthogroups with size {index} to satisfy the rate, switching to sampling the orthogroups without the gamma function rates.")
+            return None
         subset_orthogroups = subset_orthogroups.sample(value_counts[index])
         sampled_groups = pd.concat([sampled_groups, subset_orthogroups])
     return sampled_groups
 
 
 #randomization based on actual occurences, instead based on the pdf
-def draw_orthogroups(number_of_orthogous_groups, species):
-    pg_overview_filter = pg_overview[species]
-    max_species_per_group = len(species)
-    orthogroups = pg_overview_filter.sample(n=number_of_orthogous_groups)
-    species_subset = draw_random_species(max_species_per_group)
-    orthogroups = orthogroups[species_subset]
+def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
+    orthogroups = orthogroup_slice[species].copy()
+    orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x=="-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    return orthogroups.sample(n=number_of_orthogous_groups)
-
+    if number_of_orthogous_groups.shape[0] < number_of_orthogous_groups:
+            print(f"Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+            quit()
+    orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
+    orthogroups_sample = orthogroups.drop("group_size", axis=1)
+    return orthogroups_sample
 
 def generate_species_abundance(number_of_species, seed=None):
     with model:
@@ -73,16 +77,23 @@ def generate_read_mean_counts(number_of_reads, seed=None):
         reads = pm.sample_prior_predictive(number_of_reads, var_names=['reads'], random_seed=seed)
     return reads.to_dataframe()["reads"].to_list()
 
-
-def generate_reads(base_expression_values, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed):
-    polyester = importr('polyester')
-    reads_per_transcript = FloatVector(base_expression_values)
-    num_reps = IntVector(replicates_per_sample)
-    number_of_transcripts = len(base_expression_values)
+def generate_fold_changes(number_of_transcripts, dge_ratio):
     dge_genes = random.sample(range(number_of_transcripts), int(sum(dge_ratio) * number_of_transcripts))
     up_regulated = dge_genes[:int((dge_ratio[0]/sum(dge_ratio)) * len(dge_genes))]
     fold_changes = [[1,1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
+    return fold_changes
+
+def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed):
+    polyester = importr('polyester')
+    base_expression_values = gene_summarary_df["read_mean_count"].to_list()
+
+    reads_per_transcript = FloatVector(base_expression_values)
+    num_reps = IntVector(replicates_per_sample)
+    number_of_transcripts = len(base_expression_values)
+    fold_changes = generate_fold_changes(number_of_transcripts, dge_ratio)
     fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
+    gene_summarary_df["fold_change_ratio"] = [float(i[0])/float(i[1]) for i in fold_changes]
+
     if seed:
         polyester.simulate_experiment(
             filtered_genes_file,
@@ -124,21 +135,28 @@ def extract_combined_gene_names_and_weigths(species, species_abundances, selecte
     scaled_read_mean_counts, all_species_genes = [], []
     current_read_index, i = 0, 0
     species_weights = species_abundances / np.sum(species_abundances)
+    species_weight_col = []
+    origin_species = []
+    origin_orthogroup = []
 
     for sp in species:
-        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list() # prolly the index
+        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list() 
+        origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list() # TODO maybe i should add arbitrary orthogroup names
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
         i += 1
         all_species_genes += species_genes_list
+        origin_species += [sp] * len(species_genes_list)
+        species_weight_col += [species_weights[i]] * len(species_genes_list)
 
     gene_summary_df["gene_name"] = all_species_genes
-    gene_summary_df["origin_species"] = [sp for sp in species for _ in range(len(selected_ortho_groups))]
+    gene_summary_df["origin_species"] = origin_species
     gene_summary_df["read_mean_count"] = scaled_read_mean_counts
     gene_summary_df["base_read_mean"] = read_mean_counts
-    gene_summary_df["species_abundance"] = [sa for sa in species_abundances for _ in range(len(selected_ortho_groups))]
-
-    return scaled_read_mean_counts, all_species_genes
+    gene_summary_df["species_abundance"] = species_weight_col
+    gene_summary_df["orthogroup"] = origin_orthogroup
+    
+    return gene_summary_df #scaled_read_mean_counts, all_species_genes
 
 
 def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
