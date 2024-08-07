@@ -144,10 +144,11 @@ def extract_combined_gene_names_and_weigths(species, species_abundances, selecte
         origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list() # TODO maybe i should add arbitrary orthogroup names
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
-        i += 1
         all_species_genes += species_genes_list
         origin_species += [sp] * len(species_genes_list)
         species_weight_col += [species_weights[i]] * len(species_genes_list)
+        i += 1
+
 
     gene_summary_df["gene_name"] = all_species_genes
     gene_summary_df["origin_species"] = origin_species
@@ -217,12 +218,9 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
 #read mean counts
 #species abundances
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, genes, orthogroups,
-                         species, read_mean_counts, species_abundances):
+                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary):
     os.mkdir("summary")
     with open("summary/meta_tran_sim_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
                              max_phylo_distance, min_identity, deg_ratio, seed, output_format, f)
-    gene_summary = pd.DataFrame(genes, columns=["gene_name", "origin_species", "orthogroup", "read_mean_count",
-                                                "species_abundance", "base_read_mean", "up_regulated", "down_regulated", "fold_change"])
     gene_summary.to_csv("summary/gene_summary.csv", index=False)        

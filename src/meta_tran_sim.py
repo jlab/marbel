@@ -110,7 +110,7 @@ def main(n_species: Annotated[int,
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
     if selected_ortho_groups is None:
-        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups)
+        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogous_groups, species)
     species_abundances = generate_species_abundance(number_of_species, seed)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
@@ -126,7 +126,8 @@ def main(n_species: Annotated[int,
     elif output_format == OutputFormat.fastq_gz:
         convert_fasta_dir_to_fastq_dir(outdir)
 
-    generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format)
+    generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
+                    max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summarary_df)
 
 
 if __name__ == "__main__":
