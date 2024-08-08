@@ -3,3 +3,4 @@
 simulated_reads/
 .venv_bcf/
 tmp.fasta
+combined_test_output/

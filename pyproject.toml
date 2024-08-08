@@ -26,6 +26,7 @@ dynamic = ["dependencies"]
 "Bug Tracker" = "https://github.com/jlab/meta_tran_sim_dev/issues" 
 
 [project.scripts]
+meta-tran-sim = "meta_tran_sim.meta_tran_sim:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/*"]

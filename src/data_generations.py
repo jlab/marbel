@@ -47,7 +47,7 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_scales, species):
     for index in value_counts.index:
         subset_orthogroups = orthogroups[orthogroups["group_size"] == index]
         if len(subset_orthogroups) < value_counts[index]:
-            print(f"Error: Not enough orthogroups with size {index} to satisfy the rate, switching to sampling the orthogroups without the gamma function rates.")
+            print(f"Warning: Not enough orthogroups with size {index} to satisfy the rate, switching to sampling the orthogroups without the gamma function rates.")
             return None
         subset_orthogroups = subset_orthogroups.sample(value_counts[index])
         sampled_groups = pd.concat([sampled_groups, subset_orthogroups])
@@ -59,11 +59,10 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups = orthogroup_slice[species].copy()
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x=="-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    if number_of_orthogous_groups.shape[0] < number_of_orthogous_groups:
+    if orthogroups.shape[0] < number_of_orthogous_groups:
             print(f"Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
             quit()
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
-    orthogroups_sample = orthogroups.drop("group_size", axis=1)
     return orthogroups_sample
 
 def generate_species_abundance(number_of_species, seed=None):
@@ -219,8 +218,11 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
 #species abundances
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
                          outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary):
-    os.mkdir("summary")
-    with open("summary/meta_tran_sim_params.txt", "w") as f:
+    
+    summary_dir = f"{outdir}/summary"
+    if not os.path.exists(summary_dir):
+        os.mkdir(summary_dir)
+    with open(f"{summary_dir}/meta_tran_sim_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
                              max_phylo_distance, min_identity, deg_ratio, seed, output_format, f)
-    gene_summary.to_csv("summary/gene_summary.csv", index=False)        
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)        
