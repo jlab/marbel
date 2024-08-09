@@ -9,7 +9,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 
-from presets import *
+from .presets import *
 
 
 def draw_random_species(number_of_species):

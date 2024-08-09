@@ -6,7 +6,7 @@ import os
 from enum import Enum
 
 
-from data_generations import *
+from .data_generations import *
 
 class Rank(str, Enum):
     phylum = "phylum"

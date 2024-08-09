@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [project]
@@ -29,7 +29,7 @@ dynamic = ["dependencies"]
 meta-tran-sim = "meta_tran_sim.meta_tran_sim:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/*"]
+packages = ["src/meta_tran_sim"]
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
