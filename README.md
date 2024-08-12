@@ -2,7 +2,25 @@
 
 This project generates an in silico metatranscriptomic dataset based on specified parameters.
 
-## Dependencies
+## Conda build and install (recommended)
+
+It is recomended to install the package with conda install. 
+
+Build the package with:
+
+`conda-build . `
+
+For this you need to have conda-build installed `(conda install conda-build`)
+
+Create new environment and instlal package:
+
+```
+conda create -n meta_tran_sim
+conda activate meta_tran_sim
+conda install --use-local meta_tran_sim
+```
+
+## Install dependencies by hand
 
 The python dependencies can be installed with
 
