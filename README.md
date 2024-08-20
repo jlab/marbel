@@ -12,7 +12,7 @@ Build the package with:
 
 For this you need to have conda-build installed `(conda install conda-build`)
 
-Create new environment and instlal package:
+Create new environment and install package:
 
 ```
 conda create -n meta_tran_sim
