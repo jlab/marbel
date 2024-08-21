@@ -170,9 +170,10 @@ def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
                 futures.append(executor.submit(write_as_fastq_gz, fa_path, fq_path))
             else:
                 futures.append(executor.submit(write_as_fastq, fa_path, fq_path))
-            os.remove(fa_path)
         for future in as_completed(futures):
             future.result()
+    for fa_path in fasta_dir.glob("*.fasta"):
+        os.remove(fa_path)
 
 
 def write_as_fastq_gz(fa_path, fq_path):
@@ -202,21 +203,6 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
     result_file.write(f"Output format: {output_format}\n")
 
 
-#number of species
-#number of orthogroups
-#number of samples
-#number of reads
-#max phylogenetic distance
-#min identity
-#up and down regulated genes
-#seed
-#output format
-#version
-#actual genes
-#actual orthogroups
-#actual species
-#read mean counts
-#species abundances
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
                          outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary):
     

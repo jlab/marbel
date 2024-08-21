@@ -1,5 +1,6 @@
 import pymc as pm
 import pandas as pd
+from importlib import resources
 
 __version__ = "0.1.1"
 
@@ -27,12 +28,11 @@ rank_distance = {
 MAX_SPECIES = 614
 MAX_ORTHO_GROUPS = 485687
 
-PATH_TO_GROUND_GENES = "/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz"
-PATH_TO_GROUND_GENES_INDEX = "/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
-PANGENOME_OVERVIEW = "/vol/jlab/tlin/all_project/in_silico_dataset/edgar/edgar_big_run/pangenome_EDGAR_Microbiome_JLAB2.csv"
-PANGENOME_OVERVIEW = "/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_df.csv"
-PANGENOME_OVERVIEW = "/vol/jlab/tlin/all_project/in_silico_dataset/calculations/chunks/orthologues_processed_combined_all.csv"
-PANGENOME_OVERVIEW = "/vol/jlab/tlin/all_project/in_silico_dataset/calculations/orthologues_processed_combined_all.parquet"
+data_package = str(resources.files(__package__) / 'data')
+
+PATH_TO_GROUND_GENES = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz"
+PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
+PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 

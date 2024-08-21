@@ -2,7 +2,9 @@
 
 This project generates an in silico metatranscriptomic dataset based on specified parameters.
 
-## Conda build and install (recommended)
+## Installation
+
+### Conda build and install (recommended)
 
 It is recomended to install the package with conda install.
 
@@ -20,21 +22,23 @@ conda activate meta_tran_sim
 conda install --use-local meta_tran_sim
 ```
 
-## Install dependencies by hand
+### Install by hand (for development purposes)
 
-The python dependencies can be installed with
-
-```
-python -m pip install -r requirements.txt
-```
-
-Another dependency is R and the R library polyester. Polyester can be installed with
+You need to install [R](https://www.r-project.org/about.html) and the R library polyester. Polyester can be installed with
 
 ```
 R
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("polyester")
+
+
+```
+
+Install the package: 
+
+```
+pip install -e .
 ```
 
 ## Usage
@@ -42,13 +46,13 @@ BiocManager::install("polyester")
 To get help on how to use the script, run:
 
 ```sh
-python src/meta_tran_sim.py --help
+meta-tran-sim --help
 ```
 
 ### Command Line Arguments
 
 ```
-Usage: meta_tran_sim.py [OPTIONS] [N_SPECIES] [N_ORTHOGROUPS] [N_SAMPLES]...
+Usage: meta-tran-sim [OPTIONS] [N_SPECIES] [N_ORTHOGROUPS] [N_SAMPLES]...
 
 Arguments:
   n_species         [N_SPECIES]      Number of species to be drawn for the metatranscriptomic in silico dataset [default: 20]
@@ -65,13 +69,13 @@ Options:
 ### Running with Default Parameters
 
 ```sh
-python src/meta_tran_sim.py
+meta-tran-sim
 ```
 
 ### Specifying Number of Species, Orthogroups, and Samples
 
 ```sh
-python src/meta_tran_sim/meta_tran_sim.py --n-species 30 --n-orthogroups 1500 --n-samples 15 20
+meta-tran-sim --n-species 30 --n-orthogroups 1500 --n-samples 15 20
 ```
 
 This command will generate a dataset with:
@@ -88,6 +92,5 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE]() file for details.
-
 
 Feel free to reach out if you have any questions or need further assistance with the usage of the tool.

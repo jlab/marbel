@@ -34,3 +34,9 @@ files = ["requirements.txt"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/meta_tran_sim"]
 
+[tool.hatch.build]
+include = [
+    "src/meta_tran_sim/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz",
+    "src/meta_tran_sim/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index",
+    "src/meta_tran_sim/data/orthologues_processed_combined_all.parquet",
+]
