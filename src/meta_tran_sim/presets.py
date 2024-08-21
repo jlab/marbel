@@ -1,6 +1,7 @@
 import pymc as pm
 import pandas as pd
 from importlib import resources
+from ete3 import Tree
 
 __version__ = "0.1.1"
 
@@ -33,8 +34,10 @@ data_package = str(resources.files(__package__) / 'data')
 PATH_TO_GROUND_GENES = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz"
 PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
 PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
+SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
+species_tree = Tree(SPECIES_PHYLO_TREE)
 
 AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 

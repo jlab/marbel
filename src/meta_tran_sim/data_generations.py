@@ -82,7 +82,7 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     fold_changes = [[1,1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
     return fold_changes
 
-def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed):
+def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed, read_length):
     polyester = importr('polyester')
     base_expression_values = gene_summarary_df["read_mean_count"].to_list()
 
@@ -100,7 +100,8 @@ def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file
             num_reps=num_reps,
             fold_changes=fold_changes_r,
             outdir=outdir,
-            seed=seed
+            seed=seed,
+            readlen=read_length
         )
     else:
         polyester.simulate_experiment(
@@ -191,7 +192,7 @@ def write_as_fastq(fa_path, fq_path):
 
 
 def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, result_file):
+                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, result_file):
     result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
     result_file.write(f"Number of species: {number_of_species}\n")
     result_file.write(f"Number of samples: {number_of_sample}\n")
@@ -201,15 +202,20 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
     result_file.write(f"Up and down regulated genes: {deg_ratio}\n")
     result_file.write(f"Seed: {seed}\n")
     result_file.write(f"Output format: {output_format}\n")
+    result_file.write(f"Read length: {read_length}\n")
 
 
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary):
+                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary, read_length):
     
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):
         os.mkdir(summary_dir)
     with open(f"{summary_dir}/meta_tran_sim_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                             max_phylo_distance, min_identity, deg_ratio, seed, output_format, f)
-    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)        
+                             max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, f)
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
+    with open(f"{summary_dir}/species_tree.newick", "w") as f:
+        species_subtree = species_tree.copy()
+        species_subtree.prune(gene_summary["origin_species"].unique().tolist()) 
+        f.write(species_subtree.write())

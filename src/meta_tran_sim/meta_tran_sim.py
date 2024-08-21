@@ -88,6 +88,7 @@ def main(n_species: Annotated[int,
                                                                "The first value is the ratio of up regulated genes, the second represents the ratio of" +
                                                                "down regulated genes")] = (0.1, 0.1),
         seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
+        read_length: Annotated[int, typer.Option(help="Read length for the reads.")] = 100,
         output_format: Annotated[OutputFormat, typer.Option(help="Output format for the reads.")] = OutputFormat.fastq_gz,
         _: Annotated[
             Optional[bool], typer.Option("--version", callback=version_callback)
@@ -118,7 +119,7 @@ def main(n_species: Annotated[int,
     all_species_genes = gene_summarary_df["gene_name"].to_list()
     tmp_fasta_name = "tmp.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
-    generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed)
+    generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed, read_length)
     os.remove("tmp.fasta")
 
     if output_format == OutputFormat.fastq:
@@ -127,7 +128,7 @@ def main(n_species: Annotated[int,
         convert_fasta_dir_to_fastq_dir(outdir)
 
     generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                    max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summarary_df)
+                    max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summarary_df, read_length)
 
 
 if __name__ == "__main__":
