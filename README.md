@@ -4,7 +4,7 @@ This project generates an in silico metatranscriptomic dataset based on specifie
 
 ## Conda build and install (recommended)
 
-It is recomended to install the package with conda install. 
+It is recomended to install the package with conda install.
 
 Build the package with:
 
@@ -87,8 +87,7 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE]() file for details.
+This project is licensed under the Apache License 2.0. See the [LICENSE]() file for details.
 
----
 
 Feel free to reach out if you have any questions or need further assistance with the usage of the tool.

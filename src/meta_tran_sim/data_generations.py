@@ -165,11 +165,12 @@ def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
     max_workers = multiprocessing.cpu_count()
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         for fa_path in fasta_dir.glob("*.fasta"):
-            fq_path = fasta_dir / fa_path.with_suffix(".fq.gz" if gzipped else ".fq").name
+            fq_path = fasta_dir / fa_path.with_suffix(".fastq.gz" if gzipped else ".fastq").name
             if gzipped:
                 futures.append(executor.submit(write_as_fastq_gz, fa_path, fq_path))
             else:
                 futures.append(executor.submit(write_as_fastq, fa_path, fq_path))
+            os.remove(fa_path)
         for future in as_completed(futures):
             future.result()
 
