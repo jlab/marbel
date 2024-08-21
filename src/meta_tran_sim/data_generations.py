@@ -191,15 +191,15 @@ def write_as_fastq(fa_path, fq_path):
 
 def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample,
                          outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, result_file):
-    result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}")
-    result_file.write(f"Number of species: {number_of_species}")
-    result_file.write(f"Number of samples: {number_of_sample}")
-    result_file.write(f"Output directory: {outdir}")
-    result_file.write(f"Max phylogenetic distance: {max_phylo_distance}")
-    result_file.write(f"Min identity: {min_identity}")
-    result_file.write(f"Up and down regulated genes: {deg_ratio}")
-    result_file.write(f"Seed: {seed}")
-    result_file.write(f"Output format: {output_format}")
+    result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
+    result_file.write(f"Number of species: {number_of_species}\n")
+    result_file.write(f"Number of samples: {number_of_sample}\n")
+    result_file.write(f"Output directory: {outdir}\n")
+    result_file.write(f"Max phylogenetic distance: {max_phylo_distance}\n")
+    result_file.write(f"Min identity: {min_identity}\n")
+    result_file.write(f"Up and down regulated genes: {deg_ratio}\n")
+    result_file.write(f"Seed: {seed}\n")
+    result_file.write(f"Output format: {output_format}\n")
 
 
 #number of species

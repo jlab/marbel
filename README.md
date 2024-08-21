@@ -71,7 +71,7 @@ python src/meta_tran_sim.py
 ### Specifying Number of Species, Orthogroups, and Samples
 
 ```sh
-python src/meta_tran_sim.py --n-species 30 --n-orthogroups 1500 --n-samples 15 20
+python src/meta_tran_sim/meta_tran_sim.py --n-species 30 --n-orthogroups 1500 --n-samples 15 20
 ```
 
 This command will generate a dataset with:
