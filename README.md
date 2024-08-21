@@ -8,7 +8,7 @@ It is recomended to install the package with conda install.
 
 Build the package with:
 
-`conda-build . `
+`conda build . `
 
 For this you need to have conda-build installed `(conda install conda-build`)
 
