@@ -2,7 +2,6 @@ from typing import Optional, Tuple
 from typing_extensions import Annotated
 
 import typer
-import os
 import random
 import numpy as np
 
@@ -10,6 +9,8 @@ from enum import Enum
 
 from .presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance
 from .data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, extract_combined_gene_names_and_weigths, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
+
+app = typer.Typer()
 
 
 class Rank(str, Enum):
@@ -24,9 +25,6 @@ class OutputFormat(str, Enum):
     fastq_gz = "fastq.gz"
     fastq = "fastq"
     fasta = "fasta"
-
-
-app = typer.Typer()
 
 
 def version_callback(value: bool):
@@ -77,6 +75,7 @@ def rank_species_callback(value: Optional[str]):
             raise typer.BadParameter(f"Rank {value} is not a valid rank or a valid float. Choose from {list(rank_distance.keys())} or specify a float.")
 
 
+@app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help="Number of species to be drawn for the metatranscriptomic in silico dataset")] = 20,
          n_orthogroups: Annotated[int,
@@ -127,10 +126,10 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
     gene_summarary_df = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summarary_df["gene_name"].to_list()
-    tmp_fasta_name = "tmp.fasta"
+    summary_dir = f"{outdir}/summary"
+    tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
     generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed, read_length)
-    os.remove("tmp.fasta")
 
     if output_format == OutputFormat.fastq:
         convert_fasta_dir_to_fastq_dir(outdir, gzipped=False)
@@ -142,4 +141,4 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()
