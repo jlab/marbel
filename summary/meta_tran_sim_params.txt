@@ -1,0 +1,1 @@
+Number of orthogroups: 800Number of species: 25Number of samples: (20, 10)Output directory: combined_test_outputMax phylogenetic distance: 0.04Min identity: 0.85Up and down regulated genes: (0.15, 0.25)Seed: 123Output format: fastq

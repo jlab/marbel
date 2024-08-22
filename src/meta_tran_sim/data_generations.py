@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector, IntVector
@@ -9,7 +10,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 
-from .presets import *
+from .presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
 
 
 def draw_random_species(number_of_species):
@@ -26,22 +27,22 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
 
 
 def filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity):
-    if not max_phylo_distance is None:
+    if max_phylo_distance is not None:
         filtered_slice = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
-    if not min_identity is None:
+    if min_identity is not None:
         filtered_slice = filtered_slice[filtered_slice["medium_identity"] >= min_identity]
     if max_phylo_distance is None and min_identity is None:
         return pg_overview
     return filtered_slice
 
 
-#randomization based on rates calculated from the pdf
+#  randomization based on rates calculated from the pdf
 def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_scales, species):
     orthogroup_scales = pd.Series(orthogroup_scales)
     value_counts = orthogroup_scales.value_counts()
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
-    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x=="-"]), axis=1)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     sampled_groups = pd.DataFrame(columns=orthogroups.columns)
     for index in value_counts.index:
@@ -54,16 +55,17 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_scales, species):
     return sampled_groups
 
 
-#randomization based on actual occurences, instead based on the pdf
+#  randomization based on actual occurences, instead based on the pdf
 def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups = orthogroup_slice[species].copy()
-    orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x=="-"].index.to_list()), axis=1)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     if orthogroups.shape[0] < number_of_orthogous_groups:
-            print(f"Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
-            quit()
+        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        quit()
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
+
 
 def generate_species_abundance(number_of_species, seed=None):
     with model:
@@ -76,11 +78,13 @@ def generate_read_mean_counts(number_of_reads, seed=None):
         reads = pm.sample_prior_predictive(number_of_reads, var_names=['reads'], random_seed=seed)
     return reads.to_dataframe()["reads"].to_list()
 
+
 def generate_fold_changes(number_of_transcripts, dge_ratio):
     dge_genes = random.sample(range(number_of_transcripts), int(sum(dge_ratio) * number_of_transcripts))
-    up_regulated = dge_genes[:int((dge_ratio[0]/sum(dge_ratio)) * len(dge_genes))]
-    fold_changes = [[1,1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
+    up_regulated = dge_genes[:int((dge_ratio[0] / sum(dge_ratio)) * len(dge_genes))]
+    fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
     return fold_changes
+
 
 def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed, read_length):
     polyester = importr('polyester')
@@ -91,7 +95,7 @@ def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file
     number_of_transcripts = len(base_expression_values)
     fold_changes = generate_fold_changes(number_of_transcripts, dge_ratio)
     fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
-    gene_summarary_df["fold_change_ratio"] = [float(i[0])/float(i[1]) for i in fold_changes]
+    gene_summarary_df["fold_change_ratio"] = [float(i[0]) / float(i[1]) for i in fold_changes]
 
     if seed:
         polyester.simulate_experiment(
@@ -116,7 +120,7 @@ def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file
 def filter_genes_from_ground(gene_list, output_fasta):
     """
     Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
-    
+
     Parameters:
     gene_list (list of str): List of gene names.
     output_fasta (str): Path to the output FASTA file where the sequences will be saved.
@@ -140,8 +144,8 @@ def extract_combined_gene_names_and_weigths(species, species_abundances, selecte
     origin_orthogroup = []
 
     for sp in species:
-        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list() 
-        origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list() # TODO maybe i should add arbitrary orthogroup names
+        species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list()
+        origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list()  # TODO maybe i should add arbitrary orthogroup names
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
         all_species_genes += species_genes_list
@@ -149,15 +153,14 @@ def extract_combined_gene_names_and_weigths(species, species_abundances, selecte
         species_weight_col += [species_weights[i]] * len(species_genes_list)
         i += 1
 
-
     gene_summary_df["gene_name"] = all_species_genes
     gene_summary_df["origin_species"] = origin_species
     gene_summary_df["read_mean_count"] = scaled_read_mean_counts
     gene_summary_df["base_read_mean"] = read_mean_counts
     gene_summary_df["species_abundance"] = species_weight_col
     gene_summary_df["orthogroup"] = origin_orthogroup
-    
-    return gene_summary_df #scaled_read_mean_counts, all_species_genes
+
+    return gene_summary_df  # scaled_read_mean_counts, all_species_genes
 
 
 def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
@@ -206,8 +209,7 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
 
 
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary, read_length):
-    
+                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary, read_length):
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):
         os.mkdir(summary_dir)
@@ -217,5 +219,5 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
-        species_subtree.prune(gene_summary["origin_species"].unique().tolist()) 
+        species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())

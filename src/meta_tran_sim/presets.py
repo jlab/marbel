@@ -42,6 +42,6 @@ species_tree = Tree(SPECIES_PHYLO_TREE)
 AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 
 with pm.Model() as model:
-    lognorm_dist = pm.Lognormal('reads', mu=READS_MEAN_LOG, sigma=READS_SD_LOG) #reads
-    lognorm_dist2 = pm.Lognormal('species', mu=SPECIES_MEAN_LOG, sigma=SPECIES_SD_LOG) 
-    orthologues = pm.Gamma('ortho', alpha=ORTHO_GROUPS_SHAPE, beta=ORTHO_GROUPS_RATE) #ortho groups
+    lognorm_dist = pm.Lognormal('reads', mu=READS_MEAN_LOG, sigma=READS_SD_LOG)  # reads
+    lognorm_dist2 = pm.Lognormal('species', mu=SPECIES_MEAN_LOG, sigma=SPECIES_SD_LOG)
+    orthologues = pm.Gamma('ortho', alpha=ORTHO_GROUPS_SHAPE, beta=ORTHO_GROUPS_RATE)  # ortho groups

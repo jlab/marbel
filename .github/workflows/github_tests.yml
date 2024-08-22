@@ -1,0 +1,40 @@
+name: Integration Tests & Code Style
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+
+    - name: Install dependencies
+      run: |
+        $CONDA/bin/conda env update --file environment.yml --name base
+
+    - name: Lint with flake8
+      run: |
+        $CONDA/bin/flake8 src/meta_tran_sim/
+
+    - name: Run tests with pytest
+      run: |
+        $CONDA/bin/pytest tests --doctest-modules --cov=src/meta_tran_sim --cov-report=xml
+
+    - name: Convert coverage to lcov format
+      run: |
+        $CONDA/bin/coverage lcov
+
+#    - name: Send coverage report to Coveralls
+#      uses: coverallsapp/github-action@master
+#      with:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        path-to-lcov: "coverage.lcov"

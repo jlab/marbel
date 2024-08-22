@@ -1,0 +1,10 @@
+name: meta_tran_sim
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - flake8
+  - pytest
+  - pytest-cov
+  - coverage >= 6  # to ensure lcov option is available
