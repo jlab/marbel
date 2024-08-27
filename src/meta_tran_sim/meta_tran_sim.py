@@ -4,6 +4,7 @@ from typing_extensions import Annotated
 import typer
 import random
 import numpy as np
+import os
 
 from enum import Enum
 
@@ -127,6 +128,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     gene_summarary_df = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summarary_df["gene_name"].to_list()
     summary_dir = f"{outdir}/summary"
+    if not os.path.exists(summary_dir):
+        os.makedirs(summary_dir)
     tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
     generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed, read_length)
