@@ -1,5 +1,5 @@
 package:
-  name: meta_tran_sim
+  name: marbel
   version: 0.0.1
 
 source:
@@ -22,7 +22,7 @@ requirements:
     - pandas
 
 about:
-  home: https://github.com/jlab/meta_tran_sim_dev
+  home: https://github.com/jlab/marbel
   license: Apache-2.0
   summary: "A CLI for creating a simulated metatranscriptome dataset"
 

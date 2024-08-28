@@ -1,4 +1,4 @@
-name: meta_tran_sim
+name: marbel
 channels:
   - bioconda
   - conda-forge

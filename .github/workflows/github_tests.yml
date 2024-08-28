@@ -23,11 +23,11 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        $CONDA/bin/flake8 src/meta_tran_sim/
+        $CONDA/bin/flake8 src/marbel/
 
     - name: Run tests with pytest
       run: |
-        $CONDA/bin/pytest tests --doctest-modules --cov=src/meta_tran_sim --cov-report=xml
+        $CONDA/bin/pytest tests --doctest-modules --cov=src/marbel --cov-report=xml
 
     - name: Convert coverage to lcov format
       run: |

@@ -387,7 +387,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         read_length (int): The read length.
     """
     summary_dir = f"{outdir}/summary"
-    with open(f"{summary_dir}/meta_tran_sim_params.txt", "w") as f:
+    with open(f"{summary_dir}/marbel_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
                              max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, f)
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
