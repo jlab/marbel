@@ -1,4 +1,4 @@
-# meta_tran_sim_dev (Meta Transcriptomic Simulation)
+# marbel (MetAtranscriptomic Reference Builder Evaluation Library)
 
 This project generates an in silico metatranscriptomic dataset based on specified parameters.
 
@@ -35,7 +35,7 @@ BiocManager::install("polyester")
 
 ```
 
-Install the package: 
+Install the package:
 
 ```
 pip install -e .
@@ -46,22 +46,27 @@ pip install -e .
 To get help on how to use the script, run:
 
 ```sh
-meta-tran-sim --help
+marbel --help
 ```
 
 ### Command Line Arguments
 
 ```
-Usage: meta-tran-sim [OPTIONS] [N_SPECIES] [N_ORTHOGROUPS] [N_SAMPLES]...
-
-Arguments:
-  n_species         [N_SPECIES]      Number of species to be drawn for the metatranscriptomic in silico dataset [default: 20]
-  n_orthogroups     [N_ORTHOGROUPS]  Number of orthologous groups to be drawn for the metatranscriptomic in silico dataset [default: 1000]
-  n_samples          [N_SAMPLES]...    Number of samples to be created for the metatranscriptomic in silico dataset. The first number is the number of samples for group 1 and
-                                     the second number is the number of samples for group 2 [default: 10, 10]
+Usage: marbel [OPTIONS] 
 Options:
-  --version                        Show the version and exit.
-  --help                           Show this message and exit.
+ --n-species                 INTEGER                 Number of species to be drawn for the metatranscriptomic in silico dataset [default: 20]
+ --n-orthogroups             INTEGER                 Number of orthologous groups to be drawn for the metatranscriptomic in silico dataset [default: 1000]
+ --n-samples                 <INTEGER INTEGER>...    Number of samples to be created for the metatranscriptomic in silico datasetthe first number is the number of samples for group 1 and the second is the number of samples for group 2 [default: 10, 10]  
+  --outdir                   TEXT    Output directory for the metatranscriptomic in silico dataset [default: simulated_reads]
+  --max-phylo-distance        TEXT    Maximum mean phylogenetic distance for orthologous groups. Specify stricter limit to avoid groups with a more diverse phylogenetic distance. [default: None]
+  --min-identity              FLOAT   Minimum mean sequence identity score for orthologous groups. Specify for more stringent identity requirements. [default: None]
+  --deg-ratio                <FLOAT FLOAT>... Ratio of up- and down-regulated genes. The first value is the ratio of up-regulated genes, the second represents the ratio of down-regulated genes [default: 0.1, 0.1]
+  --seed                      INTEGER Seed for sampling. Set for reproducibility [default: None]
+  --read-length               INTEGER Read length for the generated reads [default: 100]
+  --output-format             [fastq.gz|fastq|fasta] Output format for the reads [default: fastq.gz]
+  --version                           Show the version and exit.
+  --help                              Show this message and exit.
+
 ```
 
 ## Examples
@@ -69,13 +74,13 @@ Options:
 ### Running with Default Parameters
 
 ```sh
-meta-tran-sim
+marbel
 ```
 
 ### Specifying Number of Species, Orthogroups, and Samples
 
 ```sh
-meta-tran-sim --n-species 30 --n-orthogroups 1500 --n-samples 15 20
+marbel --n-species 30 --n-orthogroups 1500 --n-samples 15 20
 ```
 
 This command will generate a dataset with:

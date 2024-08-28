@@ -8,8 +8,8 @@ import os
 
 from enum import Enum
 
-from .presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance
-from .data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, extract_combined_gene_names_and_weigths, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
 
 app = typer.Typer()
 
@@ -125,7 +125,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     species_abundances = generate_species_abundance(number_of_species, seed)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
-    gene_summarary_df = extract_combined_gene_names_and_weigths(species, species_abundances, selected_ortho_groups, read_mean_counts)
+    gene_summarary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summarary_df["gene_name"].to_list()
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):

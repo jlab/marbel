@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [project]
-name = "meta_tran_sim"
+name = "marbel"
 version = "0.0.1"
 authors = [
   { name="Timo Wentong Lin", email="ge2317@uni-giessen.de" },
@@ -26,18 +26,18 @@ dynamic = ["dependencies"]
 "Bug Tracker" = "https://github.com/jlab/meta_tran_sim_dev/issues" 
 
 [project.scripts]
-meta-tran-sim = "meta_tran_sim.meta_tran_sim:app"
+marbel= "marbel.meta_tran_sim:app"
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/meta_tran_sim"]
+packages = ["src/marbel"]
 
 [tool.hatch.build]
 include = [
-    "src/meta_tran_sim/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz",
-    "src/meta_tran_sim/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index",
-    "src/meta_tran_sim/data/orthologues_processed_combined_all.parquet",
-    "src/meta_tran_sim/data/EDGAR_all_species.newick",
+    "src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz",
+    "src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index",
+    "src/marbel/data/orthologues_processed_combined_all.parquet",
+    "src/marbel/data/EDGAR_all_species.newick",
 ]

@@ -10,7 +10,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 
-from .presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
+from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
 
 
 def draw_random_species(number_of_species):
