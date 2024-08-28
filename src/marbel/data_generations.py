@@ -264,7 +264,7 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
     for sp in species:
         species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list()
-        origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list()
+        origin_orthogroup += [f"og{ortho_group}" for ortho_group in selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list()]
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
         all_species_genes += species_genes_list
