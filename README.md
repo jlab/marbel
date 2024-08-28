@@ -17,9 +17,9 @@ For this you need to have conda-build installed `(conda install conda-build`)
 Create new environment and install package:
 
 ```
-conda create -n meta_tran_sim
-conda activate meta_tran_sim
-conda install --use-local meta_tran_sim
+conda create -n marbel
+conda activate marbel
+conda install --use-local marbel
 ```
 
 ### Install by hand (for development purposes)

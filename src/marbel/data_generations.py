@@ -29,7 +29,7 @@ def draw_random_species(number_of_species):
 def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed=None):
     """
     Creates a list of group sizes for orthogroups, such that the maximum group size is less than or equal to
-    the specified maximum species per group and the total number of orthogroups matches the specified number 
+    the specified maximum species per group and the total number of orthogroups matches the specified number
     of orthogroups.
 
     Parameters:
@@ -264,7 +264,7 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
     for sp in species:
         species_genes_list = selected_ortho_groups[selected_ortho_groups[sp] != "-"][sp].to_list()
-        origin_orthogroup += selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list()
+        origin_orthogroup += [f"og{ortho_group}" for ortho_group in selected_ortho_groups[selected_ortho_groups[sp] != "-"].index.to_list()]
         scaled_read_mean_counts += [species_weights[i] * c for c in read_mean_counts[current_read_index:(current_read_index + len(species_genes_list))]]
         current_read_index += len(species_genes_list)
         all_species_genes += species_genes_list
@@ -285,11 +285,11 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
     """
     Converts a directory containing .fasta files to a directory containing .fastq files. If gzipped is True, the output files will be gzipped.
-    
+
     Parameters:
     - fasta_dir (str): The path to the directory containing the .fasta files.
     - gzipped (bool): Whether the output files should be gzipped.
-    
+
     Note that the input .fasta files will be removed after the conversion is done.
     """
     fasta_dir = Path(fasta_dir)
@@ -312,7 +312,7 @@ def write_as_fastq_gz(fa_path, fq_path):
     """
     Converts a .fasta file to a .fastq.gz file. The function reads the .fasta file,
     adds phred quality scores to each sequence and writes the output to a .fastq.gz file.
-    
+
     Args:
         fa_path (str): Path to the input .fasta file.
         fq_path (str): Path to the output .fastq.gz file.
@@ -327,7 +327,7 @@ def write_as_fastq(fa_path, fq_path):
     """
     Converts a .fasta file to a .fastq file. The function reads the .fasta file,
     adds phred quality scores to each sequence and writes the output to a .fastq file.
-    
+
     Args:
         fa_path (str): Path to the input .fasta file.
         fq_path (str): Path to the output .fastq file.
@@ -342,7 +342,7 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
                          outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, result_file):
     """
     Writes the simulation parameters to the result_file.
-    
+
     Args:
         number_of_orthogous_groups (int): The number of orthologous groups.
         number_of_species (int): The number of species.
@@ -387,7 +387,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         read_length (int): The read length.
     """
     summary_dir = f"{outdir}/summary"
-    with open(f"{summary_dir}/meta_tran_sim_params.txt", "w") as f:
+    with open(f"{summary_dir}/marbel_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
                              max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, f)
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
