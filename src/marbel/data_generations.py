@@ -23,6 +23,8 @@ def draw_random_species(number_of_species):
     Returns:
     list: A list of randomly drawn species from the list of available species.
     """
+    if number_of_species < 1 or number_of_species > len(AVAILABLE_SPECIES):
+        raise ValueError(f"Number of species must be between 1 and {AVAILABLE_SPECIES}.")
     return random.sample(AVAILABLE_SPECIES, number_of_species)
 
 
@@ -40,11 +42,13 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     Returns:
         numpy.ndarray: A numpy array containing the group size for each orthogroup.
     """
+    if number_of_orthogous_groups < 1:
+        raise ValueError("Number of orthogroups must be greater than 0.")
     with model:
         orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
     orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
     scaled_orthogroups = orthogroups * (max_species_per_group / np.max(orthogroups))
-    scaled_orthogroups = np.ceil(scaled_orthogroups)
+    scaled_orthogroups = np.minimum(np.ceil(scaled_orthogroups), max_species_per_group)
     return scaled_orthogroups
 
 
@@ -62,6 +66,8 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     """
     if max_phylo_distance is not None:
         filtered_slice = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
+    else:
+        filtered_slice = pg_overview
     if min_identity is not None:
         filtered_slice = filtered_slice[filtered_slice["medium_identity"] >= min_identity]
     if max_phylo_distance is None and min_identity is None:
@@ -69,7 +75,7 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     return filtered_slice
 
 
-#  randomization based on rates calculated from the pdf
+# randomization based on rates calculated from the pdf
 def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
     """
     Draws orthologous groups based on their rates. Given a dataframe slice of orthologous groups,
