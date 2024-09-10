@@ -25,10 +25,6 @@ jobs:
       run: |
         $CONDA/bin/conda env update --file environment.yml --name base
 
-    - name: Install marbel package
-      run: |
-        $CONDA/bin/python -m pip install ./
-
     - name: Lint with flake8
       run: |
         $CONDA/bin/flake8 src/marbel/
