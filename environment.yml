@@ -11,5 +11,5 @@ dependencies:
   - pytest-cov
   - coverage >= 6  # to ensure lcov option is available
   - pip:
-    ./
+    - ./
 
