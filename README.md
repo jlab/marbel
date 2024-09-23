@@ -1,3 +1,5 @@
+[![Integration Tests & Code Style](https://github.com/jlab/marbel/actions/workflows/github_tests.yml/badge.svg)](https://github.com/jlab/marbel/actions/workflows/github_tests.yml)
+
 # marbel (MetAtranscriptomic Reference Builder Evaluation Library)
 
 This project generates an in silico metatranscriptomic dataset based on specified parameters.
