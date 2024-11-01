@@ -9,7 +9,8 @@ import os
 from enum import Enum
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance
-from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values
+from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
 
 app = typer.Typer()
 
@@ -132,6 +133,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         os.makedirs(summary_dir)
     tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
+    create_sample_values(gene_summarary_df, sum(number_of_sample))
     generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed, read_length)
 
     if output_format == OutputFormat.fastq:

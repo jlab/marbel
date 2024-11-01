@@ -10,8 +10,8 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
-
+from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX
+from marbel.presets import DEFAULT_PHRED_QUALITY,DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
 
 def draw_random_species(number_of_species):
     """
@@ -401,3 +401,39 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())
+
+
+def create_sample_values(gene_summarary_df, number_of_samples):
+    """
+    Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
+
+    Parameters:
+        gene_summarary_df (pandas.DataFrame): The summary of genes.
+        number_of_samples (int): The number of samples.
+
+    Returns:
+        pandas.DataFrame: The summary df including the count matrix for the samples.
+    """
+    dispersion_df = pd.DataFrame({
+        "gene_name": gene_summarary_df["gene_name"],
+        "mean_expression": list(gene_summarary_df["read_mean_count"]),
+        "estimated_dispersion" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summarary_df["read_mean_count"])]
+    })
+
+    means = dispersion_df["mean_expression"].values
+    dispersions = 1 / dispersion_df["estimated_dispersion"].values
+
+    with pm.Model() as _:
+        _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))    
+        prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
+
+    simulated_counts = prior_predictive.prior['counts'].values[0]  
+
+    sample_columns = [f"sample_{i+1}" for i in range(number_of_samples)]
+    simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
+    simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
+
+    summary_df = pd.merge(gene_summarary_df, dispersion_df, on="gene_name")
+    summary_df = pd.merge(summary_df, simulated_data_matrix, on="gene_name")
+    summary_df.to_csv("test_simulated_data.csv")
+    return summary_df
