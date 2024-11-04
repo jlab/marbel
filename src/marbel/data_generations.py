@@ -9,9 +9,13 @@ import os
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
+import argparse
+from iss.app import generate_reads as gen_reads
+
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX
-from marbel.presets import DEFAULT_PHRED_QUALITY,DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
+from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
+
 
 def draw_random_species(number_of_species):
     """
@@ -403,7 +407,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         f.write(species_subtree.write())
 
 
-def create_sample_values(gene_summarary_df, number_of_samples):
+def create_sample_values(gene_summary_df, number_of_samples):
     """
     Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
 
@@ -415,9 +419,9 @@ def create_sample_values(gene_summarary_df, number_of_samples):
         pandas.DataFrame: The summary df including the count matrix for the samples.
     """
     dispersion_df = pd.DataFrame({
-        "gene_name": gene_summarary_df["gene_name"],
-        "mean_expression": list(gene_summarary_df["read_mean_count"]),
-        "estimated_dispersion" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summarary_df["read_mean_count"])]
+        "gene_name": gene_summary_df["gene_name"],
+        "mean_expression": list(gene_summary_df["read_mean_count"]),
+        "estimated_dispersion" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
     })
 
     means = dispersion_df["mean_expression"].values
@@ -427,13 +431,50 @@ def create_sample_values(gene_summarary_df, number_of_samples):
         _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))    
         prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
 
-    simulated_counts = prior_predictive.prior['counts'].values[0]  
+    simulated_counts = prior_predictive.prior['counts'].values[0]
 
     sample_columns = [f"sample_{i+1}" for i in range(number_of_samples)]
     simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
     simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
 
-    summary_df = pd.merge(gene_summarary_df, dispersion_df, on="gene_name")
+    summary_df = pd.merge(gene_summary_df, dispersion_df, on="gene_name")
     summary_df = pd.merge(summary_df, simulated_data_matrix, on="gene_name")
-    summary_df.to_csv("test_simulated_data.csv")
     return summary_df
+
+
+# we should adjust mode, model, fragment lenght, fragment length sd
+def create_fastq_file(sample_df, sample_name, output_dir, number_of_reads=100000, gzip=True, seed=None):
+    sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
+    sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    args = argparse.Namespace(
+        mode="kde",
+        seed=seed,
+        model="HiSeq",
+        fragment_length=300,
+        fragment_length_sd=20,
+        store_mutations=True,
+        genomes=[f"{output_dir}/summary/metatranscriptome_reference.fasta"],
+        draft=None,
+        ncbi=False,
+        n_genomes_ncbi=0,
+        output=f"{output_dir}/{sample_name}",
+        n_genomes=None,
+        readcount_file=None,
+        abundance_file=f"{sample_name}.tsv",
+        coverage_file=None,
+        coverage=None,
+        abundance=None,
+        n_reads=str(number_of_reads),
+        cpus=10,
+        sequence_type="metagenomics",
+        gc_bias=False,
+        compress=gzip
+    )
+    gen_reads(args)
+
+
+def create_fastq_samples(gene_summary_df, outdir):
+    for sample in [col for col in list(gene_summary_df.columns) if col.startswith("sample")]:
+        sample_copy = gene_summary_df[["gene_name", sample]].copy()
+        sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
+        create_fastq_file(sample_copy, sample, outdir)
