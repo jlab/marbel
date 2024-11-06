@@ -6,28 +6,11 @@ import random
 import numpy as np
 import os
 
-from enum import Enum
-
-from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance
-from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
 
 app = typer.Typer()
-
-
-class Rank(str, Enum):
-    phylum = "phylum"
-    class_ = "class"
-    order = "order"
-    family = "family"
-    genus = "genus"
-
-
-class OutputFormat(str, Enum):
-    fastq_gz = "fastq.gz"
-    fastq = "fastq"
-    fasta = "fasta"
-
 
 def version_callback(value: bool):
     if value:
@@ -90,7 +73,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                            + "the second number is the number of samples for group 2"
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
-         max_phylo_distance: Annotated[str, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups."
+         max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups."
                                                          + "specify stricter limit, if you want to avoid orthologous groups"
                                                          + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
@@ -100,15 +83,17 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                                 + "The first value is the ratio of up regulated genes, the second represents the ratio of"
                                                                 + "down regulated genes")] = (0.1, 0.1),
          seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
-         read_length: Annotated[int, typer.Option(help="Read length for the reads.")] = 100,
-         output_format: Annotated[OutputFormat, typer.Option(help="Output format for the reads.")] = OutputFormat.fastq_gz,
+         error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length")] = ErrorModel.HiSeq,
+         compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
+         read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = None,
+         library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
+         library_size_distribution: Annotated[LibrarySizeDistribution, typer.Option(help="Distribution for the library size.")] = LibrarySizeDistribution.uniform,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     number_of_orthogous_groups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
 
-    #
     # maybe change to synthetic species later on, for now just use the available species
     # we need some messages if the drawn orthogroups cannot be satisfied
     # generate some plots so the user can see the distribution
@@ -134,16 +119,15 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
     gene_summarary_df = create_sample_values(gene_summarary_df, sum(number_of_sample))
-    create_fastq_samples(gene_summarary_df, outdir)
-    # generate_reads(gene_summarary_df, number_of_sample, tmp_fasta_name, outdir, deg_ratio, seed, read_length)
 
-    if output_format == OutputFormat.fastq:
-        convert_fasta_dir_to_fastq_dir(outdir, gzipped=False)
-    elif output_format == OutputFormat.fastq_gz:
-        convert_fasta_dir_to_fastq_dir(outdir)
-
+    # def create_fastq_samples(gene_summary_df, outdir, compression, number_of_samples, mode, seed, library_size, read_length):
+    # TODO: integrate read length later on
+    # TODO: make a list what lenghts there are for the differing error models
+    sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
+    create_fastq_samples(gene_summarary_df, outdir, compressed, sum(number_of_sample), error_model, seed, sample_library_sizes, read_length)
     generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                    max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summarary_df, read_length)
+                    max_phylo_distance, min_identity, deg_ratio, seed, compressed, gene_summarary_df, read_length, library_size, library_size_distribution,
+                    sample_library_sizes)
 
 
 if __name__ == "__main__":

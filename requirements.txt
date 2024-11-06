@@ -1,4 +1,4 @@
-arviz==0.18.0
+arviz
 pymc
 typer
 rpy2
@@ -6,4 +6,3 @@ biopython
 pyarrow
 typing_extensions
 ete3
-git+https://github.com/jlab/InSilicoSeq.git@feat/marbel#egg=InSilicoSeq

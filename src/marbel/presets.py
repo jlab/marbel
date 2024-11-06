@@ -2,6 +2,7 @@ import pymc as pm
 import pandas as pd
 from importlib import resources
 from ete3 import Tree
+from enum import Enum
 
 __version__ = "0.1.1"
 
@@ -48,3 +49,30 @@ with pm.Model() as model:
     lognorm_dist = pm.Lognormal('reads', mu=READS_MEAN_LOG, sigma=READS_SD_LOG)  # reads
     lognorm_dist2 = pm.Lognormal('species', mu=SPECIES_MEAN_LOG, sigma=SPECIES_SD_LOG)
     orthologues = pm.Gamma('ortho', alpha=ORTHO_GROUPS_SHAPE, beta=ORTHO_GROUPS_RATE)  # ortho groups
+
+
+class ErrorModel(str, Enum):
+    basic = "basic"
+    perfect = "perfect"
+    HiSeq = "HiSeq"
+    NextSeq = "NextSeq"
+    NovaSeq = "NovaSeq"
+    Miseq_20 = "Miseq-20"
+    Miseq_24 = "Miseq-24"
+    Miseq_28 = "Miseq-28"
+    Miseq_32 = "Miseq-32"
+
+
+
+class Rank(str, Enum):
+    phylum = "phylum"
+    class_ = "class"
+    order = "order"
+    family = "family"
+    genus = "genus"
+
+
+class LibrarySizeDistribution(str, Enum):
+    poisson = "poisson"
+    uniform = "uniform"
+    negative_binomial = "negative_binomial"
