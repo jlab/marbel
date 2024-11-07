@@ -63,7 +63,6 @@ class ErrorModel(str, Enum):
     Miseq_32 = "Miseq-32"
 
 
-
 class Rank(str, Enum):
     phylum = "phylum"
     class_ = "class"

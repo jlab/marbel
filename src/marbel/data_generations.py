@@ -16,7 +16,6 @@ from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tr
 from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, ErrorModel, LibrarySizeDistribution
 
 
-
 def draw_random_species(number_of_species):
     """
     Draws a random sample of species from the list of available species set in the presets.
@@ -432,7 +431,7 @@ def create_sample_values(gene_summary_df, number_of_samples):
     dispersions = 1 / dispersion_df["estimated_dispersion"].values
 
     with pm.Model() as _:
-        _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))    
+        _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))
         prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
 
     simulated_counts = prior_predictive.prior['counts'].values[0]
@@ -463,8 +462,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         mode=mode,
         seed=seed,
         model=model,
-        fragment_length=None,   #300
-        fragment_length_sd=None, #20
+        fragment_length=None,     # 300
+        fragment_length_sd=None,  # 20
         read_length=read_length,
         store_mutations=True,
         genomes=[f"{output_dir}/summary/metatranscriptome_reference.fasta"],
@@ -489,7 +488,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
     gen_reads(args)
 
 
-def draw_library_sizes(library_size, library_size_distribution, number_of_samples):    
+def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
     match library_size_distribution:
         case LibrarySizeDistribution.poisson:
             sample_library_sizes = random.poisson(library_size, number_of_samples)
