@@ -42,6 +42,7 @@ SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 species_tree = Tree(SPECIES_PHYLO_TREE)
+DGE_LOG_2_CUTOFF_VALUE = 1
 
 AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 
