@@ -3,6 +3,7 @@ import pandas as pd
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector, IntVector
+from scipy import stats
 from Bio import SeqIO, bgzf
 from pathlib import Path
 import os
@@ -12,7 +13,7 @@ import multiprocessing
 import argparse
 from iss.app import generate_reads as gen_reads
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX
+from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
 from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, ErrorModel, LibrarySizeDistribution
 
 
@@ -410,7 +411,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         f.write(species_subtree.write())
 
 
-def create_sample_values(gene_summary_df, number_of_samples):
+def create_sample_values(gene_summary_df, number_of_samples, first_group):
     """
     Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
 
@@ -421,33 +422,38 @@ def create_sample_values(gene_summary_df, number_of_samples):
     Returns:
         pandas.DataFrame: The summary df including the count matrix for the samples.
     """
+    if first_group:
+        group = "group1"
+    else:
+        group = "group2"
+        gene_summary_df = gene_summary_df.copy()
+        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
+    
     dispersion_df = pd.DataFrame({
         "gene_name": gene_summary_df["gene_name"],
-        "mean_expression": list(gene_summary_df["read_mean_count"]),
-        "estimated_dispersion" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
+        f"estimated_dispersion_{group}" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
     })
 
-    means = dispersion_df["mean_expression"].values
-    dispersions = 1 / dispersion_df["estimated_dispersion"].values
+    means = list(gene_summary_df["read_mean_count"])
+    dispersions = 1 / dispersion_df[f"estimated_dispersion_{group}"].values
 
     with pm.Model() as _:
-        _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))
+        _ = pm.NegativeBinomial(f"{group}_counts", mu=means, alpha=dispersions, shape=len(means))
         prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
 
-    simulated_counts = prior_predictive.prior['counts'].values[0]
+    simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
-    sample_columns = [f"sample_{i+1}" for i in range(number_of_samples)]
+    sample_columns = [f"sample_{i+1}_{group}" for i in range(number_of_samples)]
     simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
     simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
 
-    summary_df = pd.merge(gene_summary_df, dispersion_df, on="gene_name")
-    summary_df = pd.merge(summary_df, simulated_data_matrix, on="gene_name")
-    return summary_df
+    sample_disp_df = pd.merge(simulated_data_matrix, dispersion_df, on="gene_name")
+    return sample_disp_df
 
 
 # create_fastq_file(sample_copy, sample, outdir, compression, number_of_samples, model, seed, sample_library_size, read_length)
 # we should adjust mode, model, fragment lenght, fragment length sd
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length, threads):
     sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
     sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
     mode = "kde"
@@ -478,7 +484,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         coverage=None,
         abundance=None,
         n_reads=str(sample_library_size),
-        cpus=10,
+        cpus=threads,
         sequence_type="metagenomics",
         gc_bias=False,
         compress=gzip,
@@ -499,8 +505,33 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     return sample_library_sizes
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, number_of_samples, model, seed, sample_library_sizes, read_length):
+def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads):
     for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
-        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, sample_library_size, read_length)
+        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, sample_library_size, read_length, threads)
+
+
+def draw_dge_factors(dge_ratio, number_of_selected_genes):
+    """"
+    Draws the log2 DGE factors from a normal distribution adjusted to the specified ratio of up and downregulated genes.
+    We use the normal and log2 because it is easier to calculate and then transform with exp2 to get the actual fold changes
+
+    Parameters:
+        dge_ratio (float): The ratio of up and downregulated genes
+        number_of_selected_genes (int): The number of selected genes
+
+    Returns:
+        numpy.ndarray: The differentialy expressed factors
+    """
+    z_score = stats.norm.ppf(1 - dge_ratio)
+    sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
+
+    with pm.Model() as _:
+        _ = pm.Normal("dge_ratios", mu=0, sigma=sigma)
+        prior_predictive = pm.sample_prior_predictive(samples=number_of_selected_genes)
+
+    simulated_ratios = prior_predictive.prior['dge_ratios'].values[0]
+    simulated_ratios = np.exp2(simulated_ratios)
+
+    return simulated_ratios
