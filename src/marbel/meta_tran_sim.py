@@ -8,9 +8,10 @@ import os
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
-from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_reads, convert_fasta_dir_to_fastq_dir, generate_report
+from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
 
 app = typer.Typer()
+
 
 def version_callback(value: bool):
     if value:
@@ -74,8 +75,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
          max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups."
-                                                         + "specify stricter limit, if you want to avoid orthologous groups"
-                                                         + "with a more diverse phylogenetic distance.")] = None,
+                                                          + "specify stricter limit, if you want to avoid orthologous groups"
+                                                          + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
                                                           + "Specify for more ")] = None,
          deg_ratio: Annotated[Tuple[float, float], typer.Option(callback=deg_ratio_callback,
