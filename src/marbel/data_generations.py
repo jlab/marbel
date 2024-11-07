@@ -9,8 +9,12 @@ import os
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
+import argparse
+from iss.app import generate_reads as gen_reads
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
+from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX
+from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, ErrorModel, LibrarySizeDistribution
+
 
 
 def draw_random_species(number_of_species):
@@ -344,8 +348,8 @@ def write_as_fastq(fa_path, fq_path):
             SeqIO.write(record, fastq, "fastq")
 
 
-def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, result_file):
+def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
+                         min_identity, deg_ratio, seed, output_format, read_length, library_size, library_distribution, library_sizes, result_file):
     """
     Writes the simulation parameters to the result_file.
 
@@ -358,7 +362,7 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
         min_identity (float): The minimum sequence identity.
         deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
         seed (int): The seed for the simulation.
-        output_format (str): The output format.
+        compressed (bool): Compression of files.
         read_length (int): The read length.
         result_file (file): The file to write the summary to.
     """
@@ -370,12 +374,16 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
     result_file.write(f"Min identity: {min_identity}\n")
     result_file.write(f"Up and down regulated genes: {deg_ratio}\n")
     result_file.write(f"Seed: {seed}\n")
-    result_file.write(f"Output format: {output_format}\n")
+    result_file.write(f"File compression: {output_format}\n")
     result_file.write(f"Read length: {read_length}\n")
+    result_file.write(f"Library size: {library_size}\n")
+    result_file.write(f"Library size distribution: {library_distribution}\n")
+    result_file.write(f"Library sizes for samples: {library_sizes}\n")
 
 
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary, read_length):
+                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, compressed, gene_summary, read_length, library_size, library_distribution,
+                    library_sizes):
     """
     Generates a report of the simulation results.
 
@@ -388,16 +396,112 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         min_identity (float): The minimum sequence identity.
         deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
         seed (int): The seed for the simulation.
-        output_format (str): The output format.
+        compressed (bool): Generate compressed output.
         gene_summary (pandas.DataFrame): The summary of genes.
         read_length (int): The read length.
     """
     summary_dir = f"{outdir}/summary"
     with open(f"{summary_dir}/marbel_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                             max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, f)
+                             max_phylo_distance, min_identity, deg_ratio, seed, compressed, read_length, library_size, library_distribution, library_sizes, f)
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())
+
+
+def create_sample_values(gene_summary_df, number_of_samples):
+    """
+    Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
+
+    Parameters:
+        gene_summarary_df (pandas.DataFrame): The summary of genes.
+        number_of_samples (int): The number of samples.
+
+    Returns:
+        pandas.DataFrame: The summary df including the count matrix for the samples.
+    """
+    dispersion_df = pd.DataFrame({
+        "gene_name": gene_summary_df["gene_name"],
+        "mean_expression": list(gene_summary_df["read_mean_count"]),
+        "estimated_dispersion" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
+    })
+
+    means = dispersion_df["mean_expression"].values
+    dispersions = 1 / dispersion_df["estimated_dispersion"].values
+
+    with pm.Model() as _:
+        _ = pm.NegativeBinomial("counts", mu=means, alpha=dispersions, shape=len(means))    
+        prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
+
+    simulated_counts = prior_predictive.prior['counts'].values[0]
+
+    sample_columns = [f"sample_{i+1}" for i in range(number_of_samples)]
+    simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
+    simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
+
+    summary_df = pd.merge(gene_summary_df, dispersion_df, on="gene_name")
+    summary_df = pd.merge(summary_df, simulated_data_matrix, on="gene_name")
+    return summary_df
+
+
+# create_fastq_file(sample_copy, sample, outdir, compression, number_of_samples, model, seed, sample_library_size, read_length)
+# we should adjust mode, model, fragment lenght, fragment length sd
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length):
+    sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
+    sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    mode = "kde"
+    if model == ErrorModel.basic or model == ErrorModel.perfect:
+        mode = model
+        model = None
+    elif read_length:
+        print("Warning: Read length is ignored if model is 'basic' or 'perfect'.")
+        # TODO write the read length of the selected model
+
+    args = argparse.Namespace(
+        mode=mode,
+        seed=seed,
+        model=model,
+        fragment_length=None,   #300
+        fragment_length_sd=None, #20
+        read_length=read_length,
+        store_mutations=True,
+        genomes=[f"{output_dir}/summary/metatranscriptome_reference.fasta"],
+        draft=None,
+        ncbi=False,
+        n_genomes_ncbi=0,
+        output=f"{output_dir}/{sample_name}",
+        n_genomes=None,
+        readcount_file=None,
+        abundance_file=f"{sample_name}.tsv",
+        coverage_file=None,
+        coverage=None,
+        abundance=None,
+        n_reads=str(sample_library_size),
+        cpus=10,
+        sequence_type="metagenomics",
+        gc_bias=False,
+        compress=gzip,
+        debug=True,
+        quiet=False
+    )
+    gen_reads(args)
+
+
+def draw_library_sizes(library_size, library_size_distribution, number_of_samples):    
+    match library_size_distribution:
+        case LibrarySizeDistribution.poisson:
+            sample_library_sizes = random.poisson(library_size, number_of_samples)
+        case LibrarySizeDistribution.uniform:
+            sample_library_sizes = [library_size] * number_of_samples
+        case LibrarySizeDistribution.negative_binomial:
+            sample_library_sizes = np.random.negative_binomial(library_size, 1 / library_size, number_of_samples)
+    return sample_library_sizes
+
+
+def create_fastq_samples(gene_summary_df, outdir, compression, number_of_samples, model, seed, sample_library_sizes, read_length):
+    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
+        sample_copy = gene_summary_df[["gene_name", sample]].copy()
+        sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
+        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, sample_library_size, read_length)
