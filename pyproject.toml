@@ -41,3 +41,6 @@ include = [
     "src/marbel/data/orthologues_processed_combined_all.parquet",
     "src/marbel/data/EDGAR_all_species.newick",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true

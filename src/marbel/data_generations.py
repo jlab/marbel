@@ -492,6 +492,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         quiet=False
     )
     gen_reads(args)
+    os.remove(f"{sample_name}.tsv")
 
 
 def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
