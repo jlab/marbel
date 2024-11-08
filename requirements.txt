@@ -6,3 +6,4 @@ biopython
 pyarrow
 typing_extensions
 ete3
+git+https://github.com/jlab/InSilicoSeq.git

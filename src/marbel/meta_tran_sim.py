@@ -19,7 +19,7 @@ app = typer.Typer()
 
 def version_callback(value: bool):
     if value:
-        print(f"meta-tran-sim Version: {__version__}")
+        print(f"marbel Version: {__version__}")
         raise typer.Exit()
 
 
