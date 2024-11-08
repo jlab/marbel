@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 import numpy as np
-from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate
-from marbel.presets import AVAILABLE_SPECIES, pg_overview
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_dge_factors
+from marbel.presets import AVAILABLE_SPECIES, pg_overview, DGE_LOG_2_CUTOFF_VALUE
 
 #Tests for draw_random_species
 
@@ -69,14 +69,14 @@ def test_different_seed_variation():
     
     result_1 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=1)
     result_2 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=2)
-    
     assert not np.array_equal(result_1, result_2), "Results should differ for different seeds"
+
 
 def test_scaled_orthogroups_not_exceed_max():
     number_of_orthogroups = 10
     max_species = 12
     result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
-    
+
     assert np.max(result) <= max_species, f"Max species per group exceeded: {np.max(result)}"
 
 def test_empty_orthogroups():
@@ -121,4 +121,46 @@ def test_no_matching_records():
     expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["medium_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
+
+
+@pytest.mark.parametrize("dge_ratio, num_genes", [
+    (0.25, 200),
+    (0.4, 150),
+])
+def test_draw_dge_factors_output_shape(dge_ratio, num_genes):
+    result = draw_dge_factors(dge_ratio, num_genes)
+    assert isinstance(result, np.ndarray)
+    assert result.shape[0] == num_genes
+
+
+@pytest.mark.parametrize("dge_ratio", [-1, -0.01, 0.5, 0.75, 1.0])
+def test_draw_dge_factors_ratio_outdie_threshold_raises_value_error(dge_ratio):
+    with pytest.raises(ValueError):
+        draw_dge_factors(dge_ratio, 100)
+
+
+def test_draw_dge_factors_valid_ratio_range():
+    with pytest.raises(ValueError):
+        draw_dge_factors(-0.1, 100)
+    with pytest.raises(ValueError):
+        draw_dge_factors(1.1, 100)
+
+
+@pytest.mark.parametrize("dge_ratio", [0.1, 0.25, 0.49])
+@pytest.mark.parametrize("num_genes", [10, 100, 1000])
+def test_draw_dge_factors_distribution_properties(dge_ratio, num_genes):
+    result = draw_dge_factors(dge_ratio, num_genes)
+    assert np.all(result > 0)
+    assert not np.any(np.isnan(result))
+
+
+def test_draw_dge_factors_extreme_case():
+    result = draw_dge_factors(0.01, 10)
+    assert isinstance(result, np.ndarray)
+    assert len(result) == 10
+
+
+def test_draw_dge_factors_empty_output():
+    result = draw_dge_factors(0.49, 0)
+    assert result.size == 0
 

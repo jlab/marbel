@@ -385,7 +385,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
                     outdir, max_phylo_distance, min_identity, deg_ratio, seed, compressed, gene_summary, read_length, library_size, library_distribution,
                     library_sizes):
     """
-    Generates a report of the simulation results.
+    Generates a report of the simulation parameters.
 
     Parameters:
         number_of_orthogous_groups (int): The number of orthologous groups.
@@ -439,7 +439,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group):
 
     with pm.Model() as _:
         _ = pm.NegativeBinomial(f"{group}_counts", mu=means, alpha=dispersions, shape=len(means))
-        prior_predictive = pm.sample_prior_predictive(samples=number_of_samples)
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_samples)
 
     simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
@@ -451,9 +451,22 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group):
     return sample_disp_df
 
 
-# create_fastq_file(sample_copy, sample, outdir, compression, number_of_samples, model, seed, sample_library_size, read_length)
-# we should adjust mode, model, fragment lenght, fragment length sd
 def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length, threads):
+    """
+    Creates a fastq file for the sample using the InSilicoSeq (iss) package.
+
+    Parameters:
+        sample_df (pandas.DataFrame): The dataframe with the gene names and according absolute counts.
+        sample_name (str): The name of the sample.
+        output_dir (str): The output directory for the fastq files.
+        gzip (bool): Whether the fastq files should be gzipped.
+        model (ErrorModel): The error model for the reads (Illumina).
+        seed (int): The seed for the simulation. Can be None.
+        sample_library_size (int): The library size for the sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+    """
+    sample_df["absolute_numbers"] = sample_df["absolute_numbers"] * sample_library_size
     sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
     sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
     mode = "kde"
@@ -496,6 +509,17 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
 
 
 def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
+    """
+    Draws the library sizes for each sample according to the specified distribution.
+
+    Parameters:
+        library_size (int): The base library size.
+        library_size_distribution (LibrarySizeDistribution): The distribution of the library sizes.
+        number_of_samples (int): The number of samples, this is how many library sizes will be drawn.
+
+    Returns:
+        list: The library sizes for each sample.
+    """
     match library_size_distribution:
         case LibrarySizeDistribution.poisson:
             sample_library_sizes = random.poisson(library_size, number_of_samples)
@@ -507,6 +531,19 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
 
 
 def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads):
+    """"
+    Calls the create_fastq_file function for each sample in the gene_summary_df.
+
+    Parameters:
+        gene_summary_df (pandas.DataFrame): A dataframe with the necessary information to create the fastq files.
+        outdir (str): The output directory for the fastq files.
+        compression (bool): Whether the fastq files should be gzipped.
+        model (ErrorModel): The error model for the reads (Illumina).
+        seed (int): The seed for the simulation. Can be None.
+        sample_library_sizes (list): The library sizes for each sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+        """
     for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
@@ -525,12 +562,18 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes):
     Returns:
         numpy.ndarray: The differentialy expressed factors
     """
+    if number_of_selected_genes == 0:
+        return np.array([])
+
+    if not (0 < dge_ratio < 0.5):
+        raise ValueError("dge_ratio must be between 0 and 0.5 (exclusive)")
+
     z_score = stats.norm.ppf(1 - dge_ratio)
     sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
 
     with pm.Model() as _:
         _ = pm.Normal("dge_ratios", mu=0, sigma=sigma)
-        prior_predictive = pm.sample_prior_predictive(samples=number_of_selected_genes)
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_selected_genes)
 
     simulated_ratios = prior_predictive.prior['dge_ratios'].values[0]
     simulated_ratios = np.exp2(simulated_ratios)
