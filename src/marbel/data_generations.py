@@ -428,7 +428,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group):
         group = "group2"
         gene_summary_df = gene_summary_df.copy()
         gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
-    
+
     dispersion_df = pd.DataFrame({
         "gene_name": gene_summary_df["gene_name"],
         f"estimated_dispersion_{group}" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
@@ -443,7 +443,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group):
 
     simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
-    sample_columns = [f"sample_{i+1}_{group}" for i in range(number_of_samples)]
+    sample_columns = [f"sample_{i + 1}_{group}" for i in range(number_of_samples)]
     simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
     simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
 
