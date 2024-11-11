@@ -3,14 +3,18 @@ import pandas as pd
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import FloatVector, IntVector
+from scipy import stats
 from Bio import SeqIO, bgzf
 from pathlib import Path
 import os
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
+import argparse
+from iss.app import generate_reads as gen_reads
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DEFAULT_PHRED_QUALITY
+from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
+from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, ErrorModel, LibrarySizeDistribution
 
 
 def draw_random_species(number_of_species):
@@ -23,6 +27,8 @@ def draw_random_species(number_of_species):
     Returns:
     list: A list of randomly drawn species from the list of available species.
     """
+    if number_of_species < 1 or number_of_species > len(AVAILABLE_SPECIES):
+        raise ValueError(f"Number of species must be between 1 and {AVAILABLE_SPECIES}.")
     return random.sample(AVAILABLE_SPECIES, number_of_species)
 
 
@@ -40,11 +46,13 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     Returns:
         numpy.ndarray: A numpy array containing the group size for each orthogroup.
     """
+    if number_of_orthogous_groups < 1:
+        raise ValueError("Number of orthogroups must be greater than 0.")
     with model:
         orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
     orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
     scaled_orthogroups = orthogroups * (max_species_per_group / np.max(orthogroups))
-    scaled_orthogroups = np.ceil(scaled_orthogroups)
+    scaled_orthogroups = np.minimum(np.ceil(scaled_orthogroups), max_species_per_group)
     return scaled_orthogroups
 
 
@@ -62,6 +70,8 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     """
     if max_phylo_distance is not None:
         filtered_slice = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
+    else:
+        filtered_slice = pg_overview
     if min_identity is not None:
         filtered_slice = filtered_slice[filtered_slice["medium_identity"] >= min_identity]
     if max_phylo_distance is None and min_identity is None:
@@ -69,7 +79,7 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     return filtered_slice
 
 
-#  randomization based on rates calculated from the pdf
+# randomization based on rates calculated from the pdf
 def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
     """
     Draws orthologous groups based on their rates. Given a dataframe slice of orthologous groups,
@@ -338,8 +348,8 @@ def write_as_fastq(fa_path, fq_path):
             SeqIO.write(record, fastq, "fastq")
 
 
-def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample,
-                         outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, result_file):
+def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
+                         min_identity, deg_ratio, seed, output_format, read_length, library_size, library_distribution, library_sizes, result_file):
     """
     Writes the simulation parameters to the result_file.
 
@@ -352,7 +362,7 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
         min_identity (float): The minimum sequence identity.
         deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
         seed (int): The seed for the simulation.
-        output_format (str): The output format.
+        compressed (bool): Compression of files.
         read_length (int): The read length.
         result_file (file): The file to write the summary to.
     """
@@ -364,14 +374,18 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
     result_file.write(f"Min identity: {min_identity}\n")
     result_file.write(f"Up and down regulated genes: {deg_ratio}\n")
     result_file.write(f"Seed: {seed}\n")
-    result_file.write(f"Output format: {output_format}\n")
+    result_file.write(f"File compression: {output_format}\n")
     result_file.write(f"Read length: {read_length}\n")
+    result_file.write(f"Library size: {library_size}\n")
+    result_file.write(f"Library size distribution: {library_distribution}\n")
+    result_file.write(f"Library sizes for samples: {library_sizes}\n")
 
 
 def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, output_format, gene_summary, read_length):
+                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, compressed, gene_summary, read_length, library_size, library_distribution,
+                    library_sizes):
     """
-    Generates a report of the simulation results.
+    Generates a report of the simulation parameters.
 
     Parameters:
         number_of_orthogous_groups (int): The number of orthologous groups.
@@ -382,16 +396,186 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         min_identity (float): The minimum sequence identity.
         deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
         seed (int): The seed for the simulation.
-        output_format (str): The output format.
+        compressed (bool): Generate compressed output.
         gene_summary (pandas.DataFrame): The summary of genes.
         read_length (int): The read length.
     """
     summary_dir = f"{outdir}/summary"
     with open(f"{summary_dir}/marbel_params.txt", "w") as f:
         summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                             max_phylo_distance, min_identity, deg_ratio, seed, output_format, read_length, f)
+                             max_phylo_distance, min_identity, deg_ratio, seed, compressed, read_length, library_size, library_distribution, library_sizes, f)
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())
+
+
+def create_sample_values(gene_summary_df, number_of_samples, first_group):
+    """
+    Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
+
+    Parameters:
+        gene_summarary_df (pandas.DataFrame): The summary of genes.
+        number_of_samples (int): The number of samples.
+
+    Returns:
+        pandas.DataFrame: The summary df including the count matrix for the samples.
+    """
+    if first_group:
+        group = "group1"
+    else:
+        group = "group2"
+        gene_summary_df = gene_summary_df.copy()
+        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
+
+    dispersion_df = pd.DataFrame({
+        "gene_name": gene_summary_df["gene_name"],
+        f"estimated_dispersion_{group}" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
+    })
+
+    means = list(gene_summary_df["read_mean_count"])
+    dispersions = 1 / dispersion_df[f"estimated_dispersion_{group}"].values
+
+    with pm.Model() as _:
+        _ = pm.NegativeBinomial(f"{group}_counts", mu=means, alpha=dispersions, shape=len(means))
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_samples)
+
+    simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
+
+    sample_columns = [f"sample_{i + 1}_{group}" for i in range(number_of_samples)]
+    simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
+    simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
+
+    sample_disp_df = pd.merge(simulated_data_matrix, dispersion_df, on="gene_name")
+    return sample_disp_df
+
+
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length, threads):
+    """
+    Creates a fastq file for the sample using the InSilicoSeq (iss) package.
+
+    Parameters:
+        sample_df (pandas.DataFrame): The dataframe with the gene names and according absolute counts.
+        sample_name (str): The name of the sample.
+        output_dir (str): The output directory for the fastq files.
+        gzip (bool): Whether the fastq files should be gzipped.
+        model (ErrorModel): The error model for the reads (Illumina).
+        seed (int): The seed for the simulation. Can be None.
+        sample_library_size (int): The library size for the sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+    """
+    sample_df["absolute_numbers"] = sample_df["absolute_numbers"] * sample_library_size
+    sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
+    sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    mode = "kde"
+    if model == ErrorModel.basic or model == ErrorModel.perfect:
+        mode = model
+        model = None
+    elif read_length:
+        print("Warning: Read length is ignored if model is 'basic' or 'perfect'.")
+        # TODO write the read length of the selected model
+
+    args = argparse.Namespace(
+        mode=mode,
+        seed=seed,
+        model=model,
+        fragment_length=None,     # 300
+        fragment_length_sd=None,  # 20
+        read_length=read_length,
+        store_mutations=True,
+        genomes=[f"{output_dir}/summary/metatranscriptome_reference.fasta"],
+        draft=None,
+        ncbi=False,
+        n_genomes_ncbi=0,
+        output=f"{output_dir}/{sample_name}",
+        n_genomes=None,
+        readcount_file=None,
+        abundance_file=f"{sample_name}.tsv",
+        coverage_file=None,
+        coverage=None,
+        abundance=None,
+        n_reads=str(sample_library_size),
+        cpus=threads,
+        sequence_type="metagenomics",
+        gc_bias=False,
+        compress=gzip,
+        debug=True,
+        quiet=False
+    )
+    gen_reads(args)
+    os.remove(f"{sample_name}.tsv")
+
+
+def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
+    """
+    Draws the library sizes for each sample according to the specified distribution.
+
+    Parameters:
+        library_size (int): The base library size.
+        library_size_distribution (LibrarySizeDistribution): The distribution of the library sizes.
+        number_of_samples (int): The number of samples, this is how many library sizes will be drawn.
+
+    Returns:
+        list: The library sizes for each sample.
+    """
+    match library_size_distribution:
+        case LibrarySizeDistribution.poisson:
+            sample_library_sizes = random.poisson(library_size, number_of_samples)
+        case LibrarySizeDistribution.uniform:
+            sample_library_sizes = [library_size] * number_of_samples
+        case LibrarySizeDistribution.negative_binomial:
+            sample_library_sizes = np.random.negative_binomial(library_size, 1 / library_size, number_of_samples)
+    return sample_library_sizes
+
+
+def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads):
+    """"
+    Calls the create_fastq_file function for each sample in the gene_summary_df.
+
+    Parameters:
+        gene_summary_df (pandas.DataFrame): A dataframe with the necessary information to create the fastq files.
+        outdir (str): The output directory for the fastq files.
+        compression (bool): Whether the fastq files should be gzipped.
+        model (ErrorModel): The error model for the reads (Illumina).
+        seed (int): The seed for the simulation. Can be None.
+        sample_library_sizes (list): The library sizes for each sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+        """
+    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
+        sample_copy = gene_summary_df[["gene_name", sample]].copy()
+        sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
+        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, sample_library_size, read_length, threads)
+
+
+def draw_dge_factors(dge_ratio, number_of_selected_genes):
+    """"
+    Draws the log2 DGE factors from a normal distribution adjusted to the specified ratio of up and downregulated genes.
+    We use the normal and log2 because it is easier to calculate and then transform with exp2 to get the actual fold changes
+
+    Parameters:
+        dge_ratio (float): The ratio of up and downregulated genes
+        number_of_selected_genes (int): The number of selected genes
+
+    Returns:
+        numpy.ndarray: The differentialy expressed factors
+    """
+    if number_of_selected_genes == 0:
+        return np.array([])
+
+    if not (0 < dge_ratio < 0.5):
+        raise ValueError("dge_ratio must be between 0 and 0.5 (exclusive)")
+
+    z_score = stats.norm.ppf(1 - dge_ratio)
+    sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
+
+    with pm.Model() as _:
+        _ = pm.Normal("dge_ratios", mu=0, sigma=sigma)
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_selected_genes)
+
+    simulated_ratios = prior_predictive.prior['dge_ratios'].values[0]
+    simulated_ratios = np.exp2(simulated_ratios)
+
+    return simulated_ratios
