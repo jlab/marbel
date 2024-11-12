@@ -9,7 +9,7 @@ import pandas as pd
 import uuid
 import re
 
-from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
 from marbel.data_generations import draw_dge_factors
@@ -36,6 +36,12 @@ def orthogroups_callback(value: Optional[int]):
         raise typer.BadParameter(f"The current maximum number of orthologous groups is {MAX_ORTHO_GROUPS}")
     if value < 1:
         raise typer.BadParameter("The number of orthologous groups is 1")
+    return value
+
+
+def checknegative(value: float):
+    if value < 0:
+        raise typer.BadParameter("Deseq2 dispersion values cannot be negative.")
     return value
 
 
@@ -94,6 +100,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[LibrarySizeDistribution, typer.Option(help="Distribution for the library size.")] = LibrarySizeDistribution.uniform,
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
+         deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
+         deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     number_of_orthogous_groups = n_orthogroups
@@ -126,12 +134,12 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
     gene_summary_df["fold_change_ratio"] = dge_factors
     if dge_ratio == 0:
-        sample_group = create_sample_values(gene_summary_df, number_of_sample[0], True)
+        sample_group = create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
         gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
     else:
-        sample_group_1 = create_sample_values(gene_summary_df, number_of_sample[0], True)
+        sample_group_1 = create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
-        sample_group_2 = create_sample_values(gene_summary_df, number_of_sample[1], False)
+        sample_group_2 = create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
 
     # TODO: make a list what lenghts there are for the differing error models

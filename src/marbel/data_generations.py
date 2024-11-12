@@ -14,7 +14,7 @@ import argparse
 from iss.app import generate_reads as gen_reads
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, ErrorModel, LibrarySizeDistribution
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution
 
 
 def draw_random_species(number_of_species):
@@ -411,7 +411,7 @@ def generate_report(number_of_orthogous_groups, number_of_species, number_of_sam
         f.write(species_subtree.write())
 
 
-def create_sample_values(gene_summary_df, number_of_samples, first_group):
+def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
     """
     Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
 
@@ -431,7 +431,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group):
 
     dispersion_df = pd.DataFrame({
         "gene_name": gene_summary_df["gene_name"],
-        f"estimated_dispersion_{group}" : [(DESEQ2_FITTED_A0 / mu) + DESEQ2_FITTED_A1 for mu in list(gene_summary_df["read_mean_count"])]
+        f"estimated_dispersion_{group}" : [(a0 / mu) + a1 for mu in list(gene_summary_df["read_mean_count"])]
     })
 
     means = list(gene_summary_df["read_mean_count"])
@@ -474,7 +474,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         mode = model
         model = None
     elif read_length:
-        print("Warning: Read length is ignored if model is 'basic' or 'perfect'.")
+        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
         # TODO write the read length of the selected model
 
     args = argparse.Namespace(
