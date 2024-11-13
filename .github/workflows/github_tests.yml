@@ -44,6 +44,9 @@ jobs:
 #        path-to-lcov: "coverage.lcov"
   tests-functional:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
 
     steps:
     - name: Checkout Repo
@@ -63,11 +66,13 @@ jobs:
     - name: Simulate reads
       run: |
         marbel --n-species 3 --n-orthogroups 10 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
-    - name: Create conda env for tests
-      run: |
-        conda create -n marbel-tests scikit-bio
     - name: Execute functional tests
+      uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: anaconda-client-env
+          environment-file: tests/env_functional.yml
+          auto-activate-base: true
       run: |
-        conda activate marbel-tests || true
+        conda info
         echo $CONDA_PREFIX
         python tests/tests_functional.py run_spec10_orth200_samp5-10/
