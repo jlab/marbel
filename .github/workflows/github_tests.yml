@@ -62,4 +62,7 @@ jobs:
         pip install -e .
     - name: Simulate reads
       run: |
-        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --outdir run_spec10_orth200_samp5-10/
+        marbel --n-species 3 --n-orthogroups 10 --n-samples 2 4 --outdir run_spec10_orth200_samp5-10/
+    - name: Execute functional tests
+      run: |
+        python tests/tests_functional.py run_spec10_orth200_samp5-10/
