@@ -56,13 +56,17 @@ jobs:
       uses: actions/setup-python@v2
     - name: Create conda env
       run: |
-        conda create -n marbel python=3.10 r-base scikit-bio
+        conda create -n marbel python=3.10 r-base
     - name: Install the package
       run: |
         pip install -e .
     - name: Simulate reads
       run: |
         marbel --n-species 3 --n-orthogroups 10 --n-samples 2 4 --outdir run_spec10_orth200_samp5-10/
+    - name: Create conda env for tests
+      run: |
+        conda create -n marbel-tests scikit-bio
     - name: Execute functional tests
       run: |
+        echo $CONDA_PREFIX
         python tests/tests_functional.py run_spec10_orth200_samp5-10/
