@@ -84,6 +84,7 @@ jobs:
         conda info
         conda env list
         conda init
+        eval "$(conda shell.bash hook)"
         conda activate marbel-tests
         echo $CONDA_PREFIX
         python tests/run_functional.py run_spec10_orth200_samp5-10/
