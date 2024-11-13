@@ -451,7 +451,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sample_library_size, read_length, threads):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, read_length, threads):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -462,13 +462,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         gzip (bool): Whether the fastq files should be gzipped.
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
-        sample_library_size (int): The library size for the sample.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
     """
-    sample_df["absolute_numbers"] = sample_df["absolute_numbers"] * sample_library_size
-    sample_df["gene_abundance"] = sample_df["absolute_numbers"] / sample_df["absolute_numbers"].sum()
-    sample_df[["gene_name", "gene_abundance"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    sample_df[["gene_name", "absolute_numbers"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
@@ -491,12 +488,12 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, sam
         n_genomes_ncbi=0,
         output=f"{output_dir}/{sample_name}",
         n_genomes=None,
-        readcount_file=None,
-        abundance_file=f"{sample_name}.tsv",
+        readcount_file=f"{sample_name}.tsv",
+        abundance_file=None,
         coverage_file=None,
         coverage=None,
         abundance=None,
-        n_reads=str(sample_library_size),
+        n_reads=None,
         cpus=threads,
         sequence_type="metagenomics",
         gc_bias=False,
@@ -544,10 +541,13 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, samp
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
         """
+    gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
     for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
+        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
+        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
-        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, sample_library_size, read_length, threads)
+        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
 
 
 def draw_dge_factors(dge_ratio, number_of_selected_genes):
