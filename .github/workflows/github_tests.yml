@@ -59,7 +59,6 @@ jobs:
         conda create -n marbel python=3.10 r-base
     - name: Install the package
       run: |
-        cd marbel
         pip install -e .
     - name: Simulate reads
       run: |
