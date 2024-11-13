@@ -80,4 +80,4 @@ jobs:
         conda info
         conda activate marbel-tests
         echo $CONDA_PREFIX
-        python tests/tests_functional.py run_spec10_orth200_samp5-10/
+        python tests/run_functional.py run_spec10_orth200_samp5-10/
