@@ -77,7 +77,7 @@ jobs:
     #     pwd
     - name: Create conda test-env
       run: |
-        conda create -n marbel-test scikit-bio
+        conda create -n marbel-tests scikit-bio
 
     - name: Execute functional tests
       run: |
