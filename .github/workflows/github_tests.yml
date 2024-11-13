@@ -65,16 +65,7 @@ jobs:
         pip install -e .
     - name: Simulate reads
       run: |
-        marbel --n-species 3 --n-orthogroups 10 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
-    # - name: Create conda env for testing, i.e. install skbio and pandas
-    #   uses: conda-incubator/setup-miniconda@v3
-    #   with:
-    #     activate-environment: anaconda-client-env
-    #     environment-file: tests/env_functional.yaml
-    #     auto-activate-base: true
-    # - name: debug
-    #   run: |
-    #     pwd
+        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --outdir run_spec10_orth200_samp5-10/
     - name: Create conda test-env
       run: |
         conda create -n marbel-tests scikit-bio
