@@ -70,7 +70,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: anaconda-client-env
-        environment-file: tests/env_functional.yml
+        environment-file: tests/env_functional.yaml
         auto-activate-base: true
     - name: debug
       run: |
