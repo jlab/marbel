@@ -3,6 +3,34 @@ import sys
 import pandas as pd
 from os.path import join, basename
 import skbio
+import gzip
+
+
+def read_fastqGZ(fp_fastq):
+    def _push(sequences, header, sequence, qualities):
+        sequences.append({'header': header,
+                          'sequence': sequence,
+                          'qualities': qualities})
+    OFFSET = 33
+    sequences = []
+    with gzip.open(fp_fastq, 'rb') as f:
+        header = None
+        sequence = ""
+        qualities = []
+        for i, l in enumerate(f.readlines()):
+            line = l.decode("utf-8")
+            if (i % 4 == 0) and (line.startswith('@')):
+                if header is not None:
+                    _push(sequences, header, sequence, qualities)
+                header = line[1:].strip()
+            elif (i % 4 == 1):
+                sequence = line.strip()
+            elif (i % 4 == 3):
+                qualities = pd.Series(
+                    map(lambda x: ord(x) - OFFSET, line.strip()))
+        if header is not None:
+            _push(sequences, header, sequence, qualities)
+    return sequences
 
 
 def read_parameters(fp_basedir):

@@ -31,7 +31,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-          $CONDA/bin/pytest tests --doctest-modules --cov=src/marbel --cov-report=xml
+          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml
 
     - name: Convert coverage to lcov format
       run: |
@@ -81,10 +81,7 @@ jobs:
 
     - name: Execute functional tests
       run: |
-        conda info
-        conda env list
         conda init
         eval "$(conda shell.bash hook)"
         conda activate marbel-tests
-        echo $CONDA_PREFIX
-        python tests/run_functional.py run_spec10_orth200_samp5-10/
+        python tests/test_functional.py run_spec10_orth200_samp5-10/
