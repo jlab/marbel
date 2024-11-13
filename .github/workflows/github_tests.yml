@@ -42,3 +42,25 @@ jobs:
 #      with:
 #        github-token: ${{ secrets.GITHUB_TOKEN }}
 #        path-to-lcov: "coverage.lcov"
+  tests-stefan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+      with:
+          lfs: true
+    - name: Checkout LFS objects
+      run: git lfs checkout
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Create conda env
+      run: |
+        conda create -n marbel python=3.10 r-base
+    - name: Install the package
+      run: |
+        cd marbel
+        pip install -e .
+    - name: Simulate reads
+      run: |
+        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --outdir run_spec10_orth200_samp5-10/
