@@ -89,6 +89,9 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: simulated data
+    - name: debug
+      run: |
+        ls -latr
     - name: Execute functional tests
       run: |
         conda init
