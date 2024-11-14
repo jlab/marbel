@@ -62,7 +62,7 @@ jobs:
         pip install -e .
     - name: Simulate reads
       run: |
-        marbel --n-species 10 --n-orthogroups 20 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
+        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --outdir run_spec10_orth200_samp5-10/
     - name: Archive simulation results
       uses: actions/upload-artifact@v4
       with:
@@ -90,9 +90,6 @@ jobs:
       with:
         name: simulated data
         path: run_spec10_orth200_samp5-10/
-    - name: debug
-      run: |
-        ls -latr
     - name: Execute functional tests
       run: |
         conda init
