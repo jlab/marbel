@@ -42,11 +42,8 @@ jobs:
 #      with:
 #        github-token: ${{ secrets.GITHUB_TOKEN }}
 #        path-to-lcov: "coverage.lcov"
-  tests-functional:
+  simulate-data:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
 
     steps:
     - name: Checkout Repo
@@ -65,7 +62,15 @@ jobs:
         pip install -e .
     - name: Simulate reads
       run: |
-        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --outdir run_spec10_orth200_samp5-10/
+        marbel --n-species 10 --n-orthogroups 20 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
+
+  tests-functional:
+    needs: simulate-data
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
     - name: Create conda test-env
       run: |
         conda create -n marbel-tests scikit-bio
