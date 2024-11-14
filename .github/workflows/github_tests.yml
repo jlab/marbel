@@ -64,10 +64,10 @@ jobs:
       run: |
         marbel --n-species 10 --n-orthogroups 20 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
     - name: Archive simulation results
-        uses: actions/upload-artifact@v4
-        with:
-          name: simulated data
-          path: run_spec10_orth200_samp5-10
+      uses: actions/upload-artifact@v4
+      with:
+        name: simulated data
+        path: run_spec10_orth200_samp5-10
 
 
   tests-functional:
