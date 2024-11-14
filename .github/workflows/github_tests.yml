@@ -71,6 +71,7 @@ jobs:
       run:
         shell: bash -l {0}
 
+    steps:
     - name: Create conda test-env
       run: |
         conda create -n marbel-tests scikit-bio
