@@ -63,6 +63,12 @@ jobs:
     - name: Simulate reads
       run: |
         marbel --n-species 10 --n-orthogroups 20 --n-samples 2 4 --library-size 5000 --outdir run_spec10_orth200_samp5-10/
+    - name: Archive simulation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulated data
+          path: run_spec10_orth200_samp5-10
+
 
   tests-functional:
     needs: simulate-data
@@ -72,10 +78,17 @@ jobs:
         shell: bash -l {0}
 
     steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+      with:
+          lfs: true
     - name: Create conda test-env
       run: |
         conda create -n marbel-tests scikit-bio
-
+    - name: Download simulated data
+      uses: actions/download-artifact@v4
+      with:
+        name: simulated data
     - name: Execute functional tests
       run: |
         conda init
