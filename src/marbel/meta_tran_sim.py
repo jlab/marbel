@@ -76,6 +76,7 @@ def bar_next(bar):
     bar.next()
     print()
 
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help="Number of species to be drawn for the metatranscriptomic in silico dataset")] = 20,
