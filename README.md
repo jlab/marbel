@@ -46,7 +46,6 @@ git lfs install
 
 If you already cloned the repo, remove it, install git-lfs and clone again.
 
-
 #### Instal g++ (Optional, for performance)
 
 ```
@@ -173,15 +172,15 @@ marbel
 ### Specifying Number of Species, Orthogroups, and Samples
 
 ```sh
-marbel --n-species 30 --n-orthogroups 1500 --n-samples 15 20
+marbel --n-species 10 --n-orthogroups 500 --n-samples 5 8
 ```
 
 This command will generate a dataset with:
 
-- 30 species
-- 1500 orthologous groups
-- 15 samples for group 1
-- 20 samples for group 2
+- 10 species
+- 500 orthologous groups
+- 5 samples for group 1
+- 8 samples for group 2
 
 ## Contributing
 

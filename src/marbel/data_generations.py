@@ -348,8 +348,8 @@ def write_as_fastq(fa_path, fq_path):
             SeqIO.write(record, fastq, "fastq")
 
 
-def summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
-                         min_identity, deg_ratio, seed, output_format, read_length, library_size, library_distribution, library_sizes, result_file):
+def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
+                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -360,50 +360,37 @@ def summarize_parameters(number_of_orthogous_groups, number_of_species, number_o
         outdir (str): The output directory.
         max_phylo_distance (float): The maximum phylogenetic distance.
         min_identity (float): The minimum sequence identity.
-        deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
+        deg_ratio (float): The ratio of up and down regulated genes.
         seed (int): The seed for the simulation.
         compressed (bool): Compression of files.
         read_length (int): The read length.
         result_file (file): The file to write the summary to.
     """
-    result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
-    result_file.write(f"Number of species: {number_of_species}\n")
-    result_file.write(f"Number of samples: {number_of_sample}\n")
-    result_file.write(f"Output directory: {outdir}\n")
-    result_file.write(f"Max phylogenetic distance: {max_phylo_distance}\n")
-    result_file.write(f"Min identity: {min_identity}\n")
-    result_file.write(f"Up and down regulated genes: {deg_ratio}\n")
-    result_file.write(f"Seed: {seed}\n")
-    result_file.write(f"File compression: {output_format}\n")
-    result_file.write(f"Read length: {read_length}\n")
-    result_file.write(f"Library size: {library_size}\n")
-    result_file.write(f"Library size distribution: {library_distribution}\n")
-    result_file.write(f"Library sizes for samples: {library_sizes}\n")
+    with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
+        result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
+        result_file.write(f"Number of species: {number_of_species}\n")
+        result_file.write(f"Number of samples: {number_of_sample}\n")
+        result_file.write(f"Output directory: {outdir}\n")
+        result_file.write(f"Max phylogenetic distance: {max_phylo_distance}\n")
+        result_file.write(f"Min identity: {min_identity}\n")
+        result_file.write(f"Ratio of up and down regulated genes: {deg_ratio}\n")
+        result_file.write(f"Seed: {seed}\n")
+        result_file.write(f"File compression: {output_format}\n")
+        result_file.write(f"Model used: {error_model}\n")
+        result_file.write(f"Read length: {read_length}\n")
+        result_file.write(f"Library size: {library_size}\n")
+        result_file.write(f"Library size distribution: {library_distribution}\n")
+        result_file.write(f"Library sizes for samples: {library_sizes}\n")
 
 
-def generate_report(number_of_orthogous_groups, number_of_species, number_of_sample,
-                    outdir, max_phylo_distance, min_identity, deg_ratio, seed, compressed, gene_summary, read_length, library_size, library_distribution,
-                    library_sizes):
+def generate_report(summary_dir, gene_summary):
     """
     Generates a report of the simulation parameters.
 
     Parameters:
-        number_of_orthogous_groups (int): The number of orthologous groups.
-        number_of_species (int): The number of species.
-        number_of_sample (tuple): The number of samples (group 1, group 2).
-        outdir (str): The output directory.
-        max_phylo_distance (float): The maximum phylogenetic distance.
-        min_identity (float): The minimum sequence identity.
-        deg_ratio (tuple): The ratio of up and down regulated genes (up, down).
-        seed (int): The seed for the simulation.
-        compressed (bool): Generate compressed output.
+        summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
-        read_length (int): The read length.
     """
-    summary_dir = f"{outdir}/summary"
-    with open(f"{summary_dir}/marbel_params.txt", "w") as f:
-        summarize_parameters(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                             max_phylo_distance, min_identity, deg_ratio, seed, compressed, read_length, library_size, library_distribution, library_sizes, f)
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()

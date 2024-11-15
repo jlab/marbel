@@ -12,7 +12,7 @@ import re
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
-from marbel.data_generations import draw_dge_factors
+from marbel.data_generations import draw_dge_factors, write_parameter_summary
 
 app = typer.Typer()
 
@@ -52,10 +52,10 @@ def sample_callback(value: Optional[Tuple[int, int]]):
 
 
 def dge_ratio_callback(value: float):
-    if value < 0 or value > 1:
+    if value < 0:
         raise typer.BadParameter("Ratio cannot be negative")
-    if value > 1:
-        raise typer.BadParameter("DGE ratio must be smaller than 0.5")
+    if value >= 1:
+        raise typer.BadParameter("DGE ratio must be smaller than 1")
     return value
 
 
@@ -89,10 +89,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                           + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
                                                           + "Specify for more ")] = None,
-         dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback,
-                                                  help="Ratio of up and down regulated genes."
-                                                  + "The first value is the ratio of up regulated genes, the second represents the ratio of"
-                                                  + "down regulated genes")] = 0.1,
+         dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1")] = 0.1,
          seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
          error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length")] = ErrorModel.HiSeq,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
@@ -107,7 +104,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     number_of_orthogous_groups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
-
+    dge_ratio = dge_ratio / 2
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
 
@@ -146,6 +143,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
     gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: re.sub(r'##.*?##', '', x))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads)
+    write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
+                            max_phylo_distance, min_identity, dge_ratio, seed, compressed, read_length, library_size, library_size_distribution, sample_library_sizes, summary_dir)
+
     generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
                     max_phylo_distance, min_identity, dge_ratio, seed, compressed, gene_summary_df, read_length, library_size, library_size_distribution,
                     sample_library_sizes)
