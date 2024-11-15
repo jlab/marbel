@@ -165,8 +165,8 @@ def generate_read_mean_counts(number_of_reads, seed=None):
     list: A list of read mean counts.
     """
     with model:
-        reads = pm.sample_prior_predictive(number_of_reads, var_names=['reads'], random_seed=seed)
-    return reads.to_dataframe()["reads"].to_list()
+        reads = pm.sample_prior_predictive(number_of_reads, var_names=['read_counts'], random_seed=seed)
+    return reads.to_dataframe()["read_counts"].to_list()
 
 
 def generate_fold_changes(number_of_transcripts, dge_ratio):
@@ -514,7 +514,7 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     return sample_library_sizes
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads):
+def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads, bar):
     """"
     Calls the create_fastq_file function for each sample in the gene_summary_df.
 
@@ -535,6 +535,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, samp
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
+        bar.next()
 
 
 def draw_dge_factors(dge_ratio, number_of_selected_genes):

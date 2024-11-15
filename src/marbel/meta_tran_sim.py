@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import uuid
 import re
+from progress.bar import Bar
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
@@ -71,6 +72,10 @@ def rank_species_callback(value: Optional[str]):
             raise typer.BadParameter(f"Rank {value} is not a valid rank or a valid float. Choose from {list(rank_distance.keys())} or specify a float.")
 
 
+def bar_next(bar):
+    bar.next()
+    print()
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help="Number of species to be drawn for the metatranscriptomic in silico dataset")] = 20,
@@ -101,6 +106,10 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
+    bar = Bar('Generating random numbers for dataset', max=5)
+
+    bar.start()
+    print()
     number_of_orthogous_groups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
@@ -120,9 +129,13 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
     if selected_ortho_groups is None:
         selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogous_groups, species)
+    bar_next(bar)
     species_abundances = generate_species_abundance(number_of_species, seed)
+    bar_next(bar)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
     read_mean_counts = generate_read_mean_counts(number_of_selected_genes, seed)
+    bar_next(bar)
+
     gene_summary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summary_df["gene_name"].to_list()
     gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: f"{x}##{uuid.uuid4()}##")  # add uuid to gene names, the problem is some gene names are shared between orthogroups
@@ -132,6 +145,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
     filter_genes_from_ground(all_species_genes, tmp_fasta_name)
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
+    bar_next(bar)
     gene_summary_df["fold_change_ratio"] = dge_factors
     if dge_ratio == 0:
         sample_group = create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
@@ -141,17 +155,18 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
         sample_group_2 = create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
+    bar.next()
 
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
     gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: re.sub(r'##.*?##', '', x))
-    create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads)
+    bar.finish()
+    bar = Bar('Creating fastq files', max=sum(number_of_sample))
+    create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
     write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                            max_phylo_distance, min_identity, dge_ratio, seed, compressed, read_length, library_size, library_size_distribution, sample_library_sizes, summary_dir)
+                            max_phylo_distance, min_identity, dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, summary_dir)
 
-    generate_report(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
-                    max_phylo_distance, min_identity, dge_ratio, seed, compressed, gene_summary_df, read_length, library_size, library_size_distribution,
-                    sample_library_sizes)
+    generate_report(summary_dir, gene_summary_df)
 
 
 if __name__ == "__main__":
