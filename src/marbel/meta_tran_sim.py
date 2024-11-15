@@ -108,9 +108,12 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
 
-    if seed:
-        random.seed(seed)
-        np.random.seed(seed)
+    if not seed:
+        seed = random.randint(0, 2**32 - 1)
+
+    random.seed(seed)
+    np.random.seed(seed)
+
     species = draw_random_species(number_of_species)
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogous_groups, number_of_species)
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
