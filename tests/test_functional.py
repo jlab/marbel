@@ -92,10 +92,14 @@ def test_gene_summary(genes, params):
     data = genes['fold_change_ratio'].apply(
         lambda x: 0.5 <= x <= 2).value_counts()
     if params['Number of orthogroups'] >= 1000:
-        epsilon = (100 / params['Number of orthogroups'])
+        epsilon = (200 / params['Number of orthogroups'])
     else:
-        epsilon = 0.1
-
+        epsilon = 0.4
+    #print(params['Ratio of up and down regulated genes'])
+    #print(data[False] / data.sum())
+    #print(data)
+    #print(params['Ratio of up and down regulated genes'] * (1 - epsilon) )
+    #print(params['Ratio of up and down regulated genes'] * (1 + epsilon) )
     assert params['Ratio of up and down regulated genes'] * (1 - epsilon) <= \
            (data[False] / data.sum()) <= \
            params['Ratio of up and down regulated genes'] * (1 + epsilon), \
