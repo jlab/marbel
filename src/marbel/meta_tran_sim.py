@@ -114,7 +114,6 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     number_of_orthogous_groups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
-    dge_ratio = dge_ratio / 2
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
 

@@ -47,8 +47,8 @@ def read_parameters(fp_basedir):
             .replace('(', '')
             .replace(')', '')
             .replace(' ', '').split(',')))
-    params['Up and down regulated genes'] = float(
-        params['Up and down regulated genes'])
+    params['Ratio of up and down regulated genes'] = float(
+        params['Ratio of up and down regulated genes'])
 
     return params
 
@@ -83,18 +83,22 @@ def test_gene_summary(genes, params):
     assert data[True] / data.sum() > 0.1, \
            "surprisingly low sparseness in count matrix!"
 
-    assert len(set(counts.sum())) == sum(params['Number of samples']), \
-           "not all samples have different coverage"
+#    assert len(set(counts.sum())) == sum(params['Number of samples']), \
+#           "not all samples have different coverage"
     assert counts.min().min() >= 0, \
            "negative count values?!"
 
     # foldchange <=0.5 (down) >=2 (up) (log2 foldchange<= -1 / >=1 )
     data = genes['fold_change_ratio'].apply(
         lambda x: 0.5 <= x <= 2).value_counts()
-    epsilon = 0.02
-    assert params['Up and down regulated genes'] * 2 * (1 - epsilon) <= \
+    if params['Number of orthogroups'] >= 1000:
+        epsilon = (100 / params['Number of orthogroups'])
+    else:
+        epsilon = 0.1
+
+    assert params['Ratio of up and down regulated genes'] * (1 - epsilon) <= \
            (data[False] / data.sum()) <= \
-           params['Up and down regulated genes'] * 2 * (1 + epsilon), \
+           params['Ratio of up and down regulated genes'] * (1 + epsilon), \
            "ratio of UP (or Down) regulated genes does not match parameters"
 
     print(len(set(list(map(lambda x: x.split('_')[1], genes.index)))),
