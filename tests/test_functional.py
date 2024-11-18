@@ -95,11 +95,11 @@ def test_gene_summary(genes, params):
         epsilon = (200 / params['Number of orthogroups'])
     else:
         epsilon = 0.4
-    #print(params['Ratio of up and down regulated genes'])
-    #print(data[False] / data.sum())
-    #print(data)
-    #print(params['Ratio of up and down regulated genes'] * (1 - epsilon) )
-    #print(params['Ratio of up and down regulated genes'] * (1 + epsilon) )
+    # print(params['Ratio of up and down regulated genes'])
+    # print(data[False] / data.sum())
+    # print(data)
+    # print(params['Ratio of up and down regulated genes'] * (1 - epsilon) )
+    # print(params['Ratio of up and down regulated genes'] * (1 + epsilon) )
     assert params['Ratio of up and down regulated genes'] * (1 - epsilon) <= \
            (data[False] / data.sum()) <= \
            params['Ratio of up and down regulated genes'] * (1 + epsilon), \
@@ -132,10 +132,11 @@ def test_metaT_reference(fp_basedir, genes, params):
             for og, g in
             genes.groupby('orthogroup')
             if g.shape[0] > 1]) > 1).value_counts()
-    assert data[False] < data[True] * 0.1, \
-           "too few orthogroups with more than one member have identical" \
-           " length sequences"
-
+    print(data)
+    if False in data:
+        assert data[False] < data[True] * 0.1, \
+            "too few orthogroups with more than one member have identical" \
+            " length sequences"
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
