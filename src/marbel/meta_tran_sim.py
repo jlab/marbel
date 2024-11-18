@@ -76,6 +76,7 @@ def bar_next(bar):
     bar.next()
     print()
 
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help="Number of species to be drawn for the metatranscriptomic in silico dataset")] = 20,
@@ -94,7 +95,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                           + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
                                                           + "Specify for more ")] = None,
-         dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1")] = 0.1,
+         dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."
+                                                  "This is a random drawing process from normal distribution, so the actual ratio might vary.")] = 0.1,
          seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
          error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length")] = ErrorModel.HiSeq,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
@@ -113,7 +115,6 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     number_of_orthogous_groups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
-    dge_ratio = dge_ratio / 2
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
 

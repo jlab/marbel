@@ -1,0 +1,8 @@
+name: marbel-tests
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - scikit-bio
+  - pandas

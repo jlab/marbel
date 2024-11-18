@@ -31,7 +31,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-          $CONDA/bin/pytest tests --doctest-modules --cov=src/marbel --cov-report=xml
+          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml
 
     - name: Convert coverage to lcov format
       run: |
@@ -42,3 +42,57 @@ jobs:
 #      with:
 #        github-token: ${{ secrets.GITHUB_TOKEN }}
 #        path-to-lcov: "coverage.lcov"
+  simulate-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+      with:
+          lfs: true
+    - name: Checkout LFS objects
+      run: git lfs checkout
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Create conda env
+      run: |
+        conda create -n marbel python=3.10 r-base
+    - name: Install the package
+      run: |
+        pip install -e .
+    - name: Simulate reads
+      run: |
+        marbel --n-species 10 --n-orthogroups 200 --n-samples 5 10 --library-size 10000 --outdir run_spec10_orth200_samp5-10/
+    - name: Archive simulation results
+      uses: actions/upload-artifact@v4
+      with:
+        name: simulated data
+        path: run_spec10_orth200_samp5-10
+
+
+  tests-functional:
+    needs: simulate-data
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+      with:
+          lfs: true
+    - name: Create conda test-env
+      run: |
+        conda create -n marbel-tests scikit-bio
+    - name: Download simulated data
+      uses: actions/download-artifact@v4
+      with:
+        name: simulated data
+        path: run_spec10_orth200_samp5-10/
+    - name: Execute functional tests
+      run: |
+        conda init
+        eval "$(conda shell.bash hook)"
+        conda activate marbel-tests
+        python tests/test_functional.py run_spec10_orth200_samp5-10/

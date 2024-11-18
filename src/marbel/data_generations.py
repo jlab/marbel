@@ -550,6 +550,8 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes):
     Returns:
         numpy.ndarray: The differentialy expressed factors
     """
+    dge_ratio = dge_ratio / 2
+
     if number_of_selected_genes == 0:
         return np.array([])
 
