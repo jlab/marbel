@@ -133,7 +133,7 @@ def test_draw_dge_factors_output_shape(dge_ratio, num_genes):
     assert result.shape[0] == num_genes
 
 
-@pytest.mark.parametrize("dge_ratio", [-1, -0.01, 0.5, 0.75, 1.0])
+@pytest.mark.parametrize("dge_ratio", [-1, -0.01, 1.0, 1.5, 2.0])
 def test_draw_dge_factors_ratio_outdie_threshold_raises_value_error(dge_ratio):
     with pytest.raises(ValueError):
         draw_dge_factors(dge_ratio, 100)
