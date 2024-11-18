@@ -132,7 +132,6 @@ def test_metaT_reference(fp_basedir, genes, params):
             for og, g in
             genes.groupby('orthogroup')
             if g.shape[0] > 1]) > 1).value_counts()
-    print(data)
     if False in data:
         assert data[False] < data[True] * 0.1, \
             "too few orthogroups with more than one member have identical" \
