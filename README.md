@@ -8,16 +8,6 @@ This project generates an *in silico* metatranscriptomic dataset based on specif
 
 ### Install guide for development purposes
 
-#### Install git-lfs (absolutely necessary)
-
-Before cloning the repo you need to have git-lfs installed! If you do not have git-lfs and root rights install with
-
-```
-sudo apt-get install git-lfs
-```
-
-If you already cloned the repo, remove it, install git-lfs and clone again.
-
 #### Install miniconda (if not installed already)
 
 ```
@@ -33,6 +23,29 @@ conda create -n marbel python=3.10 r-base
 conda activate marbel
 ```
 
+#### Install git-lfs (absolutely necessary)
+
+Before cloning the repo you need to have git-lfs installed! If you do not have git-lfs and root rights install with
+
+```
+sudo apt-get install git-lfs
+```
+
+If you do not have root permission, install it in the Conda env:
+
+```
+conda install anaconda::git-lfs 
+```
+
+Now we need to initialize Git LFS:
+
+```
+git lfs install
+
+```
+
+If you already cloned the repo, remove it, install git-lfs and clone again.
+
 #### Instal g++ (Optional, for performance)
 
 ```
@@ -41,7 +54,9 @@ sudo apt-get install g++
 
 #### Clone repository
 
+```
 git clone https://github.com/jlab/marbel.git
+```
 
 #### Install the package:
 
@@ -157,15 +172,15 @@ marbel
 ### Specifying Number of Species, Orthogroups, and Samples
 
 ```sh
-marbel --n-species 30 --n-orthogroups 1500 --n-samples 15 20
+marbel --n-species 10 --n-orthogroups 500 --n-samples 5 8
 ```
 
 This command will generate a dataset with:
 
-- 30 species
-- 1500 orthologous groups
-- 15 samples for group 1
-- 20 samples for group 2
+- 10 species
+- 500 orthologous groups
+- 5 samples for group 1
+- 8 samples for group 2
 
 ## Contributing
 
