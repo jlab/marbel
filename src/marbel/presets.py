@@ -4,7 +4,7 @@ from importlib import resources
 from ete3 import Tree
 from enum import Enum
 
-__version__ = "0.1.1"
+__version__ = "0.1.3"
 
 
 CPMS_MEAN_LOG = 3.73411080985053
@@ -31,7 +31,7 @@ rank_distance = {
 
 
 MAX_SPECIES = 614
-MAX_ORTHO_GROUPS = 485687
+MAX_ORTHO_GROUPS = 365813
 
 data_package = str(resources.files(__package__) / 'data')
 

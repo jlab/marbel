@@ -14,7 +14,7 @@ import argparse
 from iss.app import generate_reads as gen_reads
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__
 
 
 def draw_random_species(number_of_species):
@@ -367,6 +367,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file (file): The file to write the summary to.
     """
     with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
+        result_file.write(f"Marbel version: {__version__}\n")
         result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
         result_file.write(f"Number of species: {number_of_species}\n")
         result_file.write(f"Number of samples: {number_of_sample}\n")
