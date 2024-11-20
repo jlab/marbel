@@ -453,7 +453,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
     """
-    sample_df[["gene_name", "absolute_numbers"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    read_count_file = f"{output_dir}/{sample_name}.tsv"
+    sample_df[["gene_name", "absolute_numbers"]].to_csv(read_count_file, sep="\t", index=False, header=False)
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
@@ -476,7 +477,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         n_genomes_ncbi=0,
         output=f"{output_dir}/{sample_name}",
         n_genomes=None,
-        readcount_file=f"{sample_name}.tsv",
+        readcount_file=read_count_file,
         abundance_file=None,
         coverage_file=None,
         coverage=None,
@@ -490,7 +491,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         quiet=False
     )
     gen_reads(args)
-    os.remove(f"{sample_name}.tsv")
+    if os.path.exists(read_count_file):
+        os.remove(read_count_file)
+    else:
+        print(f"Warning: Could not remove {read_count_file}.")
 
 
 def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
