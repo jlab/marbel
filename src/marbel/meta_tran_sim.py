@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from typing_extensions import Annotated
 
 import typer
@@ -60,6 +60,38 @@ def dge_ratio_callback(value: float):
     return value
 
 
+def library_size_distribution_callback(value):
+    value = value.split(",")
+    if value[0] not in LibrarySizeDistribution.possible_distributions:
+        raise typer.BadParameter(f"Library size distribution {value[0]} is not a valid distribution. Choose from {LibrarySizeDistribution.possible_distributions}")
+    if value[0] == "negative_binomial":
+        if len(value[1:]) > 2 or len(value[1:]) == 1:
+            raise typer.BadParameter("Negative binomial distribution requires two parameters")
+        if value[1:] == 2:
+            try:
+                value[1] = int(value[1])
+                value[2] = float(value[2])
+            except ValueError:
+                raise typer.BadParameter(f"Negative binomial distribution requires n to be an integer and p to be a float. Given: n: {value[1]} and p: {value[2]}")
+            if value[1] < 1:
+                raise typer.BadParameter(f"Negative binomial distribution requires n to be greater than 1. Given: {value[1]}")
+            if value[2] < 0 or value[2] > 1:
+                raise typer.BadParameter(f"Negative binomial distribution requires p to be between 0 and 1. Given: {value[2]}")
+            return LibrarySizeDistribution(value[0], nbin_n=value[1], nbin_p=value[2])
+        return LibrarySizeDistribution(value[0])
+    if value[0] == "poisson":
+        try:
+            value[1] = int(value[1])
+        except ValueError:
+            raise typer.BadParameter(f"Poisson distribution requires an integer parameter. Given: {value[1]}")
+        if len(value[1:]) > 1:
+            raise typer.BadParameter("Poisson distribution requires one parameter")
+        if len(value[1:]) == 1:
+            return LibrarySizeDistribution(value[0], poisson=value[1])
+        return LibrarySizeDistribution(value[0])
+    return LibrarySizeDistribution(value[0])
+
+
 def rank_species_callback(value: Optional[str]):
     if value is None:
         return None
@@ -102,7 +134,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
          read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = None,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
-         library_size_distribution: Annotated[LibrarySizeDistribution, typer.Option(help="Distribution for the library size.")] = LibrarySizeDistribution.uniform,
+         library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = ["uniform"],
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
@@ -117,6 +149,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     number_of_sample = n_samples
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
+
+    library_size_distribution = library_size_distribution_callback(library_size_distribution)
 
     if not seed:
         seed = random.randint(0, 2**32 - 1)

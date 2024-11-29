@@ -75,7 +75,26 @@ class Rank(str, Enum):
     genus = "genus"
 
 
-class LibrarySizeDistribution(str, Enum):
+class LibrarySizeDistribution():
     poisson = "poisson"
     uniform = "uniform"
     negative_binomial = "negative_binomial"
+
+    possible_distributions = [poisson, uniform, negative_binomial]
+
+    def __init__(self, distribution_name: str, poisson=50, nbin_n=20, nbin_p=0.3):
+        if distribution_name not in self.possible_distributions:
+            raise ValueError(f"Unknown distribution {distribution_name}")
+        self.poisson = poisson
+        self.nbin_n = nbin_n
+        self.nbin_p = nbin_p
+        self.distribution_name = distribution_name
+
+    def __str__(self):
+        match self.distribution_name:
+            case "poisson":
+                return f"{self.distribution_name} (lambda={self.poisson})"
+            case "negative_binomial":
+                return f"{self.distribution_name} (n={self.nbin_n}, p={self.nbin_p})"
+            case "uniform":
+                return f"{self.distribution_name}"
