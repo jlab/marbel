@@ -3,6 +3,7 @@ import pandas as pd
 from importlib import resources
 from ete3 import Tree
 from enum import Enum
+import json
 
 __version__ = "0.1.3"
 
@@ -39,10 +40,12 @@ PATH_TO_GROUND_GENES = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_
 PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
 PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
 SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
+SPECIES_STATS = f"{data_package}/species_stats.json"
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 species_tree = Tree(SPECIES_PHYLO_TREE)
 DGE_LOG_2_CUTOFF_VALUE = 1
+species_stats_dict = json.load(open(SPECIES_STATS, 'r'))
 
 AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 

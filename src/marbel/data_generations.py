@@ -14,7 +14,7 @@ import argparse
 from iss.app import generate_reads as gen_reads
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict
 
 
 def draw_random_species(number_of_species):
@@ -397,6 +397,12 @@ def generate_report(summary_dir, gene_summary):
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())
+    species = gene_summary["origin_species"].unique().tolist()
+    species_subset = {k: v for k, v in species_stats_dict.items() if k in species}
+    species_info_df = pd.DataFrame.from_dict(species_subset, orient="index")
+    num_sampled_genes = gene_summary.groupby("origin_species").size()
+    species_info_df["num_sampled_genes"] = num_sampled_genes
+    species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
 
 
 def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
