@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 from typing_extensions import Annotated
 
 import typer
@@ -6,8 +6,6 @@ import random
 import numpy as np
 import os
 import pandas as pd
-import uuid
-import re
 from progress.bar import Bar
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
