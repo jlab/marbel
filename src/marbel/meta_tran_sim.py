@@ -165,9 +165,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogroups, number_of_species)
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     if group_orthology_level == OrthologyLevel.very_low:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=True)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=True)
     elif group_orthology_level == OrthologyLevel.very_high:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=False)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=False)
     elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
         selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
     else:
