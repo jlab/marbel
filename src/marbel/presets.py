@@ -75,6 +75,19 @@ class Rank(str, Enum):
     genus = "genus"
 
 
+class OrthologyLevel(str, Enum):
+    very_low = "very_low"
+    low = "low"
+    normal = "normal"
+    high = "high"
+    very_high = "very_high"
+
+
+class SelectionCriterion(str, Enum):
+    maximize = "maximize"
+    minimize = "minimize"
+
+
 class LibrarySizeDistribution():
     poisson = "poisson"
     uniform = "uniform"

@@ -12,9 +12,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
 from iss.app import generate_reads as gen_reads
+from joblib import Parallel, delayed
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
 
 
 def draw_random_species(number_of_species):
@@ -131,7 +132,7 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     if orthogroups.shape[0] < number_of_orthogous_groups:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         quit()
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
@@ -591,3 +592,67 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes):
     simulated_ratios = np.exp2(simulated_ratios)
 
     return simulated_ratios
+
+
+def calculate_species_identity(species_id, chosen_species, id_sets):
+    combined_species = chosen_species + [species_id]
+    filtered_id_sets = id_sets[id_sets.apply(lambda x: any(s_id in x for s_id in combined_species))]
+    average_group_identity = filtered_id_sets.apply(lambda x: sum(s_id in x for s_id in combined_species)).mean()
+    return species_id, average_group_identity
+
+
+def maximize(x, y):
+    return x > y
+
+
+def minimize(x, y):
+    return x < y
+
+
+def select_species_with_criterion(number_of_species, number_of_threads, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
+    if selection_criterion not in SelectionCriterion:
+        raise ValueError(f"Invalid selection criterion: {selection_criterion}. Must be one of {list(SelectionCriterion)}")
+    match selection_criterion:
+        case SelectionCriterion.maximize:
+            comparator = maximize
+            initial_best_value = 0
+        case SelectionCriterion.minimize:
+            comparator = minimize
+            initial_best_value = 10000
+
+    # TODO: question: should I make it random or should I start with the highest pair? -> ask Stefan
+    random_species = random.randint(0, MAX_SPECIES)
+    chosen_species = [random_species]
+    # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
+    id_sets = pg_overview.apply(lambda x: frozenset([i for i in range(0, MAX_SPECIES) if x.iloc[i] != "-"]), axis=1)
+
+    for _ in range(number_of_species - 1):
+        species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
+        # i hope id_sets is thread safe, as i only view it
+        results = Parallel(n_jobs=number_of_threads)(
+            delayed(calculate_species_identity)([species_id], chosen_species, id_sets)
+            for species_id in species_left
+        )
+        best_value = initial_best_value
+        best_species = -1
+        for species_id, average_group_identity in results:
+            if comparator(average_group_identity, best_value):
+                best_value = average_group_identity
+                best_species = species_id
+        chosen_species.append(best_species)
+
+    index_species_dict = dict(zip(range(0, MAX_SPECIES), pg_overview.columns[:MAX_SPECIES]))
+    return [index_species_dict[species] for species in chosen_species]
+
+
+def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True):
+    orthogroups = orthogroup_slice[species].copy()
+    number_of_species = len(species)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
+    orthogroups = orthogroups[orthogroups["group_size"] > 0]
+    orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
+    orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
+    if orthogroups.shape[0] < number_of_groups:
+        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        quit()
+    return orthogroups.head(number_of_groups)

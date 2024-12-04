@@ -10,10 +10,10 @@ import uuid
 import re
 from progress.bar import Bar
 
-from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
-from marbel.data_generations import draw_dge_factors, write_parameter_summary
+from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups
 
 app = typer.Typer()
 
@@ -134,7 +134,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
          read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = None,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
-         library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = ["uniform"],
+         library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
+         group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
@@ -144,7 +145,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     bar.start()
     print()
-    number_of_orthogous_groups = n_orthogroups
+    number_of_orthogroups = n_orthogroups
     number_of_species = n_species
     number_of_sample = n_samples
     # maybe change to synthetic species later on, for now just use the available species
@@ -157,13 +158,22 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     random.seed(seed)
     np.random.seed(seed)
-
-    species = draw_random_species(number_of_species)
-    ortho_group_rates = create_ortholgous_group_rates(number_of_orthogous_groups, number_of_species)
+    if group_orthology_level == OrthologyLevel.normal:
+        species = draw_random_species(number_of_species)
+    elif group_orthology_level == OrthologyLevel.very_low or group_orthology_level == OrthologyLevel.low:
+        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.minimize)
+    else:
+        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.maximize)
+    ortho_group_rates = create_ortholgous_group_rates(number_of_orthogroups, number_of_species)
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
-    selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
+    if group_orthology_level == OrthologyLevel.very_low:
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=True)
+    elif group_orthology_level == OrthologyLevel.very_high:
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=False)
+    else:
+        selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
     if selected_ortho_groups is None:
-        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogous_groups, species)
+        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
     bar_next(bar)
     species_abundances = generate_species_abundance(number_of_species, seed)
     bar_next(bar)
@@ -173,7 +183,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     gene_summary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summary_df["gene_name"].to_list()
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: f"{x}##{uuid.uuid4()}##")  # add uuid to gene names, the problem is some gene names are shared between orthogroups
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]  # .apply(lambda x: f"{x}##{uuid.uuid4()}##")  # add uuid to gene names, the problem is some gene names are shared between orthogroups
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
@@ -194,11 +204,11 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: re.sub(r'##.*?##', '', x))
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]   # .apply(lambda x: re.sub(r'##.*?##', '', x))
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
-    write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir,
+    write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir,
                             max_phylo_distance, min_identity, dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, summary_dir)
 
     generate_report(summary_dir, gene_summary_df)
