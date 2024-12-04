@@ -137,8 +137,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
-         deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
-         deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when youhave knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
+         deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
+         deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     bar = Bar('Generating random numbers for dataset', max=5)
@@ -170,10 +170,13 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=True)
     elif group_orthology_level == OrthologyLevel.very_high:
         selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, minimize=False)
+    elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
+        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
     else:
         selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
-    if selected_ortho_groups is None:
-        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
+        if selected_ortho_groups is None:
+            selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
+
     bar_next(bar)
     species_abundances = generate_species_abundance(number_of_species, seed)
     bar_next(bar)

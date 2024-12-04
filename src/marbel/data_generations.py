@@ -630,7 +630,7 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
         species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
         # i hope id_sets is thread safe, as i only view it
         results = Parallel(n_jobs=number_of_threads)(
-            delayed(calculate_species_identity)([species_id], chosen_species, id_sets)
+            delayed(calculate_species_identity)(species_id, chosen_species, id_sets)
             for species_id in species_left
         )
         best_value = initial_best_value
