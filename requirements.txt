@@ -8,3 +8,4 @@ typing_extensions
 ete3
 progress
 InSilicoSeq @ git+https://github.com/jlab/InSilicoSeq.git
+joblib

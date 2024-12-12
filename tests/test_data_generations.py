@@ -163,4 +163,3 @@ def test_draw_dge_factors_extreme_case():
 def test_draw_dge_factors_empty_output():
     result = draw_dge_factors(0.49, 0)
     assert result.size == 0
-

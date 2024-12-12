@@ -3,8 +3,9 @@ import pandas as pd
 from importlib import resources
 from ete3 import Tree
 from enum import Enum
+import json
 
-__version__ = "0.1.1"
+__version__ = "0.0.4"
 
 
 CPMS_MEAN_LOG = 3.73411080985053
@@ -31,7 +32,7 @@ rank_distance = {
 
 
 MAX_SPECIES = 614
-MAX_ORTHO_GROUPS = 485687
+MAX_ORTHO_GROUPS = 365813
 
 data_package = str(resources.files(__package__) / 'data')
 
@@ -39,10 +40,12 @@ PATH_TO_GROUND_GENES = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_
 PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
 PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
 SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
+SPECIES_STATS = f"{data_package}/species_stats.json"
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 species_tree = Tree(SPECIES_PHYLO_TREE)
 DGE_LOG_2_CUTOFF_VALUE = 1
+species_stats_dict = json.load(open(SPECIES_STATS, 'r'))
 
 AVAILABLE_SPECIES = pg_overview.columns.to_list()[:MAX_SPECIES]
 
@@ -72,7 +75,39 @@ class Rank(str, Enum):
     genus = "genus"
 
 
-class LibrarySizeDistribution(str, Enum):
+class OrthologyLevel(str, Enum):
+    very_low = "very_low"
+    low = "low"
+    normal = "normal"
+    high = "high"
+    very_high = "very_high"
+
+
+class SelectionCriterion(str, Enum):
+    maximize = "maximize"
+    minimize = "minimize"
+
+
+class LibrarySizeDistribution():
     poisson = "poisson"
     uniform = "uniform"
     negative_binomial = "negative_binomial"
+
+    possible_distributions = [poisson, uniform, negative_binomial]
+
+    def __init__(self, distribution_name: str, poisson=50, nbin_n=20, nbin_p=0.3):
+        if distribution_name not in self.possible_distributions:
+            raise ValueError(f"Unknown distribution {distribution_name}")
+        self.poisson = poisson
+        self.nbin_n = nbin_n
+        self.nbin_p = nbin_p
+        self.distribution_name = distribution_name
+
+    def __str__(self):
+        match self.distribution_name:
+            case "poisson":
+                return f"{self.distribution_name} (lambda={self.poisson})"
+            case "negative_binomial":
+                return f"{self.distribution_name} (n={self.nbin_n}, p={self.nbin_p})"
+            case "uniform":
+                return f"{self.distribution_name}"

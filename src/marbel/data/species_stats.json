@@ -1,0 +1,3686 @@
+{
+    "Streptomyces_virginiae_strain_DSM_40803_NZ_JAGINR010000001": {
+        "cds_gc": 5495960,
+        "number_of_genes": 7697,
+        "genome_gc": 6206381,
+        "genome_length": 8588732
+    },
+    "ALL_Staphylococcus_equorum_strain_FDAARGOS_1068_NZ_CP066013": {
+        "genome_gc": 917124,
+        "genome_length": 2772325,
+        "cds_gc": 786973,
+        "number_of_genes": 2593
+    },
+    "Shewanella_decolorationis_strain_sesselensis_NZ_CP037898": {
+        "genome_gc": 2222974,
+        "genome_length": 4719362,
+        "cds_gc": 1962332,
+        "number_of_genes": 4090
+    },
+    "Gemmatimonas_phototrophica_strain_AP64_NZ_CP011454": {
+        "genome_gc": 3035980,
+        "genome_length": 4716552,
+        "cds_gc": 2804944,
+        "number_of_genes": 3904
+    },
+    "Gardnerella_vaginalis_strain_UMB0386_NZ_PKJK01000003": {
+        "genome_gc": 690256,
+        "genome_length": 1675681,
+        "cds_gc": 616810,
+        "number_of_genes": 1260
+    },
+    "Emergencia_timonensis_strain_SN18_NZ_FLKM01000009": {
+        "genome_gc": 2134531,
+        "genome_length": 4661482,
+        "cds_gc": 1931600,
+        "number_of_genes": 4325
+    },
+    "ALL_Shewanella_xiamenensis_strain_HD6416_NZ_CP079718": {
+        "genome_gc": 2331481,
+        "genome_length": 5041619,
+        "cds_gc": 2044475,
+        "number_of_genes": 4339
+    },
+    "Pseudomonas_brassicacearum_strain_3Re2_7_NZ_CP034725": {
+        "genome_gc": 4099380,
+        "genome_length": 6738544,
+        "cds_gc": 3655734,
+        "number_of_genes": 5940
+    },
+    "Flavobacterium_columnare_strain_F2S17_NZ_CP054494": {
+        "genome_gc": 1020375,
+        "genome_length": 3221278,
+        "cds_gc": 889105,
+        "number_of_genes": 2732
+    },
+    "Cedecea_lapagei_strain_NCTC11466_chromosome_1_NZ_LR134201": {
+        "genome_gc": 2619210,
+        "genome_length": 4778444,
+        "cds_gc": 2363874,
+        "number_of_genes": 4486
+    },
+    "ALL_Xanthomonas_fragariae_strain_PD885_chromosome_1_NZ_LT853882": {
+        "genome_gc": 2692994,
+        "genome_length": 4328441,
+        "cds_gc": 2338138,
+        "number_of_genes": 3940
+    },
+    "Ralstonia_pickettii_strain_MGYG_HGUT_01384_NZ_CABKQE010000017": {
+        "genome_gc": 3337836,
+        "genome_length": 5254771,
+        "cds_gc": 2994541,
+        "number_of_genes": 4890
+    },
+    "Gordonia_terrae_strain_NCTC10669_NZ_CABEIC010000002": {
+        "genome_gc": 3868854,
+        "genome_length": 5706840,
+        "cds_gc": 3543073,
+        "number_of_genes": 5040
+    },
+    "Streptomyces_sp_CMB_StM0423_NZ_CP025407": {
+        "genome_gc": 5872822,
+        "genome_length": 8029398,
+        "cds_gc": 5174533,
+        "number_of_genes": 6836
+    },
+    "Vibrio_splendidus_strain_2_C04b_chromosome_1_NZ_CP089204": {
+        "genome_gc": 2412630,
+        "genome_length": 5449819,
+        "cds_gc": 2088887,
+        "number_of_genes": 4627
+    },
+    "Thioalkalivibrio_versutus_strain_D301_NZ_CP011367": {
+        "genome_gc": 1960706,
+        "genome_length": 2969361,
+        "cds_gc": 1748543,
+        "number_of_genes": 2754
+    },
+    "Stenotrophomonas_maltophilia_strain_NCTC10258_chromosome_1_NZ_LS483377": {
+        "genome_gc": 2985731,
+        "genome_length": 4481118,
+        "cds_gc": 2674037,
+        "number_of_genes": 4015
+    },
+    "Streptococcus_equinus_strain_pGA_7_NZ_FNJX01000001": {
+        "genome_gc": 670237,
+        "genome_length": 1797051,
+        "cds_gc": 613210,
+        "number_of_genes": 1709
+    },
+    "ALL_Enterococcus_mundtii_strain_DSM_4838_NZ_CP018061": {
+        "cds_gc": 1162386,
+        "number_of_genes": 3177,
+        "genome_gc": 1338213,
+        "genome_length": 3504528
+    },
+    "ALL_Pediococcus_claussenii_strain_TMW_2_53_NZ_CP014933": {
+        "genome_gc": 722884,
+        "genome_length": 1950035,
+        "cds_gc": 639927,
+        "number_of_genes": 1876
+    },
+    "ALL_Pseudomonas_paraeruginosa_strain_Cr1_NZ_CP020560": {
+        "genome_gc": 4120434,
+        "genome_length": 6164858,
+        "cds_gc": 3730369,
+        "number_of_genes": 5683
+    },
+    "Clostridium_tetani_strain_Mfbjulcb2_NZ_CP027782": {
+        "genome_gc": 802066,
+        "genome_length": 2811348,
+        "cds_gc": 722973,
+        "number_of_genes": 2715
+    },
+    "ALL_Aminobacter_sp_NyZ550_NZ_CP114190": {
+        "genome_gc": 3980589,
+        "genome_length": 6279233,
+        "cds_gc": 3554949,
+        "number_of_genes": 6101
+    },
+    "Pusillimonas_soli_strain_KCTC_22455_NZ_SDQC01000009": {
+        "genome_gc": 2482202,
+        "genome_length": 4148464,
+        "cds_gc": 2288176,
+        "number_of_genes": 3900
+    },
+    "Dietzia_natronolimnaea_strain_S_XJ_1_NZ_NTGA01000099": {
+        "genome_gc": 2653830,
+        "genome_length": 3791351,
+        "cds_gc": 2423990,
+        "number_of_genes": 3579
+    },
+    "ALL_Rhizobium_tropici_strain_CB3060_NZ_CP104158": {
+        "genome_gc": 4332643,
+        "genome_length": 7282613,
+        "cds_gc": 3847741,
+        "number_of_genes": 6752
+    },
+    "ALL_Alteromonas_macleodii_strain_Te101_NZ_CP018321": {
+        "cds_gc": 1933393,
+        "number_of_genes": 4131,
+        "genome_gc": 2167431,
+        "genome_length": 4867393
+    },
+    "ALL_Herbaspirillum_seropedicae_strain_AU13965_NZ_CP034395": {
+        "genome_gc": 3391013,
+        "genome_length": 5372159,
+        "cds_gc": 3055471,
+        "number_of_genes": 4748
+    },
+    "ALL_Salinibacter_ruber_strain_SP73_NZ_CP030361": {
+        "cds_gc": 2170813,
+        "number_of_genes": 3249,
+        "genome_gc": 2563313,
+        "genome_length": 3901694
+    },
+    "ALL_Bacteroides_xylanisolvens_strain_CL11T00C03_NZ_CP072216": {
+        "cds_gc": 2526970,
+        "number_of_genes": 5299,
+        "genome_gc": 2759505,
+        "genome_length": 6558523
+    },
+    "Dermacoccus_abyssi_strain_MT1_1_NZ_JAVYJM010000004": {
+        "genome_gc": 2143358,
+        "genome_length": 3147397,
+        "cds_gc": 1934245,
+        "number_of_genes": 2912
+    },
+    "Vibrio_pomeroyi_strain_LMG_20537_chromosome_1_NZ_AP025507": {
+        "genome_gc": 2523222,
+        "genome_length": 5659581,
+        "cds_gc": 2203550,
+        "number_of_genes": 4789
+    },
+    "ALL_Xanthobacter_dioxanivorans_strain_YN2_NZ_CP063362": {
+        "genome_gc": 4518999,
+        "genome_length": 6650762,
+        "cds_gc": 3972145,
+        "number_of_genes": 6292
+    },
+    "Listeria_monocytogenes_strain_Lm60_NZ_CP009258": {
+        "cds_gc": 1027765,
+        "number_of_genes": 2947,
+        "genome_gc": 1135970,
+        "genome_length": 2989591
+    },
+    "ALL_Xanthomonas_citri_strain_M11_NZ_CP029275": {
+        "genome_gc": 3332566,
+        "genome_length": 5156055,
+        "cds_gc": 2884864,
+        "number_of_genes": 4337
+    },
+    "Fusobacterium_nucleatum_strain_FNV_NZ_CP117525": {
+        "cds_gc": 550084,
+        "number_of_genes": 1986,
+        "genome_gc": 601618,
+        "genome_length": 2194806
+    },
+    "Enterococcus_avium_strain_FDAARGOS_182_NZ_NBSL01000003": {
+        "cds_gc": 1566260,
+        "number_of_genes": 4417,
+        "genome_gc": 1772985,
+        "genome_length": 4537641
+    },
+    "Pseudofrankia_inefficax_strain_EuI1c_NC_014666": {
+        "genome_gc": 6375044,
+        "genome_length": 8815781,
+        "cds_gc": 5476087,
+        "number_of_genes": 7173
+    },
+    "Cupriavidus_metallidurans_strain_NDB4MOL1_NZ_FYAX01000046": {
+        "genome_gc": 4387111,
+        "genome_length": 6901105,
+        "cds_gc": 3898745,
+        "number_of_genes": 6254
+    },
+    "Lactobacillus_acidophilus_strain_HN017_NZ_CP101537": {
+        "genome_gc": 708563,
+        "genome_length": 2040580,
+        "cds_gc": 638239,
+        "number_of_genes": 1875
+    },
+    "Bacillus_atrophaeus_strain_CNY01_NZ_CP073265": {
+        "genome_gc": 1801246,
+        "genome_length": 4144521,
+        "cds_gc": 1600124,
+        "number_of_genes": 4096
+    },
+    "ALL_Erwinia_amylovora_strain_E_2_NZ_CP024970": {
+        "cds_gc": 1779888,
+        "number_of_genes": 3370,
+        "genome_gc": 2054734,
+        "genome_length": 3835149
+    },
+    "Stenotrophomonas_rhizophila_strain_DSM_14405_NZ_CP007597": {
+        "cds_gc": 2780802,
+        "number_of_genes": 4022,
+        "genome_gc": 3127077,
+        "genome_length": 4648976
+    },
+    "Pseudomonas_alloputida_strain_NMI24_14_NZ_CP128540": {
+        "cds_gc": 3569476,
+        "number_of_genes": 5851,
+        "genome_gc": 3969528,
+        "genome_length": 6438596
+    },
+    "ALL_Pasteurella_multocida_strain_FDAARGOS_218_NZ_CP020405": {
+        "genome_gc": 942686,
+        "genome_length": 2335516,
+        "cds_gc": 851052,
+        "number_of_genes": 2119
+    },
+    "ALL_Pectobacterium_atrosepticum_strain_21A_NZ_CP009125": {
+        "cds_gc": 2271673,
+        "number_of_genes": 4439,
+        "genome_gc": 2567662,
+        "genome_length": 5024250
+    },
+    "Desulfuribacillus_stibiiarsenatis_strain_MLFW_2_NZ_MJAT01000040": {
+        "cds_gc": 1068925,
+        "number_of_genes": 3024,
+        "genome_gc": 1191192,
+        "genome_length": 3119699
+    },
+    "ALL_Leuconostoc_mesenteroides_strain_SRCM102733_NZ_CP028251": {
+        "cds_gc": 698955,
+        "number_of_genes": 1997,
+        "genome_gc": 775963,
+        "genome_length": 2058732
+    },
+    "Cnuella_takakiae_strain_DSM_26897_NZ_FQUO01000017": {
+        "genome_gc": 2830804,
+        "genome_length": 5659359,
+        "cds_gc": 2476140,
+        "number_of_genes": 4628
+    },
+    "ALL_Campylobacter_coli_strain_FDAARGOS_735_NZ_CP046317": {
+        "genome_gc": 538043,
+        "genome_length": 1716536,
+        "cds_gc": 510445,
+        "number_of_genes": 1719
+    },
+    "Burkholderia_vietnamiensis_strain_FL_2_3_10_S3_D0_NZ_LOWL01000064": {
+        "genome_gc": 4509040,
+        "genome_length": 6693522,
+        "cds_gc": 3932054,
+        "number_of_genes": 5948
+    },
+    "Limosilactobacillus_reuteri_strain_2010_NZ_PUXG01000029": {
+        "genome_gc": 855425,
+        "genome_length": 2220255,
+        "cds_gc": 774607,
+        "number_of_genes": 2056
+    },
+    "Carnobacterium_viridans_strain_MPL_11_NZ_FNJW01000001": {
+        "genome_gc": 971165,
+        "genome_length": 2762327,
+        "cds_gc": 815813,
+        "number_of_genes": 2672
+    },
+    "ALL_Xanthomonas_perforans_strain_GEV872_NZ_CP116305": {
+        "genome_gc": 3348468,
+        "genome_length": 5162213,
+        "cds_gc": 2906902,
+        "number_of_genes": 4419
+    },
+    "ALL_Metallibacterium_scheffleri_strain_DKE6_NZ_LDOS01000003": {
+        "genome_gc": 2473069,
+        "genome_length": 3755691,
+        "cds_gc": 2226305,
+        "number_of_genes": 3405
+    },
+    "ALL_Prescottella_equi_strain_DSSKP_R_001_NZ_CP027793": {
+        "cds_gc": 3418916,
+        "number_of_genes": 5120,
+        "genome_gc": 3735604,
+        "genome_length": 5438826
+    },
+    "Enterococcus_faecalis_strain_DD14_NZ_CP021161": {
+        "genome_gc": 1079188,
+        "genome_length": 2893365,
+        "cds_gc": 974581,
+        "number_of_genes": 2737
+    },
+    "Bacillus_safensis_strain_PgKB20_NZ_CP043404": {
+        "genome_gc": 1577454,
+        "genome_length": 3786744,
+        "cds_gc": 1403347,
+        "number_of_genes": 3741
+    },
+    "Bacillus_halotolerans_strain_ZB201702_NZ_CP029364": {
+        "genome_gc": 1819856,
+        "genome_length": 4154245,
+        "cds_gc": 1625555,
+        "number_of_genes": 4163
+    },
+    "Streptococcus_pyogenes_strain_NCTC12064_chromosome_1_NZ_LS483338": {
+        "genome_gc": 673214,
+        "genome_length": 1746380,
+        "cds_gc": 588676,
+        "number_of_genes": 1640
+    },
+    "Bradyrhizobium_sp_ORS_278_strain_ORS278_NC_009445": {
+        "genome_gc": 4884839,
+        "genome_length": 7456587,
+        "cds_gc": 4236258,
+        "number_of_genes": 6672
+    },
+    "ALL_Klebsiella_pneumoniae_strain_57_NZ_CP088126": {
+        "genome_gc": 3255736,
+        "genome_length": 5697911,
+        "cds_gc": 2928889,
+        "number_of_genes": 5500
+    },
+    "Teredinibacter_turnerae_strain_991H_S_0a_06_NZ_LANC01000013": {
+        "cds_gc": 2369639,
+        "number_of_genes": 4142,
+        "genome_gc": 2695834,
+        "genome_length": 5279031
+    },
+    "Stenotrophomonas_bentonitica_strain_DSM_103927_NZ_JAAZUH010000009": {
+        "genome_gc": 2930388,
+        "genome_length": 4408774,
+        "cds_gc": 2659974,
+        "number_of_genes": 3962
+    },
+    "Halomonas_elongata_strain_DL7_NZ_CP087224": {
+        "genome_gc": 2584304,
+        "genome_length": 4062891,
+        "cds_gc": 2346321,
+        "number_of_genes": 3725
+    },
+    "ALL_Providencia_rettgeri_strain_AR_0082_NZ_CP029736": {
+        "genome_gc": 1811984,
+        "genome_length": 4454136,
+        "cds_gc": 1588386,
+        "number_of_genes": 4013
+    },
+    "ALL_Helicobacter_pylori_strain_MT5135_NZ_CP071982": {
+        "genome_gc": 637675,
+        "genome_length": 1624458,
+        "cds_gc": 591637,
+        "number_of_genes": 1499
+    },
+    "ALL_Limosilactobacillus_fermentum_strain_EFEL6800_NZ_CP124737": {
+        "cds_gc": 960527,
+        "number_of_genes": 2072,
+        "genome_gc": 1084988,
+        "genome_length": 2103331
+    },
+    "Brucella_haematophila_strain_CCUG_38531_NZ_VCPE01000009": {
+        "genome_gc": 3118648,
+        "genome_length": 5503262,
+        "cds_gc": 2781193,
+        "number_of_genes": 5133
+    },
+    "ALL_Streptococcus_agalactiae_strain_NGBS128_NZ_CP012480": {
+        "genome_gc": 742893,
+        "genome_length": 2079123,
+        "cds_gc": 661821,
+        "number_of_genes": 1960
+    },
+    "Aggregatibacter_actinomycetemcomitans_strain_4S_NZ_CP085096": {
+        "genome_gc": 938334,
+        "genome_length": 2109143,
+        "cds_gc": 840666,
+        "number_of_genes": 1998
+    },
+    "Streptomyces_ambofaciens_strain_DSM_40697_NZ_CP012949": {
+        "genome_gc": 5885846,
+        "genome_length": 8137876,
+        "cds_gc": 5149959,
+        "number_of_genes": 7087
+    },
+    "ALL_Acinetobacter_calcoaceticus_strain_CA16_NZ_CP020000": {
+        "genome_gc": 1593463,
+        "genome_length": 4115994,
+        "cds_gc": 1432614,
+        "number_of_genes": 3847
+    },
+    "ALL_Acidithiobacillus_ferrivorans_strain_PRJEB5721_chromosome_AFERRI_NZ_LT841305": {
+        "genome_gc": 1951185,
+        "genome_length": 3456108,
+        "cds_gc": 1750145,
+        "number_of_genes": 3487
+    },
+    "ALL_Ralstonia_solanacearum_strain_UW251_NZ_CP088237": {
+        "genome_gc": 3713246,
+        "genome_length": 5572607,
+        "cds_gc": 3302335,
+        "number_of_genes": 4839
+    },
+    "ALL_Yersinia_pseudotuberculosis_strain_FDAARGOS_582_NZ_CP033711": {
+        "genome_gc": 2293584,
+        "genome_length": 4832460,
+        "cds_gc": 1971472,
+        "number_of_genes": 4240
+    },
+    "Vibrio_atlanticus_strain_LGP32_chromosome_1_NC_011744": {
+        "genome_gc": 2184371,
+        "genome_length": 4974818,
+        "cds_gc": 1907473,
+        "number_of_genes": 4266
+    },
+    "Brenneria_goodwinii_strain_FRB141_NZ_CP014137": {
+        "cds_gc": 2503849,
+        "number_of_genes": 4651,
+        "genome_gc": 2845333,
+        "genome_length": 5360730
+    },
+    "ALL_Staphylococcus_capitis_strain_FDAARGOS_378_NZ_CP023966": {
+        "cds_gc": 716210,
+        "number_of_genes": 2334,
+        "genome_gc": 819841,
+        "genome_length": 2485152
+    },
+    "Sporosarcina_pasteurii_strain_BNCC_337394_NZ_CP038012": {
+        "cds_gc": 1092676,
+        "number_of_genes": 3073,
+        "genome_gc": 1274502,
+        "genome_length": 3253966
+    },
+    "Streptococcus_anginosus_strain_J4211_NZ_CP012805": {
+        "genome_gc": 750364,
+        "genome_length": 1924513,
+        "cds_gc": 672752,
+        "number_of_genes": 1879
+    },
+    "Bacteroides_ovatus_strain_ATCC_8483_NZ_CP012938": {
+        "genome_gc": 2710596,
+        "genome_length": 6472489,
+        "cds_gc": 2513026,
+        "number_of_genes": 4821
+    },
+    "ALL_Streptomyces_alfalfae_strain_XN_04_NZ_CP060742": {
+        "cds_gc": 5258483,
+        "number_of_genes": 7140,
+        "genome_gc": 5965662,
+        "genome_length": 8278595
+    },
+    "ALL_Serratia_marcescens_strain_KS10_NZ_CP027798": {
+        "genome_gc": 3114418,
+        "genome_length": 5238537,
+        "cds_gc": 2802569,
+        "number_of_genes": 4905
+    },
+    "Micromonospora_aurantiaca_strain_110B2018_NZ_CP031263": {
+        "genome_gc": 5279723,
+        "genome_length": 7255264,
+        "cds_gc": 4792368,
+        "number_of_genes": 6557
+    },
+    "ALL_Agrobacterium_rosae_strain_NCPPB_1650_NZ_NXEJ01000009": {
+        "genome_gc": 3089022,
+        "genome_length": 5464393,
+        "cds_gc": 2761092,
+        "number_of_genes": 5133
+    },
+    "Vibrio_parahaemolyticus_strain_FDAARGOS_51_chromosome_1_NZ_CP026042": {
+        "genome_gc": 2334016,
+        "genome_length": 5149217,
+        "cds_gc": 2054299,
+        "number_of_genes": 4563
+    },
+    "Halomonas_socia_strain_CKY01_NZ_CP048812": {
+        "cds_gc": 2768582,
+        "number_of_genes": 4465,
+        "genome_gc": 3050671,
+        "genome_length": 4753299
+    },
+    "Elizabethkingia_anophelis_strain_AR4_6_NZ_CP023404": {
+        "genome_gc": 1452436,
+        "genome_length": 4093812,
+        "cds_gc": 1325765,
+        "number_of_genes": 3735
+    },
+    "Halomonas_beimenensis_strain_NTU_111_NZ_CP021435": {
+        "genome_gc": 2772229,
+        "genome_length": 4053030,
+        "cds_gc": 2494860,
+        "number_of_genes": 3702
+    },
+    "ALL_Burkholderia_contaminans_strain_CH_1_NZ_AP018357": {
+        "genome_gc": 5877289,
+        "genome_length": 8901643,
+        "cds_gc": 5143907,
+        "number_of_genes": 7999
+    },
+    "ALL_Staphylococcus_pseudintermedius_strain_SP_11304_3A_NZ_CP065921": {
+        "cds_gc": 838080,
+        "number_of_genes": 2436,
+        "genome_gc": 987940,
+        "genome_length": 2629596
+    },
+    "ALL_Enterobacter_hormaechei_strain_Y_2_NZ_CP090796": {
+        "genome_gc": 2618054,
+        "genome_length": 4732597,
+        "cds_gc": 2389570,
+        "number_of_genes": 4376
+    },
+    "Bordetella_pertussis_strain_H640_NZ_CP025371": {
+        "genome_gc": 2768936,
+        "genome_length": 4088701,
+        "cds_gc": 2557859,
+        "number_of_genes": 3911
+    },
+    "Methylocella_tundrae_strain_2_NZ_CABFMQ020000163": {
+        "genome_gc": 2793096,
+        "genome_length": 4523850,
+        "cds_gc": 2401718,
+        "number_of_genes": 4149
+    },
+    "ALL_Rhodopseudomonas_palustris_strain_RCB100_NZ_CP066699": {
+        "genome_gc": 3549089,
+        "genome_length": 5457289,
+        "cds_gc": 3131639,
+        "number_of_genes": 4968
+    },
+    "ALL_Piscirickettsia_salmonis_strain_Psal_070_NZ_CP039032": {
+        "genome_gc": 1329952,
+        "genome_length": 3351503,
+        "cds_gc": 1139351,
+        "number_of_genes": 3536
+    },
+    "Mycobacterium_tuberculosis_strain_LE13_NZ_CP023602": {
+        "cds_gc": 2658289,
+        "number_of_genes": 4102,
+        "genome_gc": 2894446,
+        "genome_length": 4411412
+    },
+    "ALL_Legionella_pneumophila_strain_C9_S_NZ_CP015941": {
+        "genome_gc": 1343270,
+        "genome_length": 3504074,
+        "cds_gc": 1210285,
+        "number_of_genes": 3084
+    },
+    "Ehrlichia_japonica_strain_HF_NZ_CP007474": {
+        "genome_gc": 340643,
+        "genome_length": 1148904,
+        "cds_gc": 273348,
+        "number_of_genes": 899
+    },
+    "ALL_Leptotrichia_shahii_strain_JCM16776_NZ_AP019827": {
+        "genome_gc": 642670,
+        "genome_length": 2161166,
+        "cds_gc": 563070,
+        "number_of_genes": 1975
+    },
+    "Bordetella_holmesii_strain_H401_NZ_CP043146": {
+        "cds_gc": 2125127,
+        "number_of_genes": 3507,
+        "genome_gc": 2317390,
+        "genome_length": 3696575
+    },
+    "ALL_Thermus_thermophilus_strain_HB8_001_NZ_AP025540": {
+        "genome_gc": 1525836,
+        "genome_length": 2197308,
+        "cds_gc": 1442230,
+        "number_of_genes": 2307
+    },
+    "ALL_Tritonibacter_mobilis_strain_A3R06_NZ_CP110384": {
+        "cds_gc": 2452129,
+        "number_of_genes": 4322,
+        "genome_gc": 2744480,
+        "genome_length": 4652190
+    },
+    "ALL_Burkholderia_multivorans_strain_FDAARGOS_246_chromosome_1_NZ_CP020398": {
+        "cds_gc": 3747147,
+        "number_of_genes": 5674,
+        "genome_gc": 4251619,
+        "genome_length": 6322859
+    },
+    "ALL_Aeromonas_caviae_strain_WP8_S18_ESBL_04_NZ_AP022254": {
+        "genome_gc": 2810336,
+        "genome_length": 4565788,
+        "cds_gc": 2481438,
+        "number_of_genes": 4094
+    },
+    "ALL_Weissella_confusa_strain_VTT_E_133279_NZ_CP027563": {
+        "genome_gc": 998851,
+        "genome_length": 2216758,
+        "cds_gc": 886563,
+        "number_of_genes": 1985
+    },
+    "Pontiella_desulfatans_strain_F1T_NZ_CAAHFG010000006": {
+        "genome_gc": 4876514,
+        "genome_length": 8658305,
+        "cds_gc": 4477268,
+        "number_of_genes": 6448
+    },
+    "Brucella_melitensis_strain_CIT31_chromosome_1_NZ_CP025822": {
+        "cds_gc": 1688447,
+        "number_of_genes": 3148,
+        "genome_gc": 1894896,
+        "genome_length": 3311514
+    },
+    "ALL_Eggerthella_lenta_strain_APC055_529_1D_NZ_CP089331": {
+        "genome_gc": 2221261,
+        "genome_length": 3467966,
+        "cds_gc": 1960592,
+        "number_of_genes": 2978
+    },
+    "ALL_Phaeobacter_inhibens_strain_P54_NZ_CP010650": {
+        "cds_gc": 2265853,
+        "number_of_genes": 3948,
+        "genome_gc": 2542868,
+        "genome_length": 4248079
+    },
+    "ALL_Clostridioides_difficile_strain_S_0253_NZ_CP076401": {
+        "cds_gc": 999439,
+        "number_of_genes": 3587,
+        "genome_gc": 1168014,
+        "genome_length": 4095894
+    },
+    "ALL_Shewanella_putrefaciens_strain_4H_NZ_CP104755": {
+        "genome_gc": 2068250,
+        "genome_length": 4631110,
+        "cds_gc": 1807542,
+        "number_of_genes": 3970
+    },
+    "ALL_Enterocloster_bolteae_strain_ATCC_BAA_613_NZ_CP022464": {
+        "genome_gc": 3243916,
+        "genome_length": 6614036,
+        "cds_gc": 2934467,
+        "number_of_genes": 6001
+    },
+    "ALL_Ligilactobacillus_salivarius_strain_LPM01_chromosome_I_NZ_LT604074": {
+        "genome_gc": 668890,
+        "genome_length": 2033361,
+        "cds_gc": 593973,
+        "number_of_genes": 1922
+    },
+    "ALL_Xanthomonas_cucurbitae_strain_ATCC_23378_NZ_CP033326": {
+        "genome_gc": 3015043,
+        "genome_length": 4615492,
+        "cds_gc": 2648752,
+        "number_of_genes": 3951
+    },
+    "ALL_Acinetobacter_baylyi_strain_JAT2044_NZ_CP104734": {
+        "cds_gc": 1308884,
+        "number_of_genes": 3257,
+        "genome_gc": 1458872,
+        "genome_length": 3606701
+    },
+    "ALL_Burkholderia_glumae_strain_257sh_1_chromosome_1_NZ_CP035901": {
+        "genome_gc": 4564513,
+        "genome_length": 6691685,
+        "cds_gc": 3917514,
+        "number_of_genes": 5845
+    },
+    "ALL_Agrobacterium_fabrum_strain_1D132_chromosome_circular_NZ_CP033023": {
+        "cds_gc": 2926481,
+        "number_of_genes": 5139,
+        "genome_gc": 3275027,
+        "genome_length": 5553114
+    },
+    "Mycobacterium_marinum_strain_050012_NZ_CP118910": {
+        "cds_gc": 3820909,
+        "number_of_genes": 5221,
+        "genome_gc": 4205666,
+        "genome_length": 6393703
+    },
+    "ALL_Akkermansia_muciniphila_strain_JCM_30893_NZ_AP021898": {
+        "cds_gc": 1432679,
+        "number_of_genes": 2362,
+        "genome_gc": 1601497,
+        "genome_length": 2878459
+    },
+    "Escherichia_coli_strain_GF3_3_NZ_CP053259": {
+        "genome_gc": 2383119,
+        "genome_length": 4706754,
+        "cds_gc": 2152681,
+        "number_of_genes": 4367
+    },
+    "Klebsiella_variicola_strain_LEMB11_NZ_CP045783": {
+        "genome_gc": 3185209,
+        "genome_length": 5536651,
+        "cds_gc": 2875759,
+        "number_of_genes": 5222
+    },
+    "Streptomyces_gilvosporeus_strain_F607_NZ_CP020569": {
+        "genome_gc": 6018353,
+        "genome_length": 8482298,
+        "cds_gc": 5210282,
+        "number_of_genes": 7495
+    },
+    "ALL_Staphylococcus_saprophyticus_strain_1A_NZ_CP031196": {
+        "cds_gc": 751109,
+        "number_of_genes": 2545,
+        "genome_gc": 876236,
+        "genome_length": 2635789
+    },
+    "Xanthomonas_campestris_strain_DX_NZ_CP124534": {
+        "cds_gc": 2871771,
+        "number_of_genes": 4366,
+        "genome_gc": 3331068,
+        "genome_length": 5127125
+    },
+    "Rhizobium_rhizophilum_strain_7209_2_NZ_STGT01000009": {
+        "genome_gc": 3210906,
+        "genome_length": 5248183,
+        "cds_gc": 2883552,
+        "number_of_genes": 4993
+    },
+    "Enterococcus_gallinarum_strain_298EA1_NZ_KZ846567": {
+        "genome_gc": 1447538,
+        "genome_length": 3614506,
+        "cds_gc": 1279074,
+        "number_of_genes": 3426
+    },
+    "Carnobacterium_iners_strain_LMG26642_NZ_FXBJ01000001": {
+        "genome_gc": 880876,
+        "genome_length": 2571353,
+        "cds_gc": 727203,
+        "number_of_genes": 2338
+    },
+    "Carnobacterium_divergens_strain_TMW_2_1579_NZ_CP016843": {
+        "genome_gc": 933996,
+        "genome_length": 2666320,
+        "cds_gc": 832908,
+        "number_of_genes": 2455
+    },
+    "ALL_Sphingobacterium_multivorum_strain_FDAARGOS_1143_NZ_CP068086": {
+        "genome_gc": 2413726,
+        "genome_length": 6025216,
+        "cds_gc": 2160116,
+        "number_of_genes": 5114
+    },
+    "Faecalibacterium_duncaniae_strain_JCM_31915_NZ_CP048437": {
+        "genome_gc": 1748279,
+        "genome_length": 3102523,
+        "cds_gc": 1564135,
+        "number_of_genes": 2922
+    },
+    "Mesoplasma_florum_strain_MouA_2_NZ_CP022508": {
+        "genome_gc": 210914,
+        "genome_length": 781099,
+        "cds_gc": 195164,
+        "number_of_genes": 685
+    },
+    "ALL_Aeromonas_veronii_strain_FDAARGOS_632_NZ_CP044060": {
+        "cds_gc": 2394965,
+        "number_of_genes": 4041,
+        "genome_gc": 2685146,
+        "genome_length": 4561870
+    },
+    "Streptococcus_mitis_strain_OT25_NZ_JYGP01000003": {
+        "genome_gc": 768416,
+        "genome_length": 1915198,
+        "cds_gc": 695197,
+        "number_of_genes": 1841
+    },
+    "ALL_Hafnia_alvei_strain_A23BA_NZ_CP050150": {
+        "genome_gc": 2326334,
+        "genome_length": 4772047,
+        "cds_gc": 2042045,
+        "number_of_genes": 4244
+    },
+    "Streptomyces_tendae_strain_JCM_4610_NZ_BMUY01000139": {
+        "cds_gc": 5731121,
+        "number_of_genes": 8177,
+        "genome_gc": 6390126,
+        "genome_length": 8887909
+    },
+    "ALL_Chlamydia_psittaci_strain_GIMC_2004_CpsAP23_NZ_CP024455": {
+        "genome_gc": 460384,
+        "genome_length": 1179913,
+        "cds_gc": 424086,
+        "number_of_genes": 998
+    },
+    "Brucella_canis_strain_2009004498_chromosome_1_NZ_CP016974": {
+        "genome_gc": 1893491,
+        "genome_length": 3307321,
+        "cds_gc": 1690716,
+        "number_of_genes": 3148
+    },
+    "Apilactobacillus_kunkeei_strain_DSMZ_12361_NZ_CP080568": {
+        "genome_gc": 563794,
+        "genome_length": 1542216,
+        "cds_gc": 509721,
+        "number_of_genes": 1357
+    },
+    "ALL_Burkholderia_gladioli_strain_BBB_01_chromosome_1_NZ_CP068050": {
+        "genome_gc": 5596122,
+        "genome_length": 8201484,
+        "cds_gc": 4939367,
+        "number_of_genes": 6999
+    },
+    "ALL_Vibrio_harveyi_strain_SB1_chromosome_I_NZ_CP125876": {
+        "genome_gc": 2639809,
+        "genome_length": 5869008,
+        "cds_gc": 2312438,
+        "number_of_genes": 5275
+    },
+    "Lysinibacillus_fusiformis_strain_RB_21_NZ_CP010820": {
+        "genome_gc": 1822311,
+        "genome_length": 4843789,
+        "cds_gc": 1567034,
+        "number_of_genes": 4702
+    },
+    "Bacillus_pumilus_strain_Ha06YP001_NZ_PTXV01000013": {
+        "genome_gc": 1514578,
+        "genome_length": 3640519,
+        "cds_gc": 1365755,
+        "number_of_genes": 3651
+    },
+    "Rickettsia_rickettsii_strain_RMSFvaccine_NZ_CP114277": {
+        "genome_gc": 408357,
+        "genome_length": 1257699,
+        "cds_gc": 332323,
+        "number_of_genes": 1381
+    },
+    "ALL_Planococcus_kocurii_strain_ATCC_43650_NZ_CP013661": {
+        "genome_gc": 1426117,
+        "genome_length": 3485580,
+        "cds_gc": 1227710,
+        "number_of_genes": 3331
+    },
+    "Pseudoalteromonas_rubra_strain_DSM_6842_chromosome_II_NZ_AHCD03000043": {
+        "genome_gc": 2937206,
+        "genome_length": 6143755,
+        "cds_gc": 2613289,
+        "number_of_genes": 5031
+    },
+    "Thermoanaerobacterium_aotearoense_strain_SCUT27_NZ_CP047602": {
+        "genome_gc": 943968,
+        "genome_length": 2668690,
+        "cds_gc": 857965,
+        "number_of_genes": 2607
+    },
+    "Bifidobacterium_longum_strain_105_A_NZ_AP014658": {
+        "genome_gc": 1375531,
+        "genome_length": 2290145,
+        "cds_gc": 1219532,
+        "number_of_genes": 1831
+    },
+    "ALL_Pantoea_dispersa_strain_Lsch_chromosome_1_NZ_CP082346": {
+        "cds_gc": 2517595,
+        "number_of_genes": 4494,
+        "genome_gc": 2815193,
+        "genome_length": 4885065
+    },
+    "ALL_Vibrio_vulnificus_strain_FORC_037_chromosome_I_NZ_CP016322": {
+        "cds_gc": 2115718,
+        "number_of_genes": 4553,
+        "genome_gc": 2397373,
+        "genome_length": 5117890
+    },
+    "ALL_Paraburkholderia_aromaticivorans_strain_BN5_chromosome_1_NZ_CP022990": {
+        "genome_gc": 5606292,
+        "genome_length": 8907716,
+        "cds_gc": 4851121,
+        "number_of_genes": 8058
+    },
+    "Pseudoalteromonas_fuliginea_strain_PS2_NZ_SEUL01000005": {
+        "genome_gc": 1858838,
+        "genome_length": 4787931,
+        "cds_gc": 1654613,
+        "number_of_genes": 4093
+    },
+    "Chryseobacterium_gleum_strain_110146_NZ_CP031676": {
+        "genome_gc": 1741794,
+        "genome_length": 4715692,
+        "cds_gc": 1576320,
+        "number_of_genes": 4164
+    },
+    "ALL_Streptomyces_vietnamensis_strain_GIMV4_0001_NZ_CP010407": {
+        "cds_gc": 5854214,
+        "number_of_genes": 8205,
+        "genome_gc": 6590138,
+        "genome_length": 9153777
+    },
+    "Leptospirillum_ferriphilum_strain_pb_238_NZ_OBMB01000001": {
+        "genome_gc": 1413362,
+        "genome_length": 2610531,
+        "cds_gc": 1279088,
+        "number_of_genes": 2522
+    },
+    "Algoriphagus_marinus_strain_am2_NZ_MSPQ01000009": {
+        "genome_gc": 1927059,
+        "genome_length": 4873280,
+        "cds_gc": 1770231,
+        "number_of_genes": 4132
+    },
+    "Dactylosporangium_vinaceum_strain_NRRL_B_16297_NZ_CP061913": {
+        "cds_gc": 7811994,
+        "number_of_genes": 10692,
+        "genome_gc": 8643543,
+        "genome_length": 11959907
+    },
+    "Shewanella_algae_strain_RQs_106_NZ_CP046378": {
+        "genome_gc": 2642538,
+        "genome_length": 4990025,
+        "cds_gc": 2351156,
+        "number_of_genes": 4316
+    },
+    "ALL_Lactiplantibacillus_paraplantarum_strain_FL_8_NZ_CP118745": {
+        "cds_gc": 1215904,
+        "number_of_genes": 2953,
+        "genome_gc": 1421632,
+        "genome_length": 3245144
+    },
+    "Vibrio_mediterranei_strain_Vic_OC_097_chromosome_I_NZ_JABXGK010000008": {
+        "cds_gc": 2245786,
+        "number_of_genes": 5104,
+        "genome_gc": 2492501,
+        "genome_length": 5651202
+    },
+    "ALL_Acinetobacter_baumannii_strain_K09_14_NZ_CP043953": {
+        "cds_gc": 1398881,
+        "number_of_genes": 3642,
+        "genome_gc": 1551782,
+        "genome_length": 3980230
+    },
+    "ALL_Methylocystis_bryophila_strain_S285_NZ_CP019948": {
+        "genome_gc": 2974325,
+        "genome_length": 4707971,
+        "cds_gc": 2543685,
+        "number_of_genes": 4261
+    },
+    "Mycoplasmoides_gallisepticum_strain_f99_lab_strain_NZ_CP028146": {
+        "genome_gc": 306139,
+        "genome_length": 975073,
+        "cds_gc": 280356,
+        "number_of_genes": 764
+    },
+    "ALL_Microbacterium_sediminis_strain_YLB_01_NZ_CP038256": {
+        "genome_gc": 2091242,
+        "genome_length": 2919864,
+        "cds_gc": 1926624,
+        "number_of_genes": 2775
+    },
+    "Methylorubrum_rhodesianum_strain_DSM_5687_NZ_JACHOS010000052": {
+        "cds_gc": 3514077,
+        "number_of_genes": 5446,
+        "genome_gc": 4060795,
+        "genome_length": 5873985
+    },
+    "ALL_Enterococcus_faecium_strain_SRR24_NZ_CP038996": {
+        "genome_gc": 1105696,
+        "genome_length": 2919198,
+        "cds_gc": 962856,
+        "number_of_genes": 2795
+    },
+    "ALL_Paracoccus_aminovorans_strain_JCM7685_chromosome_I_NZ_LN832559": {
+        "genome_gc": 2722407,
+        "genome_length": 4038130,
+        "cds_gc": 2446147,
+        "number_of_genes": 3883
+    },
+    "Hungatella_hathewayi_strain_123Y_2_NZ_WNME01000009": {
+        "genome_gc": 3187290,
+        "genome_length": 6646572,
+        "cds_gc": 2916312,
+        "number_of_genes": 5877
+    },
+    "Bacillus_subtilis_strain_KF24_NZ_CP126097": {
+        "cds_gc": 1654388,
+        "number_of_genes": 4363,
+        "genome_gc": 1842997,
+        "genome_length": 4237328
+    },
+    "ALL_Pseudoalteromonas_agarivorans_strain_Hao_2018_chromosome_I_NZ_CP033066": {
+        "genome_gc": 1862563,
+        "genome_length": 4557927,
+        "cds_gc": 1665828,
+        "number_of_genes": 3965
+    },
+    "Dickeya_zeae_strain_MS2_NZ_CP025799": {
+        "genome_gc": 2533433,
+        "genome_length": 4740052,
+        "cds_gc": 2220997,
+        "number_of_genes": 4120
+    },
+    "ALL_Nostoc_sp_PCC_7120__FACHB_418_NC_003272": {
+        "cds_gc": 2522905,
+        "number_of_genes": 6070,
+        "genome_gc": 2976185,
+        "genome_length": 7211789
+    },
+    "Vibrio_crassostreae_strain_16SF1_51_NZ_RJKJ01000030": {
+        "genome_gc": 2286200,
+        "genome_length": 5153900,
+        "cds_gc": 2022745,
+        "number_of_genes": 4437
+    },
+    "ALL_Burkholderia_thailandensis_strain_2002721643_chromosome_1_NZ_CP013413": {
+        "genome_gc": 4691788,
+        "genome_length": 6950257,
+        "cds_gc": 4057228,
+        "number_of_genes": 6127
+    },
+    "ALL_Clostridium_beijerinckii_strain_DSM_791_NZ_CP073653": {
+        "cds_gc": 1465791,
+        "number_of_genes": 5178,
+        "genome_gc": 1777353,
+        "genome_length": 5950247
+    },
+    "Tetragenococcus_halophilus_strain_MJ4_NZ_CP012047": {
+        "genome_gc": 859952,
+        "genome_length": 2389470,
+        "cds_gc": 748420,
+        "number_of_genes": 2260
+    },
+    "Pseudoalteromonas_elyakovii_strain_LMG_14908_NZ_JASGWX010000009": {
+        "genome_gc": 1756229,
+        "genome_length": 4485450,
+        "cds_gc": 1580359,
+        "number_of_genes": 3931
+    },
+    "Candidatus_Liberibacter_asiaticus_strain_JXGC_NZ_CP019958": {
+        "cds_gc": 359965,
+        "number_of_genes": 1058,
+        "genome_gc": 446000,
+        "genome_length": 1225162
+    },
+    "Paraburkholderia_caribensis_strain_IAC_BECa88_chromosome_1_NZ_CP065405": {
+        "genome_gc": 5304693,
+        "genome_length": 8442553,
+        "cds_gc": 4574441,
+        "number_of_genes": 7522
+    },
+    "Streptococcus_sinensis_strain_HKU4_NZ_JPEN01000059": {
+        "cds_gc": 788644,
+        "number_of_genes": 1984,
+        "genome_gc": 869206,
+        "genome_length": 2061843
+    },
+    "ALL_Lactobacillus_amylolyticus_strain_L5_NZ_CP031835": {
+        "genome_gc": 612817,
+        "genome_length": 1601193,
+        "cds_gc": 546921,
+        "number_of_genes": 1596
+    },
+    "Allomuricauda_olearia_strain_Th120_NZ_ML142920": {
+        "genome_gc": 1733865,
+        "genome_length": 3953029,
+        "cds_gc": 1621873,
+        "number_of_genes": 3551
+    },
+    "ALL_Xanthomonas_albilineans_strain_Xa_FJ1_NZ_CP046570": {
+        "cds_gc": 2087343,
+        "number_of_genes": 3105,
+        "genome_gc": 2365462,
+        "genome_length": 3756117
+    },
+    "ALL_Cereibacter_sphaeroides_strain_CH10_chromosome_1_NZ_CP051469": {
+        "genome_gc": 3187447,
+        "genome_length": 4635445,
+        "cds_gc": 2815869,
+        "number_of_genes": 4432
+    },
+    "Pseudomonas_aeruginosa_strain_PAO1161_NZ_CP032126": {
+        "genome_gc": 4240044,
+        "genome_length": 6383803,
+        "cds_gc": 3852523,
+        "number_of_genes": 5831
+    },
+    "Bradyrhizobium_yuanmingense_strain_ALSPC2061_NZ_JARFMK010000009": {
+        "cds_gc": 4501650,
+        "number_of_genes": 7621,
+        "genome_gc": 5237192,
+        "genome_length": 8226123
+    },
+    "ALL_Rhodococcus_opacus_strain_S8_NZ_CP093380": {
+        "genome_gc": 5889288,
+        "genome_length": 8778379,
+        "cds_gc": 5280386,
+        "number_of_genes": 8183
+    },
+    "ALL_Burkholderia_pyrrocinia_strain_DSM_10685_chromosome_1_NZ_CP011505": {
+        "genome_gc": 5291018,
+        "genome_length": 7961346,
+        "cds_gc": 4641089,
+        "number_of_genes": 7126
+    },
+    "ALL_Rhodovastum_atsumiense_strain_G2_11_chromosome_RHOA_NZ_OW485601": {
+        "genome_gc": 5089866,
+        "genome_length": 7423543,
+        "cds_gc": 4542043,
+        "number_of_genes": 6659
+    },
+    "Brucella_intermedia_strain_NCTC12171_NZ_UGSH01000001": {
+        "cds_gc": 2433228,
+        "number_of_genes": 4428,
+        "genome_gc": 2729765,
+        "genome_length": 4727886
+    },
+    "Acetilactobacillus_jinshanensis_strain_HSLZ_75_NZ_CP034726": {
+        "genome_gc": 641509,
+        "genome_length": 1616430,
+        "cds_gc": 567613,
+        "number_of_genes": 1514
+    },
+    "ALL_Staphylococcus_haemolyticus_strain_S167_NZ_CP013911": {
+        "genome_gc": 840528,
+        "genome_length": 2560146,
+        "cds_gc": 733422,
+        "number_of_genes": 2441
+    },
+    "ALL_Paraburkholderia_caffeinilytica_strain_CF1_chromosome_1_NZ_CP031467": {
+        "genome_gc": 5179024,
+        "genome_length": 8324638,
+        "cds_gc": 4477226,
+        "number_of_genes": 7308
+    },
+    "Bifidobacterium_catenulatum_strain_IMAUFB087_NZ_CP128186": {
+        "genome_gc": 1151404,
+        "genome_length": 2051605,
+        "cds_gc": 1011322,
+        "number_of_genes": 1644
+    },
+    "ALL_Streptomyces_albus_strain_DSM_40763_NZ_CP103060": {
+        "genome_gc": 5833916,
+        "genome_length": 8033415,
+        "cds_gc": 4973819,
+        "number_of_genes": 6678
+    },
+    "Brucella_suis_strain_Human_AR_US_1981_chromosome_I_NZ_CP010851": {
+        "genome_gc": 1897947,
+        "genome_length": 3315086,
+        "cds_gc": 1695491,
+        "number_of_genes": 3165
+    },
+    "Shewanella_psychrophila_strain_WP2_NZ_CP014782": {
+        "genome_gc": 2814818,
+        "genome_length": 6353406,
+        "cds_gc": 2432853,
+        "number_of_genes": 5447
+    },
+    "Nitrosospira_lacus_strain_APG3_NZ_CP021106": {
+        "cds_gc": 1516748,
+        "number_of_genes": 2877,
+        "genome_gc": 1749339,
+        "genome_length": 3261088
+    },
+    "Aeromonas_sp_CA23_NZ_CP023818": {
+        "genome_gc": 3068159,
+        "genome_length": 5099209,
+        "cds_gc": 2712009,
+        "number_of_genes": 4580
+    },
+    "Lysinibacillus_parviboronicapiens_strain_VT1065_NZ_CP073713": {
+        "genome_gc": 1814891,
+        "genome_length": 4822805,
+        "cds_gc": 1499547,
+        "number_of_genes": 4599
+    },
+    "ALL_Leptospira_weilii_strain_CUDO6_chromosome_I_NZ_CP040841": {
+        "genome_gc": 1791170,
+        "genome_length": 4381393,
+        "cds_gc": 1525110,
+        "number_of_genes": 3931
+    },
+    "Candidatus_Baumannia_cicadellinicola_strain_BGSS_NZ_CP008985": {
+        "genome_gc": 296144,
+        "genome_length": 759425,
+        "cds_gc": 266581,
+        "number_of_genes": 685
+    },
+    "Enterobacter_cloacae_complex_sp_R_G8_NZ_CP102246": {
+        "cds_gc": 2501038,
+        "number_of_genes": 4556,
+        "genome_gc": 2732633,
+        "genome_length": 4952526
+    },
+    "ALL_Edwardsiella_hoshinae_strain_FDAARGOS_940_NZ_CP065626": {
+        "genome_gc": 2166914,
+        "genome_length": 3817113,
+        "cds_gc": 1880598,
+        "number_of_genes": 3400
+    },
+    "ALL_Rhizobium_phaseoli_strain_R650_NZ_CP013532": {
+        "genome_gc": 4125782,
+        "genome_length": 6726041,
+        "cds_gc": 3656378,
+        "number_of_genes": 6389
+    },
+    "Halanaerobium_congolense_strain_DSMZ_11287_NZ_SOEF01000093": {
+        "genome_gc": 937046,
+        "genome_length": 2831374,
+        "cds_gc": 844807,
+        "number_of_genes": 2693
+    },
+    "ALL_Bacteroides_cellulosilyticus_strain_CL06T03C01_NZ_CP072251": {
+        "genome_gc": 3114149,
+        "genome_length": 7271073,
+        "cds_gc": 2875258,
+        "number_of_genes": 5535
+    },
+    "ALL_Clostridium_butyricum_strain_CDC_51208_NZ_CP013239": {
+        "genome_gc": 1331351,
+        "genome_length": 4639914,
+        "cds_gc": 1151895,
+        "number_of_genes": 4103
+    },
+    "Bergeyella_zoohelcum_strain_NCTC11660_NZ_UFTL01000001": {
+        "genome_gc": 843587,
+        "genome_length": 2331468,
+        "cds_gc": 758360,
+        "number_of_genes": 2095
+    },
+    "Pseudomonas_sp_strain_MAG_876_NZ_CP119325": {
+        "genome_gc": 3860189,
+        "genome_length": 6226488,
+        "cds_gc": 3496170,
+        "number_of_genes": 5433
+    },
+    "Haemophilus_parainfluenzae_strain_EL1_NZ_CP125087": {
+        "genome_gc": 848516,
+        "genome_length": 2153240,
+        "cds_gc": 775853,
+        "number_of_genes": 2005
+    },
+    "Bacillus_paramycoides_strain_NH24A2_NZ_MAOI01000144": {
+        "genome_gc": 1920184,
+        "genome_length": 5453107,
+        "cds_gc": 1637906,
+        "number_of_genes": 5658
+    },
+    "ALL_Phaeobacter_piscinae_strain_S26_NZ_CP080275": {
+        "cds_gc": 2264071,
+        "number_of_genes": 3971,
+        "genome_gc": 2540743,
+        "genome_length": 4227039
+    },
+    "ALL_Mycobacterium_ulcerans_strain_JKD8049_NZ_CP085200": {
+        "genome_gc": 3786836,
+        "genome_length": 5789332,
+        "cds_gc": 3419960,
+        "number_of_genes": 5149
+    },
+    "Lactobacillus_acetotolerans_strain_LA749_NZ_CP044496": {
+        "cds_gc": 555399,
+        "number_of_genes": 1583,
+        "genome_gc": 614638,
+        "genome_length": 1683905
+    },
+    "Streptococcus_sanguinis_strain_NCTC11085_chromosome_1_NZ_LS483346": {
+        "genome_gc": 1052219,
+        "genome_length": 2449527,
+        "cds_gc": 962695,
+        "number_of_genes": 2325
+    },
+    "Treponema_denticola_strain_OKA3_NZ_CP058347": {
+        "cds_gc": 1009073,
+        "number_of_genes": 2618,
+        "genome_gc": 1081868,
+        "genome_length": 2853053
+    },
+    "ALL_Streptococcus_pneumoniae_strain_Hu17_NZ_CP020549": {
+        "genome_gc": 837132,
+        "genome_length": 2154362,
+        "cds_gc": 751611,
+        "number_of_genes": 2143
+    },
+    "ALL_Bifidobacterium_pseudocatenulatum_strain_YIT11953_NZ_CP079233": {
+        "genome_gc": 1265793,
+        "genome_length": 2245999,
+        "cds_gc": 1112805,
+        "number_of_genes": 1788
+    },
+    "ALL_Novosphingobium_resinovorum_strain_SA1_NZ_CP017075": {
+        "genome_gc": 4491630,
+        "genome_length": 6918128,
+        "cds_gc": 4033392,
+        "number_of_genes": 6450
+    },
+    "Microbulbifer_aggregans_strain_CCB_MM1_NZ_CP014143": {
+        "genome_gc": 2274198,
+        "genome_length": 3864326,
+        "cds_gc": 2021623,
+        "number_of_genes": 3301
+    },
+    "Leptospira_gomenensis_strain_201800299_NZ_RQFA01000093": {
+        "genome_gc": 1976005,
+        "genome_length": 4284018,
+        "cds_gc": 1762752,
+        "number_of_genes": 3888
+    },
+    "ALL_Myroides_odoratimimus_strain_G13_NZ_CP037427": {
+        "genome_gc": 1346722,
+        "genome_length": 3938030,
+        "cds_gc": 1180219,
+        "number_of_genes": 3450
+    },
+    "ALL_Yersinia_pestis_strain_SCPM_O_B_6899_231_NZ_CP045145": {
+        "genome_gc": 2289859,
+        "genome_length": 4806721,
+        "cds_gc": 1965687,
+        "number_of_genes": 4269
+    },
+    "Cystobacter_ferrugineus_strain_Cbfe23_NZ_MPIN01000026": {
+        "cds_gc": 7437670,
+        "number_of_genes": 9933,
+        "genome_gc": 8254762,
+        "genome_length": 12051756
+    },
+    "Serratia_fonticola_strain_DSM_4576_NZ_CP011254": {
+        "cds_gc": 2842704,
+        "number_of_genes": 5314,
+        "genome_gc": 3217042,
+        "genome_length": 6000511
+    },
+    "ALL_Ralstonia_insidiosa_strain_ATCC_49129_chromosome_1_NZ_CP016023": {
+        "genome_gc": 3888625,
+        "genome_length": 6177004,
+        "cds_gc": 3486656,
+        "number_of_genes": 5831
+    },
+    "Anoxybacillus_ayderensis_strain_MT_Cab_NZ_NDEZ01000092": {
+        "genome_gc": 1078803,
+        "genome_length": 2577015,
+        "cds_gc": 987294,
+        "number_of_genes": 2678
+    },
+    "Bifidobacterium_angulatum_strain_GT102_NZ_CP014241": {
+        "genome_gc": 1224317,
+        "genome_length": 2064639,
+        "cds_gc": 1064610,
+        "number_of_genes": 1609
+    },
+    "ALL_Enterobacter_asburiae_strain_17Nkhm_UP2_NZ_AP019630": {
+        "cds_gc": 2425456,
+        "number_of_genes": 4443,
+        "genome_gc": 2660265,
+        "genome_length": 4768325
+    },
+    "ALL_Carnobacterium_maltaromaticum_strain_SF2022_chromosome_SF2022_c1_NZ_OX460976": {
+        "cds_gc": 1049527,
+        "number_of_genes": 3152,
+        "genome_gc": 1207058,
+        "genome_length": 3502975
+    },
+    "Pseudomonas_syringae_group_genomosp_3_strain_CFBP6411_chromosome_I_NZ_LT963408": {
+        "genome_gc": 3726232,
+        "genome_length": 6363674,
+        "cds_gc": 3308111,
+        "number_of_genes": 5705
+    },
+    "ALL_Cellulosimicrobium_cellulans_strain_ORNL_0100_NZ_CP072387": {
+        "genome_gc": 3283612,
+        "genome_length": 4411608,
+        "cds_gc": 2957098,
+        "number_of_genes": 3955
+    },
+    "ALL_Nostoc_sphaeroides_strain_Kutzing_En_NZ_CP031941": {
+        "genome_gc": 2773602,
+        "genome_length": 6666468,
+        "cds_gc": 2216198,
+        "number_of_genes": 5998
+    },
+    "ALL_Aeromonas_salmonicida_strain_AS3_NZ_CP110645": {
+        "genome_gc": 2906077,
+        "genome_length": 4954811,
+        "cds_gc": 2574659,
+        "number_of_genes": 4475
+    },
+    "ALL_Bacillus_licheniformis_strain_SCDB_14_NZ_CP014842": {
+        "genome_gc": 1988996,
+        "genome_length": 4342466,
+        "cds_gc": 1773566,
+        "number_of_genes": 4362
+    },
+    "Pontibacter_korlensis_strain_X14_1T_NZ_CP009621": {
+        "genome_gc": 2586198,
+        "genome_length": 5462537,
+        "cds_gc": 2279953,
+        "number_of_genes": 4642
+    },
+    "Pseudomonas_mosselii_strain_PtA1_NZ_CP024159": {
+        "cds_gc": 3352410,
+        "number_of_genes": 5133,
+        "genome_gc": 3699053,
+        "genome_length": 5742165
+    },
+    "ALL_Alteromonas_mediterranea_strain_RG65_NZ_CP018029": {
+        "cds_gc": 1838539,
+        "number_of_genes": 3994,
+        "genome_gc": 2071450,
+        "genome_length": 4652214
+    },
+    "ALL_Staphylococcus_epidermidis_strain_ATCC_14990_NZ_CP035288": {
+        "genome_gc": 802609,
+        "genome_length": 2491058,
+        "cds_gc": 687078,
+        "number_of_genes": 2279
+    },
+    "ALL_Microcystis_aeruginosa_strain_NIES_88_NZ_AP024565": {
+        "cds_gc": 1931693,
+        "number_of_genes": 5485,
+        "genome_gc": 2342821,
+        "genome_length": 5501105
+    },
+    "Rhodoluna_lacicola_strain_MWH_Ta8_NZ_CP007490": {
+        "genome_gc": 737057,
+        "genome_length": 1430433,
+        "cds_gc": 700394,
+        "number_of_genes": 1369
+    },
+    "ALL_Streptococcus_thermophilus_strain_STH_CIRM_65_chromosome_STHERMO_NZ_LR822015": {
+        "genome_gc": 701015,
+        "genome_length": 1791634,
+        "cds_gc": 609858,
+        "number_of_genes": 1761
+    },
+    "Thermobifida_fusca_strain_UPMC_901_NZ_CP063232": {
+        "genome_gc": 2535313,
+        "genome_length": 3760927,
+        "cds_gc": 2131887,
+        "number_of_genes": 3239
+    },
+    "ALL_Variovorax_paradoxus_strain_SPNA7_NZ_CP138513": {
+        "cds_gc": 4460765,
+        "number_of_genes": 6602,
+        "genome_gc": 4769562,
+        "genome_length": 7079721
+    },
+    "Bradymonas_sediminis_strain_FA350_NZ_CP030032": {
+        "cds_gc": 2740111,
+        "number_of_genes": 3742,
+        "genome_gc": 3084763,
+        "genome_length": 5045683
+    },
+    "ALL_Acinetobacter_pittii_strain_AP_882_NZ_CP014477": {
+        "genome_gc": 1634692,
+        "genome_length": 4216804,
+        "cds_gc": 1473631,
+        "number_of_genes": 3918
+    },
+    "Serratia_sp_ATCC_39006_strain_LacA_NZ_CP025085": {
+        "genome_gc": 2450873,
+        "genome_length": 4971756,
+        "cds_gc": 2156615,
+        "number_of_genes": 4412
+    },
+    "ALL_Bifidobacterium_breve_strain_BR3_NZ_CP010413": {
+        "genome_gc": 1433522,
+        "genome_length": 2426006,
+        "cds_gc": 1262285,
+        "number_of_genes": 2109
+    },
+    "Actinosynnema_pretiosum_strain_X47_NZ_CP023445": {
+        "genome_gc": 6009737,
+        "genome_length": 8131572,
+        "cds_gc": 5280016,
+        "number_of_genes": 6969
+    },
+    "Mesorhizobium_japonicum_strain_R7ANSstar_NZ_CP052770": {
+        "genome_gc": 3812773,
+        "genome_length": 6028604,
+        "cds_gc": 3413413,
+        "number_of_genes": 5816
+    },
+    "Pseudomonas_chlororaphis_strain_qlu_1_NZ_CP061079": {
+        "genome_gc": 4305746,
+        "genome_length": 6827675,
+        "cds_gc": 3848556,
+        "number_of_genes": 6033
+    },
+    "Candidatus_Karelsulcia_muelleri_strain_PUNC_NZ_CP013212": {
+        "cds_gc": 42182,
+        "number_of_genes": 191,
+        "genome_gc": 45765,
+        "genome_length": 190657
+    },
+    "Photobacterium_galatheae_strain_DSM_100496_NZ_JAGSGC010000009": {
+        "genome_gc": 2700381,
+        "genome_length": 5470877,
+        "cds_gc": 2375141,
+        "number_of_genes": 4858
+    },
+    "ALL_Xylella_fastidiosa_strain_ICMP_15197_NZ_CP118539": {
+        "genome_gc": 1346255,
+        "genome_length": 2600197,
+        "cds_gc": 1121494,
+        "number_of_genes": 2305
+    },
+    "Succinivibrio_dextrinosolvens_strain_ASCUSBF53_chromosome_1_NZ_CP068346": {
+        "genome_gc": 1113959,
+        "genome_length": 2849946,
+        "cds_gc": 991925,
+        "number_of_genes": 2382
+    },
+    "Wolbachia_pipientis_strain_wStv_NZ_CP050531": {
+        "genome_gc": 417879,
+        "genome_length": 1185354,
+        "cds_gc": 356845,
+        "number_of_genes": 1097
+    },
+    "ALL_Desulfovibrio_ferrophilus_strain_IS5_NZ_AP017378": {
+        "genome_gc": 2085007,
+        "genome_length": 3720107,
+        "cds_gc": 1862641,
+        "number_of_genes": 3351
+    },
+    "ALL_Streptomyces_microflavus_strain_NA06532_NZ_CP054926": {
+        "genome_gc": 6026228,
+        "genome_length": 8452583,
+        "cds_gc": 5299292,
+        "number_of_genes": 7401
+    },
+    "ALL_Exiguobacterium_aurantiacum_strain_CX2_NZ_CP101462": {
+        "genome_gc": 1635126,
+        "genome_length": 3154266,
+        "cds_gc": 1487461,
+        "number_of_genes": 3168
+    },
+    "Virgibacillus_chiguensis_strain_CGMCC_1_6496_NZ_FQXD01000019": {
+        "genome_gc": 1507039,
+        "genome_length": 4128320,
+        "cds_gc": 1218480,
+        "number_of_genes": 3857
+    },
+    "ALL_Cronobacter_sakazakii_strain_CS_931_NZ_CP027107": {
+        "genome_gc": 2525754,
+        "genome_length": 4437993,
+        "cds_gc": 2263083,
+        "number_of_genes": 4107
+    },
+    "Burkholderia_seminalis_strain_FL_5_4_10_S1_D7_chromosome_1_NZ_CP013399": {
+        "genome_gc": 5147572,
+        "genome_length": 7648944,
+        "cds_gc": 4552608,
+        "number_of_genes": 6878
+    },
+    "ALL_Gordonia_rubripertincta_strain_SD5_NZ_CP059694": {
+        "genome_gc": 3553369,
+        "genome_length": 5263177,
+        "cds_gc": 3264330,
+        "number_of_genes": 4828
+    },
+    "Streptomyces_filamentosus_strain_ATCC_23958_NZ_PDCL01000002": {
+        "genome_gc": 5793305,
+        "genome_length": 7875407,
+        "cds_gc": 5091617,
+        "number_of_genes": 7077
+    },
+    "Staphylococcus_simiae_strain_NCTC13838_chromosome_1_NZ_LT906460": {
+        "cds_gc": 715440,
+        "number_of_genes": 2385,
+        "genome_gc": 850045,
+        "genome_length": 2643976
+    },
+    "ALL_Candidatus_Rhabdochlamydia_porcellionis_strain_15C_NZ_CP075585": {
+        "genome_gc": 534454,
+        "genome_length": 1511852,
+        "cds_gc": 486438,
+        "number_of_genes": 1388
+    },
+    "Pseudomonas_ogarae_strain_FR1_NZ_CP025738": {
+        "cds_gc": 3735194,
+        "number_of_genes": 6072,
+        "genome_gc": 4176358,
+        "genome_length": 6869391
+    },
+    "ALL_Paraburkholderia_terrae_strain_KU_64_chromosome_1_NZ_AP024958": {
+        "cds_gc": 5482426,
+        "number_of_genes": 9365,
+        "genome_gc": 6440748,
+        "genome_length": 10391472
+    },
+    "ALL_Riemerella_anatipestifer_strain_20190403E1_1_NZ_CP072186": {
+        "genome_gc": 761612,
+        "genome_length": 2175511,
+        "cds_gc": 702293,
+        "number_of_genes": 2010
+    },
+    "Thermus_scotoductus_strain_6_S6_NZ_PEMR01000314": {
+        "genome_gc": 1452091,
+        "genome_length": 2231550,
+        "cds_gc": 1356317,
+        "number_of_genes": 2568
+    },
+    "Xanthomonas_vasicola_strain_NCPPB_902_NZ_CP034657": {
+        "cds_gc": 2676842,
+        "number_of_genes": 4217,
+        "genome_gc": 3113028,
+        "genome_length": 4916019
+    },
+    "ALL_Streptomyces_venezuelae_strain_NRRL_B_65442_NZ_CP018074": {
+        "genome_gc": 6069056,
+        "genome_length": 8380320,
+        "cds_gc": 5447943,
+        "number_of_genes": 7514
+    },
+    "Eubacterium_limosum_strain_ATCC_8486_NZ_CP019962": {
+        "genome_gc": 2087156,
+        "genome_length": 4422837,
+        "cds_gc": 1904664,
+        "number_of_genes": 4125
+    },
+    "ALL_Shigella_dysenteriae_strain_SWHEFF_49_NZ_CP055055": {
+        "genome_gc": 2628681,
+        "genome_length": 5192674,
+        "cds_gc": 2373460,
+        "number_of_genes": 4888
+    },
+    "Pseudoalteromonas_sp_GCY_chromosome_1_NZ_CP068023": {
+        "genome_gc": 2372069,
+        "genome_length": 5472350,
+        "cds_gc": 2120059,
+        "number_of_genes": 4677
+    },
+    "Exiguobacterium_sp_AT1b_NC_012673": {
+        "genome_gc": 1453826,
+        "genome_length": 2999895,
+        "cds_gc": 1326404,
+        "number_of_genes": 3022
+    },
+    "ALL_Rhodococcus_oxybenzonivorans_strain_S2_17_NZ_CP021354": {
+        "cds_gc": 4660958,
+        "number_of_genes": 7443,
+        "genome_gc": 5255875,
+        "genome_length": 8014224
+    },
+    "Paenibacillus_glucanolyticus_strain_SLM1_NZ_LWMH01000003": {
+        "cds_gc": 2946066,
+        "number_of_genes": 6419,
+        "genome_gc": 3384591,
+        "genome_length": 7039886
+    },
+    "Pseudomonas_sivasensis_strain_BsEB_1_NZ_CP090029": {
+        "genome_gc": 3648222,
+        "genome_length": 6101651,
+        "cds_gc": 3309120,
+        "number_of_genes": 5480
+    },
+    "Pseudomonas_koreensis_strain_LMG_21318_chromosome_I_NZ_LT629687": {
+        "cds_gc": 3317487,
+        "number_of_genes": 5503,
+        "genome_gc": 3706910,
+        "genome_length": 6123913
+    },
+    "Frankia_casuarinae_strain_CcI3_NC_007777": {
+        "genome_gc": 3807822,
+        "genome_length": 5433628,
+        "cds_gc": 3212091,
+        "number_of_genes": 4671
+    },
+    "ALL_Burkholderia_sp_JP2_270_chromosome_1_NZ_CP029826": {
+        "cds_gc": 5153681,
+        "number_of_genes": 8026,
+        "genome_gc": 5886729,
+        "genome_length": 8925310
+    },
+    "Saccharopolyspora_erythraea_strain_SCSIO_07745_NZ_CP054839": {
+        "genome_gc": 5858669,
+        "genome_length": 8243897,
+        "cds_gc": 5131028,
+        "number_of_genes": 7415
+    },
+    "Pseudomonas_savastanoi_strain_MHT1_NZ_CP076652": {
+        "genome_gc": 3508289,
+        "genome_length": 5999881,
+        "cds_gc": 3144388,
+        "number_of_genes": 5103
+    },
+    "Mycolicibacterium_iranicum_strain_DSM_45541_NZ_LQPC01000082": {
+        "genome_gc": 4187632,
+        "genome_length": 6335651,
+        "cds_gc": 3896739,
+        "number_of_genes": 6080
+    },
+    "ALL_Agrobacterium_sp_CGMCC_11546_chromosome_1_NZ_CP047388": {
+        "cds_gc": 2916492,
+        "number_of_genes": 5150,
+        "genome_gc": 3257333,
+        "genome_length": 5520332
+    },
+    "Egicoccus_halophilus_strain_EGI_80432_NZ_CP036250": {
+        "genome_gc": 2890099,
+        "genome_length": 3980161,
+        "cds_gc": 2592183,
+        "number_of_genes": 3600
+    },
+    "Methylorubrum_extorquens_strain_PA1_NZ_CP077638": {
+        "genome_gc": 3734724,
+        "genome_length": 5476976,
+        "cds_gc": 3195658,
+        "number_of_genes": 5016
+    },
+    "Bordetella_bronchiseptica_strain_NCTC10543_chromosome_1_NZ_LR134326": {
+        "genome_gc": 3548841,
+        "genome_length": 5199761,
+        "cds_gc": 3289524,
+        "number_of_genes": 4796
+    },
+    "ALL_Priestia_aryabhattai_strain_K13_NZ_CP024035": {
+        "cds_gc": 1706418,
+        "number_of_genes": 5310,
+        "genome_gc": 2005323,
+        "genome_length": 5254250
+    },
+    "ALL_Klebsiella_aerogenes_strain_Ka37751_NZ_CP041925": {
+        "genome_gc": 2882121,
+        "genome_length": 5249267,
+        "cds_gc": 2606795,
+        "number_of_genes": 4879
+    },
+    "ALL_Pantoea_agglomerans_strain_FDAARGOS_1447_NZ_CP077366": {
+        "genome_gc": 2585725,
+        "genome_length": 4692018,
+        "cds_gc": 2279397,
+        "number_of_genes": 4248
+    },
+    "Listeria_ivanovii_strain_RR3_NZ_CP034771": {
+        "genome_gc": 1070963,
+        "genome_length": 2893311,
+        "cds_gc": 970424,
+        "number_of_genes": 2810
+    },
+    "Pseudomonas_psychrophila_strain_KM02_NZ_CP049044": {
+        "cds_gc": 2719212,
+        "number_of_genes": 4738,
+        "genome_gc": 3052164,
+        "genome_length": 5313922
+    },
+    "Pseudomonas_simiae_strain_PCL1751_NZ_CP010896": {
+        "cds_gc": 3376761,
+        "number_of_genes": 5580,
+        "genome_gc": 3708309,
+        "genome_length": 6143950
+    },
+    "Geomonas_nitrogeniifigens_strain_RF4_NZ_CP077684": {
+        "cds_gc": 2661825,
+        "number_of_genes": 4162,
+        "genome_gc": 2981714,
+        "genome_length": 4829642
+    },
+    "Stutzerimonas_stutzeri_strain_F2a_NZ_AP024722": {
+        "genome_gc": 2922767,
+        "genome_length": 4545686,
+        "cds_gc": 2654104,
+        "number_of_genes": 4215
+    },
+    "Carnobacterium_alterfunditum_strain_313_NZ_FSRN01000001": {
+        "genome_gc": 918873,
+        "genome_length": 2548842,
+        "cds_gc": 773698,
+        "number_of_genes": 2298
+    },
+    "Polaribacter_sp_MED152_NC_020830": {
+        "genome_gc": 905869,
+        "genome_length": 2961474,
+        "cds_gc": 853496,
+        "number_of_genes": 2626
+    },
+    "ALL_Lactococcus_cremoris_strain_7_1_NZ_AP025520": {
+        "genome_gc": 959369,
+        "genome_length": 2687455,
+        "cds_gc": 844719,
+        "number_of_genes": 2671
+    },
+    "Cutibacterium_acnes_strain_PA_12_1_L1_NZ_CP012354": {
+        "genome_gc": 1496015,
+        "genome_length": 2491961,
+        "cds_gc": 1343888,
+        "number_of_genes": 2374
+    },
+    "ALL_Dinoroseobacter_shibae_strain_DSM_112351_NZ_CP097540": {
+        "genome_gc": 2954466,
+        "genome_length": 4519927,
+        "cds_gc": 2682336,
+        "number_of_genes": 4382
+    },
+    "ALL_Companilactobacillus_futsaii_strain_Y97_NZ_CP040736": {
+        "cds_gc": 846722,
+        "number_of_genes": 2610,
+        "genome_gc": 947331,
+        "genome_length": 2648769
+    },
+    "ALL_Dolichospermum_sp_UHCC_0315A_NZ_CP043056": {
+        "genome_gc": 2152906,
+        "genome_length": 5642022,
+        "cds_gc": 1804533,
+        "number_of_genes": 5219
+    },
+    "ALL_Azotobacter_chroococcum_strain_B3_NZ_CP011835": {
+        "genome_gc": 3322014,
+        "genome_length": 5023055,
+        "cds_gc": 2935761,
+        "number_of_genes": 4673
+    },
+    "Pectobacterium_polaris_strain_NIBIO1392_NZ_CP017482": {
+        "cds_gc": 2302023,
+        "number_of_genes": 4342,
+        "genome_gc": 2603992,
+        "genome_length": 5008416
+    },
+    "ALL_Streptococcus_mutans_strain_NCH105_NZ_CP044221": {
+        "genome_gc": 747324,
+        "genome_length": 2028032,
+        "cds_gc": 655795,
+        "number_of_genes": 1921
+    },
+    "Akkermansia_biwaensis_strain_WON2089_NZ_AP025943": {
+        "genome_gc": 1802303,
+        "genome_length": 3175525,
+        "cds_gc": 1604706,
+        "number_of_genes": 2551
+    },
+    "Treponema_pallidum_strain_P_21_20119_NZ_CP124567": {
+        "genome_gc": 598055,
+        "genome_length": 1139603,
+        "cds_gc": 550109,
+        "number_of_genes": 1022
+    },
+    "ALL_Rhodococcus_qingshengii_strain_CS98_NZ_AP023172": {
+        "genome_gc": 4196107,
+        "genome_length": 6726107,
+        "cds_gc": 3819498,
+        "number_of_genes": 6179
+    },
+    "Gordonibacter_pamelaeae_strain_3C_NZ_PPTS01000009": {
+        "genome_gc": 2255250,
+        "genome_length": 3399441,
+        "cds_gc": 1996431,
+        "number_of_genes": 2982
+    },
+    "ALL_Paenibacillus_polymyxa_strain_ZF129_NZ_CP040829": {
+        "cds_gc": 2311025,
+        "number_of_genes": 4990,
+        "genome_gc": 2641225,
+        "genome_length": 5820553
+    },
+    "Bacteroides_uniformis_strain_FDAARGOS_901_NZ_CP065889": {
+        "genome_gc": 2197948,
+        "genome_length": 4728573,
+        "cds_gc": 2038068,
+        "number_of_genes": 3769
+    },
+    "ALL_Bacillus_anthracis_strain_Pollino_NZ_CP010813": {
+        "genome_gc": 1939640,
+        "genome_length": 5503895,
+        "cds_gc": 1669628,
+        "number_of_genes": 5647
+    },
+    "Campylobacter_jejuni_strain_BCH_10089_NZ_AP028330": {
+        "genome_gc": 499688,
+        "genome_length": 1634766,
+        "cds_gc": 476175,
+        "number_of_genes": 1649
+    },
+    "Streptomyces_aculeolatus_strain_DSM_41644_NZ_JAINRD010000009": {
+        "genome_gc": 6587332,
+        "genome_length": 8986452,
+        "cds_gc": 5892647,
+        "number_of_genes": 7732
+    },
+    "Flammeovirga_pacifica_strain_WPAGA1_NZ_JRYR02000009": {
+        "genome_gc": 2153481,
+        "genome_length": 6610326,
+        "cds_gc": 1952870,
+        "number_of_genes": 4913
+    },
+    "Rossellomorea_marisflavi_strain_JCM_11544_NZ_LGUE01000005": {
+        "cds_gc": 1857127,
+        "number_of_genes": 4365,
+        "genome_gc": 2094151,
+        "genome_length": 4312088
+    },
+    "Aeromonas_hydrophila_strain_FDAARGOS_916_NZ_CP065651": {
+        "cds_gc": 2601116,
+        "number_of_genes": 4236,
+        "genome_gc": 2916556,
+        "genome_length": 4733702
+    },
+    "ALL_Rhizobium_leguminosarum_strain_SM52_NZ_SILH01000009": {
+        "genome_gc": 4609386,
+        "genome_length": 7598116,
+        "cds_gc": 4083361,
+        "number_of_genes": 7273
+    },
+    "Pseudomonas_extremaustralis_strain_DSM_17835_chromosome_I_NZ_LT629689": {
+        "genome_gc": 4045189,
+        "genome_length": 6674429,
+        "cds_gc": 3677223,
+        "number_of_genes": 6133
+    },
+    "Burkholderia_latens_strain_BCC1625_NZ_CADFCV010000029": {
+        "cds_gc": 4133987,
+        "number_of_genes": 6387,
+        "genome_gc": 4734588,
+        "genome_length": 7084826
+    },
+    "Clostridium_pasteurianum_strain_M150B_NZ_CP013019": {
+        "genome_gc": 1302749,
+        "genome_length": 4351863,
+        "cds_gc": 1109001,
+        "number_of_genes": 3999
+    },
+    "ALL_Fusobacterium_polymorphum_strain_NCTC10562_chromosome_1_NZ_LN831027": {
+        "genome_gc": 662575,
+        "genome_length": 2455060,
+        "cds_gc": 604579,
+        "number_of_genes": 2335
+    },
+    "Thermus_filiformis_strain_ATCC_43280_NZ_JPSL02000040": {
+        "genome_gc": 1646713,
+        "genome_length": 2386081,
+        "cds_gc": 1542287,
+        "number_of_genes": 2395
+    },
+    "Sulfurimonas_hydrogeniphila_strain_NW10_NZ_CP035534": {
+        "genome_gc": 873548,
+        "genome_length": 2342011,
+        "cds_gc": 818495,
+        "number_of_genes": 2429
+    },
+    "Pseudomonas_nicosulfuronedens_strain_LAM1902_NZ_SWDV01000141": {
+        "genome_gc": 4325329,
+        "genome_length": 6677205,
+        "cds_gc": 3894467,
+        "number_of_genes": 6128
+    },
+    "Vibrio_campbellii_strain_BoB_53_chromosome_1_NZ_CP026322": {
+        "genome_gc": 2471695,
+        "genome_length": 5425575,
+        "cds_gc": 2159441,
+        "number_of_genes": 4753
+    },
+    "ALL_Rhodospirillum_rubrum_strain_DSM_467_NZ_CP077803": {
+        "genome_gc": 2880862,
+        "genome_length": 4406405,
+        "cds_gc": 2571996,
+        "number_of_genes": 3909
+    },
+    "Anaeromicrobium_sediminis_strain_DY2726D_NZ_NIBG01000009": {
+        "cds_gc": 1290763,
+        "number_of_genes": 4375,
+        "genome_gc": 1472418,
+        "genome_length": 4710588
+    },
+    "ALL_Salmonella_enterica_strain_FDAARGOS_94_NZ_CP014051": {
+        "genome_gc": 2586573,
+        "genome_length": 4951423,
+        "cds_gc": 2319033,
+        "number_of_genes": 4706
+    },
+    "ALL_Bacillus_velezensis_strain_JS25R_NZ_CP009679": {
+        "genome_gc": 1862335,
+        "genome_length": 4014440,
+        "cds_gc": 1686689,
+        "number_of_genes": 3833
+    },
+    "Pseudoalteromonas_lipolytica_strain_CSB02KR_NZ_MBSZ01000048": {
+        "genome_gc": 1821561,
+        "genome_length": 4387864,
+        "cds_gc": 1660772,
+        "number_of_genes": 3818
+    },
+    "Streptococcus_oralis_strain_FDAARGOS_1075_NZ_CP066041": {
+        "genome_gc": 826176,
+        "genome_length": 1994899,
+        "cds_gc": 754244,
+        "number_of_genes": 1838
+    },
+    "Streptomyces_caniscabiei_strain_ID03_3A_NZ_CP119182": {
+        "genome_gc": 7303591,
+        "genome_length": 10262635,
+        "cds_gc": 6385501,
+        "number_of_genes": 8942
+    },
+    "Avibacterium_paragallinarum_strain_ESV_135_NZ_CP050316": {
+        "genome_gc": 1030878,
+        "genome_length": 2521134,
+        "cds_gc": 927454,
+        "number_of_genes": 2389
+    },
+    "ALL_Bradyrhizobium_guangxiense_strain_CCBAU_53363_NZ_CP022219": {
+        "cds_gc": 4603160,
+        "number_of_genes": 7755,
+        "genome_gc": 5240983,
+        "genome_length": 8200121
+    },
+    "ALL_Rhizobium_favelukesii_strain_LPU83_NZ_HG916852": {
+        "genome_gc": 4515423,
+        "genome_length": 7569648,
+        "cds_gc": 3894101,
+        "number_of_genes": 7508
+    },
+    "Burkholderia_pseudomallei_strain_Mahidol_1106a_chromosome_1_NZ_CP008782": {
+        "cds_gc": 4164963,
+        "number_of_genes": 6200,
+        "genome_gc": 4836611,
+        "genome_length": 7085397
+    },
+    "ALL_Aminobacter_niigataensis_strain_MD1_chromosome_AMD1_NZ_OX341517": {
+        "genome_gc": 3397892,
+        "genome_length": 5357197,
+        "cds_gc": 3054059,
+        "number_of_genes": 5189
+    },
+    "Candidatus_Nitrospira_inopinata_strain_ENR4_chromosome_1_NZ_LN885086": {
+        "cds_gc": 1726873,
+        "number_of_genes": 3052,
+        "genome_gc": 1951738,
+        "genome_length": 3295117
+    },
+    "ALL_Cupriavidus_gilardii_strain_FDAARGOS_639_chromosome_1_NZ_CP054626": {
+        "genome_gc": 3885235,
+        "genome_length": 5760010,
+        "cds_gc": 3445159,
+        "number_of_genes": 5134
+    },
+    "ALL_Rhizobium_rhizogenes_strain_LBA9402_chromosome_1_NZ_CP044123": {
+        "genome_gc": 3728634,
+        "genome_length": 6215524,
+        "cds_gc": 3345879,
+        "number_of_genes": 5836
+    },
+    "Streptococcus_downii_strain_CECT_9732_NZ_MZNX01000009": {
+        "genome_gc": 790015,
+        "genome_length": 1922750,
+        "cds_gc": 729061,
+        "number_of_genes": 1882
+    },
+    "Trueperella_pyogenes_strain_TP6375_NZ_CP007519": {
+        "cds_gc": 1269714,
+        "number_of_genes": 2072,
+        "genome_gc": 1391374,
+        "genome_length": 2338390
+    },
+    "Lysinibacillus_varians_strain_GY32_NZ_CP006837": {
+        "genome_gc": 1733783,
+        "genome_length": 4662822,
+        "cds_gc": 1468298,
+        "number_of_genes": 4482
+    },
+    "ALL_Paracoccus_denitrificans_strain_ATCC_19367_chromosome_1_NZ_CP035091": {
+        "genome_gc": 3501844,
+        "genome_length": 5242327,
+        "cds_gc": 3195454,
+        "number_of_genes": 5170
+    },
+    "Flavobacterium_sp_Sr18_NZ_CP049329": {
+        "cds_gc": 1170839,
+        "number_of_genes": 3235,
+        "genome_gc": 1306427,
+        "genome_length": 3799679
+    },
+    "Staphylococcus_aureus_strain_Sa_Newman_UoM_chromosome_1_NZ_LT598688": {
+        "genome_gc": 946800,
+        "genome_length": 2878896,
+        "cds_gc": 820151,
+        "number_of_genes": 2855
+    },
+    "ALL_Bacteroides_thetaiotaomicron_strain_DSM_2079_NZ_CP040530": {
+        "genome_gc": 2702986,
+        "genome_length": 6304193,
+        "cds_gc": 2480389,
+        "number_of_genes": 4788
+    },
+    "ALL_Vibrio_coralliilyticus_strain_S2052_chromosome_1_NZ_CP063052": {
+        "genome_gc": 2487395,
+        "genome_length": 5436965,
+        "cds_gc": 2227190,
+        "number_of_genes": 4914
+    },
+    "Leptospira_yasudae_strain_F1_NZ_QHCU01000009": {
+        "genome_gc": 2021710,
+        "genome_length": 4444566,
+        "cds_gc": 1830404,
+        "number_of_genes": 4066
+    },
+    "Dehalococcoides_mccartyi_strain_WBC_2_NZ_CP017572": {
+        "genome_gc": 652215,
+        "genome_length": 1374583,
+        "cds_gc": 600416,
+        "number_of_genes": 1435
+    },
+    "Spirosoma_montaniterrae_strain_DY10_NZ_CP014263": {
+        "genome_gc": 3055243,
+        "genome_length": 5797678,
+        "cds_gc": 2830854,
+        "number_of_genes": 4974
+    },
+    "Thermoanaerobacter_sp_X514_NC_010320": {
+        "genome_gc": 848213,
+        "genome_length": 2457259,
+        "cds_gc": 753000,
+        "number_of_genes": 2440
+    },
+    "Marinomonas_mediterranea_strain_MMB_3_CPR1_NZ_CP047694": {
+        "genome_gc": 2074624,
+        "genome_length": 4700249,
+        "cds_gc": 1842215,
+        "number_of_genes": 4187
+    },
+    "Burkholderia_mallei_strain_Turkey2_chromosome_1_NZ_CP009728": {
+        "genome_gc": 3829038,
+        "genome_length": 5592049,
+        "cds_gc": 3312821,
+        "number_of_genes": 5017
+    },
+    "Desulfovibrio_sp_G11_strain_G11PacBio_chromosome_1_NZ_LT984798": {
+        "cds_gc": 1665060,
+        "number_of_genes": 2898,
+        "genome_gc": 1950046,
+        "genome_length": 3416440
+    },
+    "ALL_Enterobacter_cloacae_strain_1382_chromosome_main_NZ_OW968328": {
+        "cds_gc": 2518370,
+        "number_of_genes": 4705,
+        "genome_gc": 2756638,
+        "genome_length": 5023439
+    },
+    "ALL_Agrobacterium_tumefaciens_strain_12D1_chromosome_circular_NZ_CP033032": {
+        "genome_gc": 3241260,
+        "genome_length": 5446032,
+        "cds_gc": 2903168,
+        "number_of_genes": 5021
+    },
+    "ALL_Vibrio_tasmaniensis_strain_LMG_20012_chromosome_1_NZ_AP025511": {
+        "cds_gc": 1901523,
+        "number_of_genes": 4263,
+        "genome_gc": 2201176,
+        "genome_length": 4992314
+    },
+    "Paenibacillus_taichungensis_strain_53b_NZ_JAVLTD010000009": {
+        "genome_gc": 3172696,
+        "genome_length": 6885193,
+        "cds_gc": 2792502,
+        "number_of_genes": 6124
+    },
+    "Moritella_viscosa_strain_LFI_5006_NZ_FPLG01000093": {
+        "genome_gc": 2028120,
+        "genome_length": 5165999,
+        "cds_gc": 1799093,
+        "number_of_genes": 4620
+    },
+    "Ligilactobacillus_agilis_strain_AM_LB8_NZ_CP104397": {
+        "genome_gc": 897716,
+        "genome_length": 2162388,
+        "cds_gc": 802129,
+        "number_of_genes": 2028
+    },
+    "ALL_Rhodococcus_rhodochrous_strain_LH_B3_NZ_CP120356": {
+        "genome_gc": 3821413,
+        "genome_length": 5612657,
+        "cds_gc": 3488130,
+        "number_of_genes": 5103
+    },
+    "ALL_Brevibacterium_linens_strain_ATCC_19391_NZ_CP026734": {
+        "genome_gc": 2470814,
+        "genome_length": 3814300,
+        "cds_gc": 2208612,
+        "number_of_genes": 3388
+    },
+    "ALL_Loktanella_salsilacus_strain_1A07899_NZ_CP072994": {
+        "cds_gc": 2133396,
+        "number_of_genes": 3685,
+        "genome_gc": 2350228,
+        "genome_length": 3913840
+    },
+    "Neisseria_meningitidis_strain_11_7_NZ_CP021520": {
+        "genome_gc": 1116828,
+        "genome_length": 2157444,
+        "cds_gc": 949434,
+        "number_of_genes": 2060
+    },
+    "Staphylococcus_carnosus_strain_NCTC13825_NZ_UHCT01000001": {
+        "cds_gc": 780109,
+        "number_of_genes": 2458,
+        "genome_gc": 892783,
+        "genome_length": 2576833
+    },
+    "Paenibacillus_kribbensis_strain_AM49_NZ_CP020028": {
+        "genome_gc": 2703574,
+        "genome_length": 5778702,
+        "cds_gc": 2374987,
+        "number_of_genes": 5059
+    },
+    "ALL_Glutamicibacter_nicotianae_strain_OTC_16_NZ_CP033081": {
+        "genome_gc": 2343929,
+        "genome_length": 3797724,
+        "cds_gc": 2088985,
+        "number_of_genes": 3493
+    },
+    "Bradyrhizobium_japonicum_strain_5038_NZ_CP058354": {
+        "genome_gc": 5873425,
+        "genome_length": 9226248,
+        "cds_gc": 5058067,
+        "number_of_genes": 8678
+    },
+    "Streptomyces_nodosus_strain_ZJB2016050_NZ_CP071465": {
+        "genome_gc": 5404784,
+        "genome_length": 7621081,
+        "cds_gc": 4665378,
+        "number_of_genes": 6636
+    },
+    "ALL_Yersinia_enterocolitica_strain_NW56_NZ_CP107102": {
+        "cds_gc": 1900986,
+        "number_of_genes": 4051,
+        "genome_gc": 2144145,
+        "genome_length": 4548822
+    },
+    "ALL_Pseudomonas_lundensis_strain_2T_2_5_2_NZ_CP062158": {
+        "genome_gc": 2891695,
+        "genome_length": 4934136,
+        "cds_gc": 2602389,
+        "number_of_genes": 4475
+    },
+    "ALL_Conchiformibius_steedae_strain_DSM_2580_NZ_CP059563": {
+        "cds_gc": 1017407,
+        "number_of_genes": 2093,
+        "genome_gc": 1116966,
+        "genome_length": 2205122
+    },
+    "Priestia_megaterium_strain_22_2_NZ_NKAQ01000009": {
+        "cds_gc": 1808967,
+        "number_of_genes": 5747,
+        "genome_gc": 2106461,
+        "genome_length": 5600120
+    },
+    "ALL_Paracidovorax_citrulli_strain_NWB_SC196_NZ_CP042323": {
+        "genome_gc": 3408648,
+        "genome_length": 4956056,
+        "cds_gc": 3095832,
+        "number_of_genes": 4491
+    },
+    "Leptospira_adleri_strain_201601302_NZ_RQHG01000008": {
+        "cds_gc": 1532383,
+        "number_of_genes": 3475,
+        "genome_gc": 1740765,
+        "genome_length": 3956744
+    },
+    "Streptomyces_albidoflavus_strain_J1074_NC_020990": {
+        "cds_gc": 4394261,
+        "number_of_genes": 5888,
+        "genome_gc": 5016384,
+        "genome_length": 6841649
+    },
+    "Pseudomonas_chengduensis_strain_T1624_NZ_CP095766": {
+        "genome_gc": 3486061,
+        "genome_length": 5579170,
+        "cds_gc": 3139188,
+        "number_of_genes": 5115
+    },
+    "Burkholderia_cenocepacia_strain_MSMB384WGS_chromosome_1_NZ_CP013451": {
+        "genome_gc": 5232742,
+        "genome_length": 7780598,
+        "cds_gc": 4634107,
+        "number_of_genes": 7016
+    },
+    "Bifidobacterium_dentium_strain_NCTC11816_chromosome_1_NZ_LR134349": {
+        "genome_gc": 1542987,
+        "genome_length": 2635828,
+        "cds_gc": 1367908,
+        "number_of_genes": 2114
+    },
+    "Streptomyces_atratus_strain_SCSIO_ZH16_NZ_CP027306": {
+        "genome_gc": 6709485,
+        "genome_length": 9641288,
+        "cds_gc": 5792827,
+        "number_of_genes": 8508
+    },
+    "Latilactobacillus_curvatus_strain_WiKim52_NZ_CP016602": {
+        "genome_gc": 834724,
+        "genome_length": 1986991,
+        "cds_gc": 737651,
+        "number_of_genes": 1977
+    },
+    "ALL_Serratia_liquefaciens_strain_S1_NZ_CP048784": {
+        "cds_gc": 2642847,
+        "number_of_genes": 4934,
+        "genome_gc": 2958750,
+        "genome_length": 5349947
+    },
+    "Kyrpidia_spormannii_strain_EA_1_NZ_CP024955": {
+        "cds_gc": 1714930,
+        "number_of_genes": 3169,
+        "genome_gc": 1968045,
+        "genome_length": 3352175
+    },
+    "ALL_Oenococcus_oeni_strain_AWRIB429_NZ_CP084701": {
+        "genome_gc": 720401,
+        "genome_length": 1892074,
+        "cds_gc": 655999,
+        "number_of_genes": 1916
+    },
+    "Shewanella_inventionis_strain_D1489_NZ_CP082926": {
+        "genome_gc": 2048829,
+        "genome_length": 4831636,
+        "cds_gc": 1777994,
+        "number_of_genes": 4190
+    },
+    "Microbacterium_resistens_strain_MZT7_NZ_CP082781": {
+        "cds_gc": 2611785,
+        "number_of_genes": 3750,
+        "genome_gc": 2858592,
+        "genome_length": 4011347
+    },
+    "ALL_Vibrio_pelagius_strain_WXL662_chromosome_1_NZ_CP090615": {
+        "genome_gc": 2091442,
+        "genome_length": 4635961,
+        "cds_gc": 1823236,
+        "number_of_genes": 3935
+    },
+    "Undibacterium_umbellatum_strain_NL8W_NZ_JACOFX010000009": {
+        "genome_gc": 3256862,
+        "genome_length": 6458716,
+        "cds_gc": 2930209,
+        "number_of_genes": 5798
+    },
+    "Pseudomonas_plecoglossicida_strain_XSDHY_P_NZ_CP031146": {
+        "genome_gc": 3462371,
+        "genome_length": 5525520,
+        "cds_gc": 3131122,
+        "number_of_genes": 5001
+    },
+    "ALL_Acetobacter_pasteurianus_strain_CICC_22518_NZ_CP039846": {
+        "genome_gc": 1767925,
+        "genome_length": 3403928,
+        "cds_gc": 1598273,
+        "number_of_genes": 3069
+    },
+    "Methylomonas_sp_LW13_NZ_CP033381": {
+        "genome_gc": 2711826,
+        "genome_length": 5233523,
+        "cds_gc": 2444295,
+        "number_of_genes": 4748
+    },
+    "Helicobacter_cinaedi_strain_gHKSHhc_BC_20160917_NZ_CP029337": {
+        "genome_gc": 780860,
+        "genome_length": 1995911,
+        "cds_gc": 724129,
+        "number_of_genes": 2037
+    },
+    "Acidipropionibacterium_acidipropionici_strain_CGMCC_1_2230_NZ_CP013126": {
+        "genome_gc": 2510939,
+        "genome_length": 3651382,
+        "cds_gc": 2248299,
+        "number_of_genes": 3304
+    },
+    "ALL_Achromobacter_xylosoxidans_strain_FDAARGOS_1091_NZ_CP068211": {
+        "genome_gc": 4657106,
+        "genome_length": 6901970,
+        "cds_gc": 4248264,
+        "number_of_genes": 6372
+    },
+    "ALL_Pseudomonas_syringae_strain_Susan2139_NZ_CP074578": {
+        "genome_gc": 3461506,
+        "genome_length": 5868373,
+        "cds_gc": 3091902,
+        "number_of_genes": 5135
+    },
+    "Bacteroides_intestinalis_strain_APC919_174_NZ_CP064940": {
+        "genome_gc": 2460858,
+        "genome_length": 5785766,
+        "cds_gc": 2272099,
+        "number_of_genes": 4389
+    },
+    "Streptomyces_sp_SH5_NZ_CP123780": {
+        "genome_gc": 5578802,
+        "genome_length": 7779627,
+        "cds_gc": 4924266,
+        "number_of_genes": 6740
+    },
+    "ALL_Rhodococcus_aetherivorans_strain_N1_NZ_CP106982": {
+        "genome_gc": 4595790,
+        "genome_length": 6558029,
+        "cds_gc": 4151935,
+        "number_of_genes": 5891
+    },
+    "Lysobacter_capsici_strain_KNU_14_NZ_CP023465": {
+        "cds_gc": 3532823,
+        "number_of_genes": 5130,
+        "genome_gc": 4189076,
+        "genome_length": 6270417
+    },
+    "Mycolicibacterium_fortuitum_strain_MF_GZ001_NZ_CP107719": {
+        "genome_gc": 4244546,
+        "genome_length": 6413573,
+        "cds_gc": 3957559,
+        "number_of_genes": 6109
+    },
+    "Listeria_seeligeri_strain_RR4_NZ_CP034772": {
+        "cds_gc": 975898,
+        "number_of_genes": 2846,
+        "genome_gc": 1071501,
+        "genome_length": 2872774
+    },
+    "ALL_Enterococcus_durans_strain_BDGP3_NZ_CP022930": {
+        "cds_gc": 970949,
+        "number_of_genes": 2725,
+        "genome_gc": 1136990,
+        "genome_length": 2988928
+    },
+    "Bradyrhizobium_arachidis_strain_CCBAU_051107_NZ_CP030050": {
+        "cds_gc": 5364416,
+        "number_of_genes": 9333,
+        "genome_gc": 6277095,
+        "genome_length": 9865973
+    },
+    "Lysobacter_enzymogenes_strain_M497_1_NZ_AP014940": {
+        "genome_gc": 4228418,
+        "genome_length": 6096022,
+        "cds_gc": 3603570,
+        "number_of_genes": 4855
+    },
+    "Myroides_profundi_strain_D25_NZ_CP010817": {
+        "genome_gc": 1375674,
+        "genome_length": 4064534,
+        "cds_gc": 1212554,
+        "number_of_genes": 3517
+    },
+    "ALL_Rhodococcus_ruber_strain_C1_NZ_CP044211": {
+        "cds_gc": 3660362,
+        "number_of_genes": 5185,
+        "genome_gc": 4015797,
+        "genome_length": 5698851
+    },
+    "ALL_Bacteroides_fragilis_strain_FDAARGOS_1225_NZ_CP069563": {
+        "genome_gc": 2267865,
+        "genome_length": 5248938,
+        "cds_gc": 2061451,
+        "number_of_genes": 4258
+    },
+    "Streptococcus_suis_strain_NCTC10234_chromosome_1_NZ_LS483418": {
+        "genome_gc": 821561,
+        "genome_length": 1984375,
+        "cds_gc": 737098,
+        "number_of_genes": 1847
+    },
+    "Pseudomonas_sp_Lz4W_NZ_CP017432": {
+        "genome_gc": 2944431,
+        "genome_length": 5018820,
+        "cds_gc": 2631686,
+        "number_of_genes": 4456
+    },
+    "ALL_Ralstonia_nicotianae_strain_RS_NZ_CP046674": {
+        "cds_gc": 3348767,
+        "number_of_genes": 4861,
+        "genome_gc": 3766310,
+        "genome_length": 5613239
+    },
+    "Marinobacter_sp_CP1_NZ_CP011929": {
+        "cds_gc": 2480613,
+        "number_of_genes": 4359,
+        "genome_gc": 2714395,
+        "genome_length": 4768422
+    },
+    "Porphyromonas_gulae_strain_COT_052_OH3856_NZ_JRAT01000009": {
+        "genome_gc": 1158942,
+        "genome_length": 2388563,
+        "cds_gc": 1027156,
+        "number_of_genes": 2067
+    },
+    "Bradyrhizobium_zhanjiangense_strain_CCBAU_51778_NZ_CP022221": {
+        "cds_gc": 4977247,
+        "number_of_genes": 8758,
+        "genome_gc": 5879866,
+        "genome_length": 9342022
+    },
+    "ALL_Lentilactobacillus_kefiri_strain_DH5_NZ_CP029971": {
+        "genome_gc": 1042833,
+        "genome_length": 2489034,
+        "cds_gc": 925083,
+        "number_of_genes": 2344
+    },
+    "Acidithiobacillus_caldus_strain_MTH_04_NZ_CP043926": {
+        "cds_gc": 1600730,
+        "number_of_genes": 2887,
+        "genome_gc": 1762619,
+        "genome_length": 2876631
+    },
+    "Pseudomonas_marginalis_strain_PgKB35_NZ_VTFG01000009": {
+        "genome_gc": 4236148,
+        "genome_length": 6942667,
+        "cds_gc": 3865507,
+        "number_of_genes": 6344
+    },
+    "Lactiplantibacillus_plantarum_strain_SRCM100442_NZ_CP028221": {
+        "genome_gc": 1437756,
+        "genome_length": 3223643,
+        "cds_gc": 1238085,
+        "number_of_genes": 2942
+    },
+    "Mediterraneibacter_gnavus_strain_JCM6515_NZ_CP111084": {
+        "genome_gc": 1538624,
+        "genome_length": 3590270,
+        "cds_gc": 1407307,
+        "number_of_genes": 3560
+    },
+    "ALL_Sediminicoccus_rosea_strain_R_30_NZ_CP137852": {
+        "genome_gc": 3614633,
+        "genome_length": 5138361,
+        "cds_gc": 3382526,
+        "number_of_genes": 4892
+    },
+    "ALL_Mannheimia_haemolytica_strain_USDA_ARS_USMARC_191_NZ_CP023044": {
+        "genome_gc": 1132341,
+        "genome_length": 2757078,
+        "cds_gc": 1025925,
+        "number_of_genes": 2779
+    },
+    "ALL_Streptomyces_tsukubensis_strain_NRRL_18488_NZ_CP020700": {
+        "cds_gc": 4969686,
+        "number_of_genes": 6537,
+        "genome_gc": 5762841,
+        "genome_length": 8019548
+    },
+    "Pseudoalteromonas_shioyasakiensis_strain_JCM_18891_NZ_LRUE01000009": {
+        "genome_gc": 1983922,
+        "genome_length": 4807552,
+        "cds_gc": 1810750,
+        "number_of_genes": 4276
+    },
+    "ALL_Komagataeibacter_xylinus_strain_DSM_2325_NZ_CP025269": {
+        "cds_gc": 2076804,
+        "number_of_genes": 3513,
+        "genome_gc": 2324313,
+        "genome_length": 3727795
+    },
+    "ALL_Dickeya_fangzhongdai_strain_DSM_101947_NZ_CP025003": {
+        "genome_gc": 2855926,
+        "genome_length": 5032447,
+        "cds_gc": 2522142,
+        "number_of_genes": 4348
+    },
+    "Leptospira_tipperaryensis_strain_GWTS1_chromosome_1_NZ_CP015218": {
+        "genome_gc": 1947969,
+        "genome_length": 4591888,
+        "cds_gc": 1738853,
+        "number_of_genes": 4107
+    },
+    "ALL_Pseudomonas_fragi_strain_NL20W_NZ_CP064354": {
+        "genome_gc": 3010750,
+        "genome_length": 5077209,
+        "cds_gc": 2685503,
+        "number_of_genes": 4545
+    },
+    "ALL_Vibrio_alginolyticus_strain_E110_chromosome_1_NZ_CP098034": {
+        "genome_gc": 2302608,
+        "genome_length": 5150420,
+        "cds_gc": 2020373,
+        "number_of_genes": 4617
+    },
+    "Comamonas_testosteroni_strain_G1_NZ_CP067086": {
+        "genome_gc": 3373921,
+        "genome_length": 5497097,
+        "cds_gc": 2985520,
+        "number_of_genes": 4916
+    },
+    "Bordetella_hinzii_strain_SV2_NZ_CP021395": {
+        "cds_gc": 3010054,
+        "number_of_genes": 4411,
+        "genome_gc": 3231025,
+        "genome_length": 4809490
+    },
+    "Stenotrophomonas_sp_WZN_1_NZ_CP021768": {
+        "genome_gc": 3006417,
+        "genome_length": 4512703,
+        "cds_gc": 2696986,
+        "number_of_genes": 4091
+    },
+    "Naumannella_cuiyingiana_strain_DSM_103164_NZ_JACBZS010000002": {
+        "genome_gc": 2501864,
+        "genome_length": 3526047,
+        "cds_gc": 2297252,
+        "number_of_genes": 3294
+    },
+    "ALL_Edwardsiella_tarda_strain_KC_Pc_HB1_NZ_CP023706": {
+        "genome_gc": 2126389,
+        "genome_length": 3720168,
+        "cds_gc": 1846619,
+        "number_of_genes": 3311
+    },
+    "Subdoligranulum_variabile_strain_DSM_15176_NZ_CP102293": {
+        "cds_gc": 1722607,
+        "number_of_genes": 2997,
+        "genome_gc": 1879308,
+        "genome_length": 3244954
+    },
+    "Salinispora_mooreana_strain_DSM_45549_NZ_KB900616": {
+        "genome_gc": 3604147,
+        "genome_length": 5198196,
+        "cds_gc": 3166820,
+        "number_of_genes": 4946
+    },
+    "Orientia_tsutsugamushi_strain_Kato_chromosome_I_NZ_LS398550": {
+        "genome_gc": 715153,
+        "genome_length": 2319449,
+        "cds_gc": 587767,
+        "number_of_genes": 2321
+    },
+    "Turicibacter_sanguinis_strain_MOL361_NZ_CP053187": {
+        "genome_gc": 1031090,
+        "genome_length": 2999687,
+        "cds_gc": 879695,
+        "number_of_genes": 2754
+    },
+    "ALL_Mycolicibacterium_smegmatis_strain_FDAARGOS_679_NZ_CP054795": {
+        "genome_gc": 4713645,
+        "genome_length": 6995345,
+        "cds_gc": 4402551,
+        "number_of_genes": 6662
+    },
+    "Chryseobacterium_lacus_strain_YLOS41_NZ_QPIE01000009": {
+        "genome_gc": 942205,
+        "genome_length": 2375938,
+        "cds_gc": 863666,
+        "number_of_genes": 2168
+    },
+    "Mycobacterium_canetti_strain_Percy1130_chromosome_McanPercy1130_NZ_OU917819": {
+        "genome_gc": 2890337,
+        "genome_length": 4415361,
+        "cds_gc": 2646170,
+        "number_of_genes": 4155
+    },
+    "Halalkalibacterium_halodurans_strain_LB_1_NZ_CP040441": {
+        "genome_gc": 1878634,
+        "genome_length": 4315604,
+        "cds_gc": 1628920,
+        "number_of_genes": 4143
+    },
+    "ALL_Bacillus_altitudinis_strain_GR_8_NZ_CP009108": {
+        "genome_gc": 1524839,
+        "genome_length": 3681784,
+        "cds_gc": 1353235,
+        "number_of_genes": 3681
+    },
+    "ALL_Clostridium_perfringens_strain_CPI_18_6_NZ_CP075979": {
+        "genome_gc": 931567,
+        "genome_length": 3275424,
+        "cds_gc": 801997,
+        "number_of_genes": 2846
+    },
+    "Pseudomonas_sp_NBB_NZ_CP103994": {
+        "genome_gc": 3739225,
+        "genome_length": 5998968,
+        "cds_gc": 3329060,
+        "number_of_genes": 5429
+    },
+    "Shigella_sonnei_strain_SE6_1_NZ_CP055292": {
+        "genome_gc": 2416146,
+        "genome_length": 4762774,
+        "cds_gc": 2182016,
+        "number_of_genes": 4495
+    },
+    "ALL_Bacillus_amyloliquefaciens_strain_GKT04_NZ_CP072120": {
+        "cds_gc": 1727356,
+        "number_of_genes": 4051,
+        "genome_gc": 1920595,
+        "genome_length": 4149690
+    },
+    "ALL_Serratia_entomophila_strain_A1_NZ_CP082787": {
+        "cds_gc": 2725432,
+        "number_of_genes": 4781,
+        "genome_gc": 3033139,
+        "genome_length": 5147822
+    },
+    "ALL_Agrobacterium_vitis_strain_NCPPB_3554_NZ_LMVL02000008": {
+        "cds_gc": 2951496,
+        "number_of_genes": 5124,
+        "genome_gc": 3311565,
+        "genome_length": 5754491
+    },
+    "Enterobacter_sp_S_33_NZ_CP117838": {
+        "genome_gc": 2565269,
+        "genome_length": 4611399,
+        "cds_gc": 2347242,
+        "number_of_genes": 4270
+    },
+    "ALL_Parageobacillus_thermoglucosidasius_strain_Wild_Type_NZ_CP016622": {
+        "genome_gc": 1755255,
+        "genome_length": 4004923,
+        "cds_gc": 1501780,
+        "number_of_genes": 3901
+    },
+    "ALL_Burkholderia_plantarii_strain_ATCC_43733_chromosome_1_NZ_CP007213": {
+        "genome_gc": 5539791,
+        "genome_length": 8081051,
+        "cds_gc": 4781784,
+        "number_of_genes": 6982
+    },
+    "ALL_Exiguobacterium_profundum_strain_TSS_3_NZ_CP109617": {
+        "genome_gc": 1389003,
+        "genome_length": 2884728,
+        "cds_gc": 1258279,
+        "number_of_genes": 2907
+    },
+    "Chryseobacterium_sp_strain_MAG_1654_NZ_CP119310": {
+        "genome_gc": 1482767,
+        "genome_length": 4227036,
+        "cds_gc": 1354057,
+        "number_of_genes": 3765
+    },
+    "Campylobacter_hepaticus_strain_HV10_NZ_CP031611": {
+        "cds_gc": 400730,
+        "number_of_genes": 1486,
+        "genome_gc": 426175,
+        "genome_length": 1520669
+    },
+    "Phaeobacter_sp_F10_NZ_WKFH01000002": {
+        "cds_gc": 2156525,
+        "number_of_genes": 3767,
+        "genome_gc": 2403939,
+        "genome_length": 4008202
+    },
+    "Porphyromonas_gingivalis_strain_KCOM_2799_NZ_CP024601": {
+        "genome_gc": 1195603,
+        "genome_length": 2469365,
+        "cds_gc": 1046286,
+        "number_of_genes": 2117
+    },
+    "Zobellia_galactanivorans_strain_DsiJT_NC_015844": {
+        "genome_gc": 2362167,
+        "genome_length": 5521712,
+        "cds_gc": 2165566,
+        "number_of_genes": 4440
+    },
+    "Bdellovibrio_bacteriovorus_strain_109J_NZ_CP007656": {
+        "genome_gc": 1940156,
+        "genome_length": 3830427,
+        "cds_gc": 1802038,
+        "number_of_genes": 3604
+    },
+    "Pseudomonas_laurylsulfativorans_strain_AP3_22_NZ_MUJK01000009": {
+        "genome_gc": 3985842,
+        "genome_length": 6686052,
+        "cds_gc": 3555184,
+        "number_of_genes": 5972
+    },
+    "Bifidobacterium_animalis_strain_A6_NZ_CP010433": {
+        "cds_gc": 1036597,
+        "number_of_genes": 1562,
+        "genome_gc": 1184706,
+        "genome_length": 1958651
+    },
+    "Francisella_tularensis_strain_Schu_S4_249_NZ_CP073129": {
+        "genome_gc": 610597,
+        "genome_length": 1892778,
+        "cds_gc": 560954,
+        "number_of_genes": 1919
+    },
+    "Streptomyces_iranensis_strain_DSM_41954_NZ_JAGGLR010000082": {
+        "cds_gc": 7561789,
+        "number_of_genes": 9764,
+        "genome_gc": 8500302,
+        "genome_length": 11981584
+    },
+    "Haemophilus_influenzae_strain_477_NZ_CP007470": {
+        "genome_gc": 704485,
+        "genome_length": 1846259,
+        "cds_gc": 634205,
+        "number_of_genes": 1754
+    },
+    "ALL_Chromobacterium_violaceum_strain_FDAARGOS_1273_NZ_CP069587": {
+        "genome_gc": 3120082,
+        "genome_length": 4808040,
+        "cds_gc": 2816594,
+        "number_of_genes": 4433
+    },
+    "Vibrio_bivalvicida_strain_605_NZ_LLEI02000091": {
+        "genome_gc": 2180312,
+        "genome_length": 4922047,
+        "cds_gc": 1950668,
+        "number_of_genes": 4449
+    },
+    "Chitinophaga_filiformis_strain_DSM_527_NZ_FNBN01000010": {
+        "cds_gc": 3532349,
+        "number_of_genes": 6607,
+        "genome_gc": 3917231,
+        "genome_length": 8625518
+    },
+    "Lactobacillus_delbrueckii_strain_DPUL_F36_NZ_CP092823": {
+        "genome_gc": 924032,
+        "genome_length": 1856855,
+        "cds_gc": 818350,
+        "number_of_genes": 1884
+    },
+    "Lactococcus_lactis_strain_LAC460_NZ_CP059048": {
+        "genome_gc": 848829,
+        "genome_length": 2426597,
+        "cds_gc": 747695,
+        "number_of_genes": 2299
+    },
+    "ALL_Rhizobium_etli_strain_NXC12_NZ_CP020906": {
+        "genome_gc": 4124556,
+        "genome_length": 6756853,
+        "cds_gc": 3648216,
+        "number_of_genes": 6477
+    },
+    "Methylotuvimicrobium_buryatense_strain_5GB1C_NZ_CP035467": {
+        "genome_gc": 2435394,
+        "genome_length": 4998879,
+        "cds_gc": 2030816,
+        "number_of_genes": 4194
+    },
+    "ALL_Edwardsiella_piscicida_strain_18EpOKYJ_NZ_CP090968": {
+        "genome_gc": 2276782,
+        "genome_length": 3819771,
+        "cds_gc": 1988458,
+        "number_of_genes": 3375
+    },
+    "Lacticaseibacillus_rhamnosus_strain_1_0320_NZ_CP040780": {
+        "genome_gc": 1375020,
+        "genome_length": 2941522,
+        "cds_gc": 1175599,
+        "number_of_genes": 2654
+    },
+    "ALL_Mycoplasmoides_pneumoniae_strain_NCTC10119_chromosome_1_NZ_LR214945": {
+        "cds_gc": 305226,
+        "number_of_genes": 743,
+        "genome_gc": 328720,
+        "genome_length": 823017
+    },
+    "Halomonas_meridiana_strain_ACAM_239_NZ_FSQX01000001": {
+        "genome_gc": 2192681,
+        "genome_length": 3849744,
+        "cds_gc": 1968205,
+        "number_of_genes": 3615
+    },
+    "Pseudoalteromonas_translucida_strain_TAC125_chromosome_I_NC_007482": {
+        "cds_gc": 1371019,
+        "number_of_genes": 3385,
+        "genome_gc": 1543638,
+        "genome_length": 3850272
+    },
+    "Bifidobacterium_bifidum_strain_CNCM_I_4319_NZ_CP058603": {
+        "genome_gc": 1376262,
+        "genome_length": 2193720,
+        "cds_gc": 1190876,
+        "number_of_genes": 1782
+    },
+    "ALL_Staphylococcus_saccharolyticus_strain_13T0028_NZ_CP068029": {
+        "genome_gc": 756980,
+        "genome_length": 2352566,
+        "cds_gc": 650803,
+        "number_of_genes": 2281
+    },
+    "Pseudoalteromonas_marina_strain_13_15_NZ_FSRF01000001": {
+        "genome_gc": 1629793,
+        "genome_length": 4099967,
+        "cds_gc": 1463414,
+        "number_of_genes": 3611
+    },
+    "ALL_Pantoea_ananatis_strain_JBR_LB3_16_NZ_CP090356": {
+        "cds_gc": 2312610,
+        "number_of_genes": 4443,
+        "genome_gc": 2628451,
+        "genome_length": 4915035
+    },
+    "Gibbsiella_quercinecans_strain_FRB97_NZ_CP014136": {
+        "cds_gc": 2742281,
+        "number_of_genes": 4915,
+        "genome_gc": 3104095,
+        "genome_length": 5548506
+    },
+    "Veillonella_dispar_strain_NCTC11831_chromosome_1_NZ_LR134375": {
+        "cds_gc": 735163,
+        "number_of_genes": 1917,
+        "genome_gc": 822799,
+        "genome_length": 2116915
+    },
+    "Pediococcus_acidilactici_strain_PMC65_NZ_CP053421": {
+        "genome_gc": 863224,
+        "genome_length": 2044083,
+        "cds_gc": 762472,
+        "number_of_genes": 1932
+    },
+    "ALL_Liquorilactobacillus_mali_strain_LM596_NZ_CP045035": {
+        "genome_gc": 948459,
+        "genome_length": 2611959,
+        "cds_gc": 829165,
+        "number_of_genes": 2500
+    },
+    "Pseudoalteromonas_sp_SM9913_chromosome_I_NC_014800": {
+        "genome_gc": 1626349,
+        "genome_length": 4037671,
+        "cds_gc": 1458264,
+        "number_of_genes": 3572
+    },
+    "Pseudomonas_sp_R1_43_08_NZ_CP027734": {
+        "genome_gc": 3419929,
+        "genome_length": 5645326,
+        "cds_gc": 3087047,
+        "number_of_genes": 5071
+    },
+    "Staphylococcus_xylosus_strain_SMQ_121_NZ_CP008724": {
+        "genome_gc": 906587,
+        "genome_length": 2757557,
+        "cds_gc": 778992,
+        "number_of_genes": 2505
+    },
+    "Synechocystis_sp_PCC_6803_strain_GT_S_NC_017277": {
+        "cds_gc": 1516211,
+        "number_of_genes": 3287,
+        "genome_gc": 1704501,
+        "genome_length": 3571103
+    },
+    "Methylophaga_nitratireducenticrescens_strain_JAM1_NC_017857": {
+        "genome_gc": 1403815,
+        "genome_length": 3137100,
+        "cds_gc": 1280350,
+        "number_of_genes": 2947
+    },
+    "Haemophilus_ducreyi_strain_VAN2_NZ_CP015425": {
+        "genome_gc": 602848,
+        "genome_length": 1589620,
+        "cds_gc": 540054,
+        "number_of_genes": 1479
+    },
+    "Bacillus_stratosphericus_strain_KcN0_8_NZ_JAIVLB010000109": {
+        "cds_gc": 1079887,
+        "number_of_genes": 3258,
+        "genome_gc": 1241613,
+        "genome_length": 3069546
+    },
+    "Stutzerimonas_balearica_strain_Z8_NZ_CP110110": {
+        "genome_gc": 2860743,
+        "genome_length": 4410317,
+        "cds_gc": 2590735,
+        "number_of_genes": 4095
+    },
+    "Caproicibacterium_lactatifermentans_strain_LBM19010_NZ_CP046051": {
+        "genome_gc": 1002402,
+        "genome_length": 1989979,
+        "cds_gc": 896358,
+        "number_of_genes": 1884
+    },
+    "Alteromonas_naphthalenivorans_strain_SN2_NC_015554": {
+        "genome_gc": 2163222,
+        "genome_length": 4972148,
+        "cds_gc": 1918350,
+        "number_of_genes": 4290
+    },
+    "Candidatus_Thioglobus_autotrophicus_strain_EF1_NZ_CP010552": {
+        "genome_gc": 592030,
+        "genome_length": 1512449,
+        "cds_gc": 562085,
+        "number_of_genes": 1615
+    },
+    "ALL_Shigella_flexneri_strain_PNUSAE076676_NZ_CP138846": {
+        "genome_gc": 2519750,
+        "genome_length": 4974498,
+        "cds_gc": 2259204,
+        "number_of_genes": 4941
+    },
+    "ALL_Leisingera_aquaemixtae_strain_R2C4_NZ_CP041159": {
+        "genome_gc": 2826611,
+        "genome_length": 4380105,
+        "cds_gc": 2515314,
+        "number_of_genes": 4174
+    },
+    "Blautia_schinkii_strain_MSK_6_26_NZ_JAAWUO010000009": {
+        "genome_gc": 1510191,
+        "genome_length": 3494515,
+        "cds_gc": 1357849,
+        "number_of_genes": 3138
+    },
+    "ALL_Acinetobacter_schindleri_strain_HZE30_1_NZ_CP044483": {
+        "genome_gc": 1418253,
+        "genome_length": 3337186,
+        "cds_gc": 1250656,
+        "number_of_genes": 3116
+    },
+    "Acididesulfobacillus_acetoxydans_strain_PacBioINE_chromosome_1_NZ_LR746496": {
+        "genome_gc": 2425453,
+        "genome_length": 4520225,
+        "cds_gc": 2007054,
+        "number_of_genes": 3965
+    },
+    "ALL_Acidithiobacillus_ferrooxidans_strain_YNTRS_40_NZ_CP040511": {
+        "genome_gc": 1905651,
+        "genome_length": 3257037,
+        "cds_gc": 1728148,
+        "number_of_genes": 3271
+    },
+    "Mammaliicoccus_lentus_strain_Colony453_NZ_CP075503": {
+        "genome_gc": 824304,
+        "genome_length": 2802382,
+        "cds_gc": 728941,
+        "number_of_genes": 2507
+    },
+    "Bifidobacterium_pseudolongum_strain_UMB_MBP_01_NZ_CP022544": {
+        "genome_gc": 1273707,
+        "genome_length": 2008102,
+        "cds_gc": 1141541,
+        "number_of_genes": 1641
+    },
+    "Streptomyces_coeruleorubidus_strain_ATCC_13740_NZ_CP023694": {
+        "genome_gc": 6636506,
+        "genome_length": 9335698,
+        "cds_gc": 5919051,
+        "number_of_genes": 8408
+    },
+    "Schaalia_odontolytica_strain_NCTC9935_NZ_UAPR01000022": {
+        "genome_gc": 1592045,
+        "genome_length": 2454426,
+        "cds_gc": 1406219,
+        "number_of_genes": 2052
+    },
+    "ALL_Bacillus_cereus_strain_FORC_047_NZ_CP017060": {
+        "genome_gc": 2045987,
+        "genome_length": 5836971,
+        "cds_gc": 1738173,
+        "number_of_genes": 5756
+    },
+    "ALL_Photorhabdus_asymbiotica_strain_ATCC43949_NC_012962": {
+        "cds_gc": 1839062,
+        "number_of_genes": 4357,
+        "genome_gc": 2146829,
+        "genome_length": 5094138
+    },
+    "ALL_Glaesserella_parasuis_strain_YHP1818_NZ_CP071487": {
+        "genome_gc": 926293,
+        "genome_length": 2313850,
+        "cds_gc": 823855,
+        "number_of_genes": 2264
+    },
+    "ALL_Rhodococcus_sp_p52_NZ_CP016819": {
+        "genome_gc": 3673238,
+        "genome_length": 5413283,
+        "cds_gc": 3319243,
+        "number_of_genes": 5068
+    },
+    "Corynebacterium_jeikeium_strain_DSM_7171_NZ_CP063195": {
+        "genome_gc": 1550871,
+        "genome_length": 2524840,
+        "cds_gc": 1407158,
+        "number_of_genes": 2199
+    },
+    "Hydrogenimonas_thermophila_strain_SWIR_21_NZ_CP136593": {
+        "genome_gc": 856225,
+        "genome_length": 2544243,
+        "cds_gc": 802885,
+        "number_of_genes": 2526
+    },
+    "ALL_Listeria_innocua_strain_CFSAN044836_NZ_CP045743": {
+        "cds_gc": 988031,
+        "number_of_genes": 2877,
+        "genome_gc": 1095113,
+        "genome_length": 2922148
+    },
+    "Sphingomonas_glacialis_strain_CGMCC_1_8957_NZ_BNAQ01000058": {
+        "genome_gc": 2935060,
+        "genome_length": 4470563,
+        "cds_gc": 2650662,
+        "number_of_genes": 4211
+    },
+    "Anoxybacter_fermentans_strain_DY22613_NZ_CP016379": {
+        "cds_gc": 1062985,
+        "number_of_genes": 3157,
+        "genome_gc": 1276300,
+        "genome_length": 3557532
+    },
+    "Thermus_tengchongensis_strain_15W_NZ_SJZF01000009": {
+        "genome_gc": 1624849,
+        "genome_length": 2439206,
+        "cds_gc": 1531909,
+        "number_of_genes": 2625
+    },
+    "Actinoplanes_sp_SE50_110_strain_ACP50_chromosome_I_NZ_LT827010": {
+        "cds_gc": 5851870,
+        "number_of_genes": 8278,
+        "genome_gc": 6590017,
+        "genome_length": 9240166
+    },
+    "ALL_Sinorhizobium_meliloti_strain_HM006_NZ_CP021829": {
+        "genome_gc": 4346050,
+        "genome_length": 6997718,
+        "cds_gc": 3791286,
+        "number_of_genes": 6612
+    },
+    "Dickeya_oryzae_strain_ZYY5_NZ_SULL01000034": {
+        "genome_gc": 2446364,
+        "genome_length": 4587177,
+        "cds_gc": 2161379,
+        "number_of_genes": 3968
+    },
+    "Sulfurovum_indicum_strain_ST_419_NZ_CP063164": {
+        "genome_gc": 938900,
+        "genome_length": 2209694,
+        "cds_gc": 861528,
+        "number_of_genes": 2142
+    },
+    "ALL_Levilactobacillus_brevis_strain_LMT1_73_NZ_CP033885": {
+        "genome_gc": 1160394,
+        "genome_length": 2529623,
+        "cds_gc": 1016308,
+        "number_of_genes": 2395
+    },
+    "Flavobacterium_omnivorum_strain_CGMCC_1_2747_NZ_FNDB01000021": {
+        "genome_gc": 1304669,
+        "genome_length": 3808360,
+        "cds_gc": 1169896,
+        "number_of_genes": 3250
+    },
+    "Actinobacillus_succinogenes_strain_GXAS137_NZ_NHRD01000002": {
+        "genome_gc": 1038136,
+        "genome_length": 2314479,
+        "cds_gc": 944782,
+        "number_of_genes": 2134
+    },
+    "ALL_Mycobacteroides_abscessus_strain_GZ002_NZ_CP034181": {
+        "cds_gc": 3038845,
+        "number_of_genes": 4977,
+        "genome_gc": 3260101,
+        "genome_length": 5082434
+    },
+    "Pseudomonas_donghuensis_strain_P482_NZ_CP071706": {
+        "genome_gc": 3527245,
+        "genome_length": 5656185,
+        "cds_gc": 3209195,
+        "number_of_genes": 5186
+    },
+    "Vibrio_anguillarum_strain_PF4_E1_1_chromosome_1_NZ_CP031478": {
+        "genome_gc": 1690345,
+        "genome_length": 4175625,
+        "cds_gc": 1520845,
+        "number_of_genes": 3368
+    },
+    "Alcaligenes_ammonioxydans_strain_HO_1_NZ_CP049362": {
+        "genome_gc": 2158214,
+        "genome_length": 3774827,
+        "cds_gc": 1931409,
+        "number_of_genes": 3383
+    },
+    "Candidatus_Accumulibacter_phosphatis_strain_SBR_S_NZ_SPMY01000149": {
+        "genome_gc": 3142148,
+        "genome_length": 5044133,
+        "cds_gc": 2738892,
+        "number_of_genes": 4645
+    },
+    "ALL_Phocaeicola_vulgatus_strain_MG01_10_NZ_AP025240": {
+        "genome_gc": 2102658,
+        "genome_length": 4977532,
+        "cds_gc": 1908956,
+        "number_of_genes": 4049
+    },
+    "Holdemania_filiformis_strain_AF24_29_NZ_QRUP01000009": {
+        "genome_gc": 1874610,
+        "genome_length": 3744856,
+        "cds_gc": 1687423,
+        "number_of_genes": 3440
+    },
+    "Planobispora_rosea_strain_ATCC_53733_NZ_JPMW01000007": {
+        "cds_gc": 5466140,
+        "number_of_genes": 7845,
+        "genome_gc": 6139598,
+        "genome_length": 8690708
+    },
+    "Yersinia_entomophaga_strain_MH96_NZ_CP010029": {
+        "genome_gc": 2077113,
+        "genome_length": 4275406,
+        "cds_gc": 1801030,
+        "number_of_genes": 3803
+    },
+    "Pseudomonas_fluorescens_strain_ATCC_13525_chromosome_I_NZ_LT907842": {
+        "cds_gc": 3519590,
+        "number_of_genes": 5895,
+        "genome_gc": 3906043,
+        "genome_length": 6511547
+    },
+    "Streptococcus_gordonii_strain_NCTC10231_chromosome_1_NZ_LR594049": {
+        "cds_gc": 806359,
+        "number_of_genes": 2037,
+        "genome_gc": 886360,
+        "genome_length": 2185555
+    },
+    "Pseudoalteromonas_tetraodonis_strain_GFC_chromosome_I_NZ_CP011042": {
+        "genome_gc": 1664022,
+        "genome_length": 4128400,
+        "cds_gc": 1489203,
+        "number_of_genes": 3625
+    },
+    "Pectobacterium_brasiliense_strain_1692_NZ_CP047495": {
+        "genome_gc": 2530343,
+        "genome_length": 4851982,
+        "cds_gc": 2248389,
+        "number_of_genes": 4219
+    },
+    "Burkholderia_cepacia_strain_BC16_chromosome_1_NZ_CP045237": {
+        "genome_gc": 5584961,
+        "genome_length": 8366868,
+        "cds_gc": 4899768,
+        "number_of_genes": 7545
+    },
+    "Pimelobacter_simplex_strain_VKM_Ac_2033D_NZ_CP009896": {
+        "cds_gc": 3876955,
+        "number_of_genes": 5553,
+        "genome_gc": 4106828,
+        "genome_length": 5637360
+    },
+    "ALL_Klebsiella_michiganensis_strain_THO_011_NZ_AP022547": {
+        "cds_gc": 3047548,
+        "number_of_genes": 5569,
+        "genome_gc": 3382934,
+        "genome_length": 6041841
+    },
+    "ALL_Staphylococcus_hominis_strain_FDAARGOS_575_NZ_CP033732": {
+        "genome_gc": 713682,
+        "genome_length": 2257431,
+        "cds_gc": 626395,
+        "number_of_genes": 2175
+    },
+    "ALL_Komagataeibacter_europaeus_strain_SRCM101446_NZ_CP021467": {
+        "genome_gc": 2343175,
+        "genome_length": 3797909,
+        "cds_gc": 2083778,
+        "number_of_genes": 3410
+    },
+    "ALL_Micrococcus_luteus_strain_CW_Ay_NZ_CP082331": {
+        "genome_gc": 1855277,
+        "genome_length": 2543764,
+        "cds_gc": 1678348,
+        "number_of_genes": 2294
+    },
+    "Serratia_plymuthica_strain_3Rp8_NZ_CP012096": {
+        "genome_gc": 3109696,
+        "genome_length": 5546041,
+        "cds_gc": 2785330,
+        "number_of_genes": 5092
+    },
+    "Bifidobacterium_adolescentis_strain_1_11_NZ_CP028341": {
+        "genome_gc": 1306331,
+        "genome_length": 2192428,
+        "cds_gc": 1169031,
+        "number_of_genes": 1792
+    },
+    "ALL_Butyrivibrio_hungatei_strain_MB2003_chromosome_I_NZ_CP017830": {
+        "cds_gc": 1234255,
+        "number_of_genes": 3026,
+        "genome_gc": 1344683,
+        "genome_length": 3386314
+    },
+    "Niallia_circulans_strain_FDAARGOS_783_NZ_CP053989": {
+        "genome_gc": 1851070,
+        "genome_length": 5179558,
+        "cds_gc": 1560981,
+        "number_of_genes": 4974
+    },
+    "Mesorhizobium_loti_strain_DSM_2626_NZ_QGGH01000052": {
+        "cds_gc": 4129759,
+        "number_of_genes": 7313,
+        "genome_gc": 4646125,
+        "genome_length": 7451806
+    },
+    "ALL_Streptomyces_sp_SN_593_NZ_AP018365": {
+        "genome_gc": 6601484,
+        "genome_length": 8972903,
+        "cds_gc": 5694662,
+        "number_of_genes": 7329
+    },
+    "ALL_Paraburkholderia_hospita_strain_DSM_17164_chromosome_1_NZ_CP026109": {
+        "cds_gc": 6007483,
+        "number_of_genes": 10415,
+        "genome_gc": 7123292,
+        "genome_length": 11527706
+    },
+    "Mycobacteroides_chelonae_strain_MCHE08_NZ_CP058976": {
+        "cds_gc": 3012584,
+        "number_of_genes": 4893,
+        "genome_gc": 3230352,
+        "genome_length": 5040728
+    },
+    "Chenggangzhangella_methanolivorans_strain_CHL1_NZ_CP081869": {
+        "genome_gc": 3778576,
+        "genome_length": 5542510,
+        "cds_gc": 3251580,
+        "number_of_genes": 5817
+    },
+    "ALL_Cupriavidus_basilensis_strain_DSM_11853_chromosome_1_NZ_CP062804": {
+        "cds_gc": 5088040,
+        "number_of_genes": 8104,
+        "genome_gc": 5815202,
+        "genome_length": 8942610
+    },
+    "Enterobacter_bugandensis_strain_XL95_NZ_CP083403": {
+        "genome_gc": 2651657,
+        "genome_length": 4734039,
+        "cds_gc": 2435066,
+        "number_of_genes": 4372
+    },
+    "Streptomyces_noursei_strain_A_2_1_NZ_CP070326": {
+        "genome_gc": 7070418,
+        "genome_length": 9857535,
+        "cds_gc": 6055463,
+        "number_of_genes": 8584
+    },
+    "Mycoplasmopsis_bovis_strain_2351MB_NZ_LQDT01000009": {
+        "genome_gc": 270839,
+        "genome_length": 924455,
+        "cds_gc": 241934,
+        "number_of_genes": 780
+    },
+    "Gottfriedia_acidiceleris_strain_DSM_18954_NZ_NESS01000009": {
+        "genome_gc": 1564567,
+        "genome_length": 4770625,
+        "cds_gc": 1338886,
+        "number_of_genes": 4584
+    },
+    "ALL_Vibrio_cholerae_strain_RFB16_chromosome_1_NZ_CP043556": {
+        "genome_gc": 1962603,
+        "genome_length": 4138412,
+        "cds_gc": 1726667,
+        "number_of_genes": 3667
+    },
+    "Liberibacter_crescens_strain_BT_0_NZ_CP010522": {
+        "genome_gc": 538892,
+        "genome_length": 1522119,
+        "cds_gc": 466827,
+        "number_of_genes": 1327
+    },
+    "ALL_Yersinia_ruckeri_strain_KMM821_NZ_CP071802": {
+        "cds_gc": 1598217,
+        "number_of_genes": 3420,
+        "genome_gc": 1849957,
+        "genome_length": 3894226
+    },
+    "Pectobacterium_carotovorum_strain_WPP14_NZ_CP051652": {
+        "genome_gc": 2547287,
+        "genome_length": 4892225,
+        "cds_gc": 2257514,
+        "number_of_genes": 4273
+    },
+    "Mesoflavibacter_profundi_strain_YC1039_NZ_CP061703": {
+        "genome_gc": 962068,
+        "genome_length": 3088198,
+        "cds_gc": 902690,
+        "number_of_genes": 2738
+    },
+    "ALL_Mesorhizobium_huakuii_strain_NZP2235_NZ_CP139858": {
+        "genome_gc": 4545812,
+        "genome_length": 7212699,
+        "cds_gc": 4038278,
+        "number_of_genes": 6939
+    },
+    "ALL_Lactiplantibacillus_pentosus_strain_DSM_20314_NZ_CP032757": {
+        "genome_gc": 1701150,
+        "genome_length": 3671373,
+        "cds_gc": 1405896,
+        "number_of_genes": 3265
+    },
+    "ALL_Ralstonia_pseudosolanacearum_strain_RS_476_NZ_CP021762": {
+        "genome_gc": 3891530,
+        "genome_length": 5810927,
+        "cds_gc": 3464298,
+        "number_of_genes": 5121
+    },
+    "Ruminococcus_bromii_strain_VEG01_HAM_0002_NZ_DAJPGC010000001": {
+        "genome_gc": 942436,
+        "genome_length": 2308568,
+        "cds_gc": 845721,
+        "number_of_genes": 2115
+    },
+    "Bradyrhizobium_diazoefficiens_strain_110spc4_NZ_CP032617": {
+        "genome_gc": 5715677,
+        "genome_length": 8910608,
+        "cds_gc": 4969882,
+        "number_of_genes": 8303
+    },
+    "ALL_Bacillus_thuringiensis_strain_BT_59_NZ_CP039721": {
+        "genome_gc": 2336538,
+        "genome_length": 6681027,
+        "cds_gc": 1981279,
+        "number_of_genes": 6799
+    },
+    "ALL_Bacillus_weihaiensis_strain_Alg07_NZ_CP016020": {
+        "genome_gc": 1590661,
+        "genome_length": 4361276,
+        "cds_gc": 1276663,
+        "number_of_genes": 4126
+    },
+    "Mycoplasma_mycoides_strain_Caprivi_NZ_AP024602": {
+        "cds_gc": 246118,
+        "number_of_genes": 997,
+        "genome_gc": 276588,
+        "genome_length": 1158134
+    },
+    "Paenibacillus_thiaminolyticus_strain_NRRL_B_4156_NZ_CP041405": {
+        "cds_gc": 3033581,
+        "number_of_genes": 5777,
+        "genome_gc": 3546224,
+        "genome_length": 6612542
+    },
+    "Corynebacterium_diphtheriae_strain_BQ11_NZ_CP029644": {
+        "cds_gc": 1236384,
+        "number_of_genes": 2359,
+        "genome_gc": 1371116,
+        "genome_length": 2557381
+    },
+    "Lactobacillus_johnsonii_strain_NCK2677_NZ_CP059055": {
+        "genome_gc": 676617,
+        "genome_length": 1951416,
+        "cds_gc": 608542,
+        "number_of_genes": 1772
+    },
+    "Sporosarcina_psychrophila_strain_DSM_6497_NZ_CP014616": {
+        "genome_gc": 1885536,
+        "genome_length": 4674191,
+        "cds_gc": 1541833,
+        "number_of_genes": 4373
+    },
+    "ALL_Enterobacter_ludwigii_strain_EN_119_NZ_CP017279": {
+        "genome_gc": 2704181,
+        "genome_length": 4952770,
+        "cds_gc": 2469461,
+        "number_of_genes": 4585
+    },
+    "ALL_Candidatus_Fervidibacter_sacchari_strain_PD1_NZ_CP130454": {
+        "genome_gc": 2060520,
+        "genome_length": 3988786,
+        "cds_gc": 1893098,
+        "number_of_genes": 3623
+    },
+    "ALL_Alicyclobacillus_acidoterrestris_strain_DSM_3922_NZ_CP080467": {
+        "genome_gc": 2266842,
+        "genome_length": 4346939,
+        "cds_gc": 1919805,
+        "number_of_genes": 4138
+    },
+    "Lactobacillus_helveticus_strain_DS3_8_NZ_QAZU01000009": {
+        "genome_gc": 751287,
+        "genome_length": 2055814,
+        "cds_gc": 671530,
+        "number_of_genes": 2173
+    },
+    "ALL_Chlamydia_abortus_strain_15_70d24_chromosome_I_NZ_LS450958": {
+        "cds_gc": 417752,
+        "number_of_genes": 983,
+        "genome_gc": 457186,
+        "genome_length": 1149233
+    },
+    "Pseudomonas_synxantha_strain_R6_28_08_NZ_CP027756": {
+        "cds_gc": 3529313,
+        "number_of_genes": 5930,
+        "genome_gc": 3913943,
+        "genome_length": 6562330
+    },
+    "Chromobacterium_subtsugae_strain_PRAA4_1_NZ_JYKA01000009": {
+        "genome_gc": 3113157,
+        "genome_length": 4805598,
+        "cds_gc": 2834302,
+        "number_of_genes": 4578
+    },
+    "ALL_Ligilactobacillus_faecis_strain_WILCCON_0062_NZ_CP123639": {
+        "genome_gc": 940405,
+        "genome_length": 2382213,
+        "cds_gc": 838117,
+        "number_of_genes": 2099
+    },
+    "ALL_Streptomyces_clavuligerus_strain_F1D7_NZ_CP065253": {
+        "genome_gc": 5510089,
+        "genome_length": 7588082,
+        "cds_gc": 4665853,
+        "number_of_genes": 6167
+    },
+    "Bacteroides_clarus_strain_1001095IJ_161003_B3_NZ_JADNLF010000009": {
+        "cds_gc": 1644718,
+        "number_of_genes": 3171,
+        "genome_gc": 1766703,
+        "genome_length": 3897457
+    },
+    "Moorella_thermoacetica_strain_DSM_2955_NZ_CP012370": {
+        "cds_gc": 1314873,
+        "number_of_genes": 2601,
+        "genome_gc": 1464054,
+        "genome_length": 2623349
+    },
+    "Propionibacterium_freudenreichii_strain_PFRJS14_chromosome_I_NZ_LT593929": {
+        "cds_gc": 1482733,
+        "number_of_genes": 2164,
+        "genome_gc": 1690652,
+        "genome_length": 2507188
+    },
+    "Methylacidiphilum_sp_IT6_NZ_CP065957": {
+        "genome_gc": 917574,
+        "genome_length": 2254698,
+        "cds_gc": 828140,
+        "number_of_genes": 2019
+    },
+    "ALL_Klebsiella_oxytoca_strain_FDAARGOS_500_NZ_CP033844": {
+        "cds_gc": 2921990,
+        "number_of_genes": 5396,
+        "genome_gc": 3241345,
+        "genome_length": 5879076
+    },
+    "Rhodococcus_jostii_strain_DSM_44719_NZ_FNTL01000001": {
+        "genome_gc": 6629722,
+        "genome_length": 9912981,
+        "cds_gc": 5945618,
+        "number_of_genes": 8999
+    },
+    "Corynebacterium_glutamicum_strain_ATCC_13032_NZ_CP115148": {
+        "cds_gc": 1563457,
+        "number_of_genes": 2973,
+        "genome_gc": 1767252,
+        "genome_length": 3282349
+    },
+    "Pseudomonas_fulva_strain_YAB_1_NZ_LAWW01000009": {
+        "cds_gc": 2844298,
+        "number_of_genes": 4676,
+        "genome_gc": 3150595,
+        "genome_length": 5119844
+    },
+    "Geobacter_soli_strain_GSS01_NZ_JXBL01000008": {
+        "genome_gc": 2258550,
+        "genome_length": 3657208,
+        "cds_gc": 2064401,
+        "number_of_genes": 3339
+    },
+    "Pseudoalteromonas_sp_13_15_chromosome_1_NZ_CP019163": {
+        "genome_gc": 1629793,
+        "genome_length": 4099967,
+        "cds_gc": 1463432,
+        "number_of_genes": 3612
+    },
+    "ALL_Novacetimonas_hansenii_strain_C110_NZ_CP062147": {
+        "cds_gc": 1828696,
+        "number_of_genes": 3068,
+        "genome_gc": 2113323,
+        "genome_length": 3549186
+    },
+    "Megasphaera_elsdenii_strain_NCIMB702410_NZ_CP027569": {
+        "cds_gc": 1203293,
+        "number_of_genes": 2332,
+        "genome_gc": 1352573,
+        "genome_length": 2566193
+    },
+    "Pseudomonas_putida_strain_B4_NZ_CP022561": {
+        "genome_gc": 3718086,
+        "genome_length": 6011680,
+        "cds_gc": 3340279,
+        "number_of_genes": 5376
+    },
+    "Pseudomonas_protegens_strain_SN15_2_NZ_CP043179": {
+        "genome_gc": 4479181,
+        "genome_length": 7075587,
+        "cds_gc": 4043397,
+        "number_of_genes": 6314
+    },
+    "ALL_Dickeya_solani_strain_PPO_9019_NZ_CP017454": {
+        "cds_gc": 2474753,
+        "number_of_genes": 4226,
+        "genome_gc": 2795668,
+        "genome_length": 4962430
+    },
+    "Serratia_ureilytica_strain_T6_NZ_CP071320": {
+        "cds_gc": 2747974,
+        "number_of_genes": 4707,
+        "genome_gc": 3048667,
+        "genome_length": 5102941
+    },
+    "ALL_Neisseria_gonorrhoeae_strain_TUM19854_NZ_AP023069": {
+        "genome_gc": 1142300,
+        "genome_length": 2171755,
+        "cds_gc": 991153,
+        "number_of_genes": 2228
+    },
+    "Heyndrickxia_coagulans_strain_FDAARGOS_1160_NZ_CP068054": {
+        "cds_gc": 1303120,
+        "number_of_genes": 3205,
+        "genome_gc": 1569781,
+        "genome_length": 3342828
+    },
+    "Veillonella_parvula_strain_NCTC11810_chromosome_1_NZ_LT906445": {
+        "genome_gc": 823632,
+        "genome_length": 2132142,
+        "cds_gc": 738436,
+        "number_of_genes": 1844
+    },
+    "ALL_Plesiomonas_shigelloides_strain_7A_chromosome_1_NZ_CP087712": {
+        "genome_gc": 1996755,
+        "genome_length": 3860786,
+        "cds_gc": 1690392,
+        "number_of_genes": 3293
+    },
+    "Klebsiella_grimontii_strain_4928STDY7071328_chromosome_1_NZ_LR607336": {
+        "genome_gc": 3017473,
+        "genome_length": 6099119,
+        "cds_gc": 2752380,
+        "number_of_genes": 4974
+    },
+    "Sinorhizobium_medicae_strain_USDA1037_NZ_VITA01000068": {
+        "cds_gc": 3525250,
+        "number_of_genes": 6240,
+        "genome_gc": 3996619,
+        "genome_length": 6534206
+    },
+    "Vibrio_cyclitrophicus_strain_ECSMB14105_chromosome_1_NZ_CP039701": {
+        "genome_gc": 2221124,
+        "genome_length": 5074401,
+        "cds_gc": 1919241,
+        "number_of_genes": 4319
+    },
+    "Brevundimonas_diminuta_strain_NCTC8545_NZ_UIGE01000001": {
+        "genome_gc": 2312944,
+        "genome_length": 3438815,
+        "cds_gc": 2112818,
+        "number_of_genes": 3376
+    },
+    "Pseudomonas_parafulva_strain_PRS09_11288_NZ_CP019952": {
+        "genome_gc": 2894710,
+        "genome_length": 4690783,
+        "cds_gc": 2600299,
+        "number_of_genes": 4134
+    },
+    "ALL_Moraxella_catarrhalis_strain_CCRI_195ME_NZ_CP018059": {
+        "cds_gc": 736105,
+        "number_of_genes": 1837,
+        "genome_gc": 828892,
+        "genome_length": 1994386
+    },
+    "ALL_Deinococcus_radiodurans_strain_R1_dM1_chromosome_I_NZ_CP031501": {
+        "genome_gc": 2188402,
+        "genome_length": 3283189,
+        "cds_gc": 1977247,
+        "number_of_genes": 3148
+    },
+    "Brucella_abortus_strain_BFY_chromosome_1_NZ_CP007737": {
+        "cds_gc": 1680303,
+        "number_of_genes": 3164,
+        "genome_gc": 1881293,
+        "genome_length": 3288158
+    },
+    "Halomonas_alkalicola_strain_M2_NZ_CP130143": {
+        "genome_gc": 2721527,
+        "genome_length": 3989759,
+        "cds_gc": 2482739,
+        "number_of_genes": 3650
+    }
+}

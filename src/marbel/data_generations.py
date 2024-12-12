@@ -12,9 +12,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
 from iss.app import generate_reads as gen_reads
+from joblib import Parallel, delayed
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
 
 
 def draw_random_species(number_of_species):
@@ -131,7 +132,7 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     if orthogroups.shape[0] < number_of_orthogous_groups:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. lower orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         quit()
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
@@ -367,6 +368,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file (file): The file to write the summary to.
     """
     with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
+        result_file.write(f"Marbel version: {__version__}\n")
         result_file.write(f"Number of orthogroups: {number_of_orthogous_groups}\n")
         result_file.write(f"Number of species: {number_of_species}\n")
         result_file.write(f"Number of samples: {number_of_sample}\n")
@@ -396,6 +398,20 @@ def generate_report(summary_dir, gene_summary):
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
         f.write(species_subtree.write())
+    species = gene_summary["origin_species"].unique().tolist()
+    species_subset = {k: v for k, v in species_stats_dict.items() if k in species}
+    species_info_df = pd.DataFrame.from_dict(species_subset, orient="index")
+    num_sampled_genes = gene_summary.groupby("origin_species").size()
+    species_info_df["num_sampled_genes"] = num_sampled_genes
+    species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
+
+    number_of_genes = gene_summary.shape[0]
+    simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
+    simulated_down_regulated_genes = sum(gene_summary["fold_change_ratio"] <= 0.5)
+    with open(f"{summary_dir}/simulation_stats.txt", "w") as f:
+        f.write(f"Number of selected genes: {number_of_genes}\n")
+        f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
 
 
 def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
@@ -452,7 +468,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
     """
-    sample_df[["gene_name", "absolute_numbers"]].to_csv(f"{sample_name}.tsv", sep="\t", index=False, header=False)
+    read_count_file = f"{output_dir}/{sample_name}.tsv"
+    sample_df[["gene_name", "absolute_numbers"]].to_csv(read_count_file, sep="\t", index=False, header=False)
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
@@ -475,7 +492,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         n_genomes_ncbi=0,
         output=f"{output_dir}/{sample_name}",
         n_genomes=None,
-        readcount_file=f"{sample_name}.tsv",
+        readcount_file=read_count_file,
         abundance_file=None,
         coverage_file=None,
         coverage=None,
@@ -489,7 +506,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         quiet=False
     )
     gen_reads(args)
-    os.remove(f"{sample_name}.tsv")
+    if os.path.exists(read_count_file):
+        os.remove(read_count_file)
+    else:
+        print(f"Warning: Could not remove {read_count_file}.")
 
 
 def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
@@ -504,13 +524,16 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     Returns:
         list: The library sizes for each sample.
     """
-    match library_size_distribution:
+    match library_size_distribution.distribution_name:
         case LibrarySizeDistribution.poisson:
-            sample_library_sizes = random.poisson(library_size, number_of_samples)
+            poisson_lambda = library_size_distribution.poisson
+            sample_library_sizes = library_size * (np.random.poisson(poisson_lambda, number_of_samples) / poisson_lambda)
         case LibrarySizeDistribution.uniform:
             sample_library_sizes = [library_size] * number_of_samples
         case LibrarySizeDistribution.negative_binomial:
-            sample_library_sizes = np.random.negative_binomial(library_size, 1 / library_size, number_of_samples)
+            nbin_n, nbin_p = library_size_distribution.nbin_n, library_size_distribution.nbin_p
+            expected_mean = nbin_n * (1 - nbin_p) / nbin_p
+            sample_library_sizes = (library_size * (np.random.negative_binomial(nbin_n, nbin_p, number_of_samples) / expected_mean)).round()
     return sample_library_sizes
 
 
@@ -569,3 +592,67 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes):
     simulated_ratios = np.exp2(simulated_ratios)
 
     return simulated_ratios
+
+
+def calculate_species_identity(species_id, chosen_species, id_sets):
+    combined_species = chosen_species + [species_id]
+    filtered_id_sets = id_sets[id_sets.apply(lambda x: any(s_id in x for s_id in combined_species))]
+    average_group_identity = filtered_id_sets.apply(lambda x: sum(s_id in x for s_id in combined_species)).mean()
+    return species_id, average_group_identity
+
+
+def maximize(x, y):
+    return x > y
+
+
+def minimize(x, y):
+    return x < y
+
+
+def select_species_with_criterion(number_of_species, number_of_threads, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
+    if selection_criterion not in SelectionCriterion:
+        raise ValueError(f"Invalid selection criterion: {selection_criterion}. Must be one of {list(SelectionCriterion)}")
+    match selection_criterion:
+        case SelectionCriterion.maximize:
+            comparator = maximize
+            initial_best_value = 0
+        case SelectionCriterion.minimize:
+            comparator = minimize
+            initial_best_value = 10000
+
+    # TODO: question: should I make it random or should I start with the highest pair? -> ask Stefan
+    random_species = random.randint(0, MAX_SPECIES)
+    chosen_species = [random_species]
+    # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
+    id_sets = pg_overview.apply(lambda x: frozenset([i for i in range(0, MAX_SPECIES) if x.iloc[i] != "-"]), axis=1)
+
+    for _ in range(number_of_species - 1):
+        species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
+        # i hope id_sets is thread safe, as i only view it
+        results = Parallel(n_jobs=number_of_threads)(
+            delayed(calculate_species_identity)(species_id, chosen_species, id_sets)
+            for species_id in species_left
+        )
+        best_value = initial_best_value
+        best_species = -1
+        for species_id, average_group_identity in results:
+            if comparator(average_group_identity, best_value):
+                best_value = average_group_identity
+                best_species = species_id
+        chosen_species.append(best_species)
+
+    index_species_dict = dict(zip(range(0, MAX_SPECIES), pg_overview.columns[:MAX_SPECIES]))
+    return [index_species_dict[species] for species in chosen_species]
+
+
+def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True):
+    orthogroups = orthogroup_slice[species].copy()
+    number_of_species = len(species)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
+    orthogroups = orthogroups[orthogroups["group_size"] > 0]
+    orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
+    orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
+    if orthogroups.shape[0] < number_of_groups:
+        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        quit()
+    return orthogroups.head(number_of_groups)
