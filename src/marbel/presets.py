@@ -5,7 +5,7 @@ from ete3 import Tree
 from enum import Enum
 import json
 
-__version__ = "0.0.4-alpha"
+__version__ = "0.0.4"
 
 
 CPMS_MEAN_LOG = 3.73411080985053

@@ -410,8 +410,8 @@ def generate_report(summary_dir, gene_summary):
     simulated_down_regulated_genes = sum(gene_summary["fold_change_ratio"] <= 0.5)
     with open(f"{summary_dir}/simulation_stats.txt", "w") as f:
         f.write(f"Number of selected genes: {number_of_genes}\n")
-        f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes/number_of_genes})\n")
-        f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes/number_of_genes})\n")
+        f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
 
 
 def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
