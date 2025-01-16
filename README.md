@@ -1,8 +1,13 @@
 [![Integration Tests & Code Style](https://github.com/jlab/marbel/actions/workflows/github_tests.yml/badge.svg)](https://github.com/jlab/marbel/actions/workflows/github_tests.yml)
 
-# marbel (MetAtranscriptomic Reference Builder Evaluation Library)
+# Marbel
 
-This project generates an *in silico* metatranscriptomic dataset based on specified parameters.
+
+
+simplevm![Marbel logo](./marbel_logo.svg)
+`<img src="./marbel_logo.svg">`
+
+Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters.
 
 ## Installation
 
