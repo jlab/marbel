@@ -350,7 +350,7 @@ def write_as_fastq(fa_path, fq_path):
 
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
-                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, summary_dir):
+                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -383,6 +383,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Library size: {library_size}\n")
         result_file.write(f"Library size distribution: {library_distribution}\n")
         result_file.write(f"Library sizes for samples: {library_sizes}\n")
+        result_file.write(f"Minimum sparsity: {min_sparsity}\n")
 
 
 def generate_report(summary_dir, gene_summary):
@@ -656,3 +657,31 @@ def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=Tru
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         quit()
     return orthogroups.head(number_of_groups)
+
+
+def calc_zero_ratio(df):
+    df = df[~(df == 0).all(axis=1)]
+    return (df == 0).sum().sum() / df.size
+
+
+def add_extra_sparsity(gene_summary_df, sparsity_target):
+    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")]
+
+    marbel_mean = calc_zero_ratio(filtered_counts)
+    difference_to_mean = sparsity_target - marbel_mean
+
+    if difference_to_mean > 0:
+        gene_summary_numeric = gene_summary_df.apply(pd.to_numeric, errors="coerce")
+
+        # select non zero integers for sparsity
+        all_non_zero_integers = np.where((gene_summary_numeric.to_numpy() != 0) & (gene_summary_numeric.to_numpy() == gene_summary_numeric.to_numpy().astype(int)))
+        cells_to_zero = min(round(difference_to_mean * filtered_counts.size), len(all_non_zero_integers[0]))
+        zero_indices = np.random.choice(len(all_non_zero_integers[0]), cells_to_zero, replace=False)
+        indices_to_zero = (all_non_zero_integers[0][zero_indices], all_non_zero_integers[1][zero_indices])
+
+        # convert to numpy array, iloc based modification did not work
+        arr = gene_summary_df.to_numpy()
+        arr[indices_to_zero] = 0
+        gene_summary_df[:] = arr
+
+    return gene_summary_df

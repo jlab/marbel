@@ -4,10 +4,7 @@
 
 
 
-simplevm![Marbel logo](./marbel_logo.svg)
-`<img src="./marbel_logo.svg">`
-
-Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters.
+![Marbel logo](./marbel_logo.svg)Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters.
 
 ## Installation
 

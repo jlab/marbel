@@ -11,7 +11,7 @@ from progress.bar import Bar
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
-from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups
+from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
 
 app = typer.Typer()
 
@@ -137,6 +137,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
+         min_sparsity: Annotated[float, typer.Option(help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     bar = Bar('Generating random numbers for dataset', max=5)
@@ -203,14 +204,17 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
+    if min_sparsity > 0:
+        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity)
+
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
     gene_summary_df["gene_name"] = gene_summary_df["gene_name"]   # .apply(lambda x: re.sub(r'##.*?##', '', x))
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
-    write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir,
-                            max_phylo_distance, min_identity, dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, summary_dir)
+    write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
+                            dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity, summary_dir)
 
     generate_report(summary_dir, gene_summary_df)
 
