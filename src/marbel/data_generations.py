@@ -655,6 +655,7 @@ def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=Tru
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
     if orthogroups.shape[0] < number_of_groups:
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        print(f"Number of available max orthogroups: {orthogroups.shape[0]}")
         quit()
     return orthogroups.head(number_of_groups)
 
