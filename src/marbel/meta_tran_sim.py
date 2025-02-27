@@ -138,6 +138,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
+         force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     bar = Bar('Generating random numbers for dataset', max=5)
@@ -166,15 +167,15 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     ortho_group_rates = create_ortholgous_group_rates(number_of_orthogroups, number_of_species)
     filtered_orthog_groups = filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     if group_orthology_level == OrthologyLevel.very_low:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=True)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=True, force=force_creation)
     elif group_orthology_level == OrthologyLevel.very_high:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=False)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=False, force=force_creation)
     elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
-        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
+        selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, force=force_creation)
     else:
         selected_ortho_groups = draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
         if selected_ortho_groups is None:
-            selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species)
+            selected_ortho_groups = draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, force=force_creation)
 
     bar_next(bar)
     species_abundances = generate_species_abundance(number_of_species, seed)
@@ -214,7 +215,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
-                            dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity, summary_dir)
+                            dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
+                            force_creation, selected_ortho_groups.shape[0], summary_dir)
 
     generate_report(summary_dir, gene_summary_df)
 

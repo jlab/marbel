@@ -113,7 +113,7 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
     return sampled_groups
 
 
-def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
+def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, force):
     """
     Draws orthologous groups based on actual occurences in the dataset, instead of rates based on the pdf.
     Given a dataframe slice of orthologous groups, a number of orthologous groups to be drawn, and a list of species,
@@ -124,6 +124,8 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
         orthogroup_slice (pandas.DataFrame): The orthologous group dataframe.
         number_of_orthogous_groups (int): The number of orthologous groups to be drawn.
         species (list): A list of species.
+        force (bool): If True, returns all available orthogroups when there aren't enough to satisfy the request.
+                      If False, exits with an error message when there aren't enough orthogroups.
 
     Returns:
         pandas.DataFrame: A randomly sampled dataframe of orthologous groups based on their actual occurences and filtered by species.
@@ -131,9 +133,11 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups = orthogroup_slice[species].copy()
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    if orthogroups.shape[0] < number_of_orthogous_groups:
+    if orthogroups.shape[0] < number_of_orthogous_groups and not force:
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         quit()
+    elif force:
+        return orthogroups
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
 
@@ -350,7 +354,8 @@ def write_as_fastq(fa_path, fq_path):
 
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
-                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity, summary_dir):
+                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
+                            force, actual_orthogroups, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -384,6 +389,8 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Library size distribution: {library_distribution}\n")
         result_file.write(f"Library sizes for samples: {library_sizes}\n")
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
+        result_file.write(f"Forced creation: {force}\n")
+        result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
 
 
 def generate_report(summary_dir, gene_summary):
@@ -646,17 +653,20 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
     return [index_species_dict[species] for species in chosen_species]
 
 
-def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True):
+def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
+    print(orthogroups.head())
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
-    if orthogroups.shape[0] < number_of_groups:
+    if orthogroups.shape[0] < number_of_groups and not force:
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         print(f"Number of available max orthogroups: {orthogroups.shape[0]}")
         quit()
+    elif force:
+        return orthogroups
     return orthogroups.head(number_of_groups)
 
 
