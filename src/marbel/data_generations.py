@@ -352,7 +352,17 @@ def generate_report(summary_dir, gene_summary):
         summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
     """
-    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)rpy2
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
+    with open(f"{summary_dir}/species_tree.newick", "w") as f:
+        species_subtree = species_tree.copy()
+        species_subtree.prune(gene_summary["origin_species"].unique().tolist())
+        f.write(species_subtree.write())
+    species = gene_summary["origin_species"].unique().tolist()
+    species_subset = {k: v for k, v in species_stats_dict.items() if k in species}
+    species_info_df = pd.DataFrame.from_dict(species_subset, orient="index")
+    num_sampled_genes = gene_summary.groupby("origin_species").size()
+    species_info_df["num_sampled_genes"] = num_sampled_genes
+    species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
 
     number_of_genes = gene_summary.shape[0]
     simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
