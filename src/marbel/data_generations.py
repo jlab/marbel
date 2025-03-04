@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import FloatVector, IntVector
 from scipy import stats
 from Bio import SeqIO, bgzf
 from pathlib import Path
@@ -11,7 +8,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
-from iss.app import generate_reads as gen_reads
+from iss.app import generate_reads
 from joblib import Parallel, delayed
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
@@ -193,52 +190,6 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
     return fold_changes
 
-
-def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed, read_length):
-    """
-    Generates reads for a given dataset using the polyester package.
-
-    Parameters:
-    gene_summarary_df (pandas.DataFrame): A DataFrame containing information about the genes.
-    replicates_per_sample (list): A list of integers representing the number of replicates per sample. Should contain two values.
-    filtered_genes_file (str): The path to the filtered genes file. Based on this file, the reads will be generated.
-    outdir (str): The output directory for the generated reads.
-    dge_ratio (tuple): A tuple representing the ratio of up regulated genes and down regulated genes. The first value
-                        represents the ratio of up regulated genes, the second represents the ratio of down regulated
-                        genes.
-    seed (int, optional): Random seed for reproducibility. Defaults to None.
-    read_length (int): The length of the reads.
-    """
-    polyester = importr('polyester')
-    base_expression_values = gene_summarary_df["read_mean_count"].to_list()
-
-    reads_per_transcript = FloatVector(base_expression_values)
-    num_reps = IntVector(replicates_per_sample)
-    number_of_transcripts = len(base_expression_values)
-    fold_changes = generate_fold_changes(number_of_transcripts, dge_ratio)
-    fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
-    gene_summarary_df["fold_change_ratio"] = [float(i[0]) / float(i[1]) for i in fold_changes]
-
-    if seed:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir,
-            seed=seed,
-            readlen=read_length
-        )
-    else:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir
-        )
-
-
 def filter_genes_from_ground(gene_list, output_fasta):
     """
     Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
@@ -401,17 +352,7 @@ def generate_report(summary_dir, gene_summary):
         summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
     """
-    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
-    with open(f"{summary_dir}/species_tree.newick", "w") as f:
-        species_subtree = species_tree.copy()
-        species_subtree.prune(gene_summary["origin_species"].unique().tolist())
-        f.write(species_subtree.write())
-    species = gene_summary["origin_species"].unique().tolist()
-    species_subset = {k: v for k, v in species_stats_dict.items() if k in species}
-    species_info_df = pd.DataFrame.from_dict(species_subset, orient="index")
-    num_sampled_genes = gene_summary.groupby("origin_species").size()
-    species_info_df["num_sampled_genes"] = num_sampled_genes
-    species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)rpy2
 
     number_of_genes = gene_summary.shape[0]
     simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
@@ -513,7 +454,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         debug=True,
         quiet=False
     )
-    gen_reads(args)
+    generate_reads(args)
     if os.path.exists(read_count_file):
         os.remove(read_count_file)
     else:
@@ -657,7 +598,6 @@ def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=Tru
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
-    print(orthogroups.head())
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
