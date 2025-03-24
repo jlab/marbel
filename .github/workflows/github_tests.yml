@@ -52,11 +52,10 @@ jobs:
           lfs: true
     - name: Checkout LFS objects
       run: git lfs checkout
-    - name: Set up Python
-      uses: actions/setup-python@v2
     - name: Create conda env
       run: |
         conda create -n marbel python=3.10 r-base
+        conda activate marbel
     - name: Install the package
       run: |
         pip install -e .
