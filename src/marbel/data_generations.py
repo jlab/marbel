@@ -190,6 +190,7 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
     return fold_changes
 
+
 def filter_genes_from_ground(gene_list, output_fasta):
     """
     Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
