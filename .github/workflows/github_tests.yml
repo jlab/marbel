@@ -56,8 +56,6 @@ jobs:
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
         activate-environment: marbel
         python-version: "3.10"
         auto-activate-base: false
