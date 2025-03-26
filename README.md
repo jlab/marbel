@@ -1,4 +1,5 @@
 [![Integration Tests & Code Style](https://github.com/jlab/marbel/actions/workflows/github_tests.yml/badge.svg)](https://github.com/jlab/marbel/actions/workflows/github_tests.yml) [![Coverage Status](https://coveralls.io/repos/github/jlab/marbel/badge.svg?branch=master)](https://coveralls.io/github/jlab/marbel?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/jlab/marbel/badge.svg?branch=master)](https://coveralls.io/github/jlab/marbel?branch=master)
 
 # Marbel
 
@@ -36,7 +37,7 @@ sudo apt-get install git-lfs
 If you do not have root permission, install it in the Conda env:
 
 ```
-conda install anaconda::git-lfs 
+conda install anaconda::git-lfs
 ```
 
 Now we need to initialize Git LFS:
