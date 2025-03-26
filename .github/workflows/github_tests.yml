@@ -31,17 +31,13 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml
+        $CONDA/bin/pytest . --ignore=tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=lcov
+    - name: Send coverage report to Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: "coverage.lcov"
 
-    - name: Convert coverage to lcov format
-      run: |
-        $CONDA/bin/coverage lcov
-
-#    - name: Send coverage report to Coveralls
-#      uses: coverallsapp/github-action@master
-#      with:
-#        github-token: ${{ secrets.GITHUB_TOKEN }}
-#        path-to-lcov: "coverage.lcov"
   simulate-data:
     runs-on: ubuntu-latest
 
@@ -61,7 +57,7 @@ jobs:
         auto-activate-base: false
         channels: conda-forge,defaults
         use-mamba: true
-    
+
     - name: Install the package
       run: |
         pip install -e .
