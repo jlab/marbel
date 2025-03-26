@@ -31,7 +31,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml --with-coverage
+          $CONDA/bin/pynose --ignore-files=test_functional.py . --with-doctest --with-coverage --cover-package marbel
 
     - name: Convert coverage to lcov format
       run: |
@@ -62,7 +62,7 @@ jobs:
         auto-activate-base: false
         channels: conda-forge,defaults
         use-mamba: true
-    
+
     - name: Install the package
       run: |
         pip install -e .
