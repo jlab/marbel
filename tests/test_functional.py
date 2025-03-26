@@ -4,6 +4,9 @@ import pandas as pd
 from os.path import join, basename
 import skbio
 import gzip
+from os import path
+import re
+from Bio import SeqIO
 
 
 def read_fastqGZ(fp_fastq):
@@ -204,8 +207,47 @@ def test_fastq(fp_basedir, genes):
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
-def test_number_of_reads():
-    pass
+def test_number_of_reads(params):
+    fp_basedir = "/home/tlin/marbel_testexecutions/test_run_mar25/simulated_reads"
+
+    fastqs = []
+
+    for group in [1, 2]:
+        for sample in range(1, params['Number of samples'][group - 1] + 1):
+            for direction in [1, 2]:
+                fastqs.append(
+                    join(fp_basedir, 'sample_%i_group%i_R%i.fastq.gz' % (
+                        sample, group, direction)))
+
+    df_r1 = pd.DataFrame()
+    df_r2 = pd.DataFrame()
+
+    for fastq in fastqs:
+        with gzip.open(fastq, 'rt') as handle:
+            base_name = path.basename(fastq).replace(".fastq.gz", "")
+            if base_name.endswith("_R1"):
+                column_name = base_name.replace("_R1", "")
+                ids = [re.sub(r'_\d+_\d+/\d$', '', record.id) for record in SeqIO.parse(handle, 'fastq')]
+                gene_counts = pd.Series(ids).value_counts()
+                gene_counts.name = column_name
+                df_r1 = pd.concat([df_r1, gene_counts], axis=1)
+            else:
+                column_name = base_name.replace("_R2", "")
+                ids = [re.sub(r'_\d+_\d+/\d$', '', record.id) for record in SeqIO.parse(handle, 'fastq')]
+                gene_counts = pd.Series(ids).value_counts()
+                gene_counts.name = column_name
+                df_r2 = pd.concat([df_r2, gene_counts], axis=1)
+            
+    df_r1 = df_r1.fillna(0)
+    df_r2 = df_r2.fillna(0)
+
+    gene_summary = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'))
+    gene_summary_counts = gene_summary.loc[:, gene_summary.columns.str.contains("sample_")]
+    gene_summary_counts_no_zero_lines = gene_summary_counts[~(gene_summary_counts == 0).all(axis=1)]
+    assert df_r1.sort_index(axis=0).sort_index(axis=1).equals(df_r2.sort_index(axis=0).sort_index(axis=1)), "Simulated R1 and R2 mate reads are not equal"
+    df_r1 = df_r1.astype(int).sort_index(axis=0).sort_index(axis=1)
+    gene_summary_counts_no_zero_lines = gene_summary_counts_no_zero_lines.astype(int).sort_index(axis=0).sort_index(axis=1)
+    assert 0 == (df_r1 - gene_summary_counts_no_zero_lines).sum().sum(), "Number of reads in fastq files does not match number of reads in gene_summary.csv"
 
 
 if __name__ == "__main__":
