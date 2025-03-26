@@ -204,6 +204,10 @@ def test_fastq(fp_basedir, genes):
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
+def test_number_of_reads():
+    pass
+
+
 if __name__ == "__main__":
     fp_basedir = sys.argv[1]
 
