@@ -31,7 +31,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml
+          $CONDA/bin/pytest tests --ignore ./tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=xml --with-coverage
 
     - name: Convert coverage to lcov format
       run: |
