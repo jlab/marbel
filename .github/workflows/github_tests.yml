@@ -85,7 +85,7 @@ jobs:
           lfs: true
     - name: Create conda test-env
       run: |
-        conda create -n marbel-tests scikit-bio
+        conda create -n marbel-tests scikit-bio biopython
     - name: Download simulated data
       uses: actions/download-artifact@v4
       with:

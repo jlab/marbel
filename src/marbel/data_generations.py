@@ -429,7 +429,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         threads (int): The number of threads to use.
     """
     read_count_file = f"{output_dir}/{sample_name}.tsv"
-    sample_df[["gene_name", "absolute_numbers"]].to_csv(read_count_file, sep="\t", index=False, header=False)
+    number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
+    number_of_pairs["absolute_numbers"] = number_of_pairs["absolute_numbers"] * 2
+    number_of_pairs.to_csv(read_count_file, sep="\t", index=False, header=False)
+
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
