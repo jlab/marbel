@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_dge_factors
+from marbel.data_generations import calc_zero_ratio, add_extra_sparsity
 from marbel.presets import AVAILABLE_SPECIES, pg_overview, DGE_LOG_2_CUTOFF_VALUE
 
 #Tests for draw_random_species
@@ -163,3 +164,25 @@ def test_draw_dge_factors_extreme_case():
 def test_draw_dge_factors_empty_output():
     result = draw_dge_factors(0.49, 0)
     assert result.size == 0
+
+
+def test_calc_zero_ratio():
+    df = pd.DataFrame({'a': [0, 2, 3], 'b': [4, 0, 6], 'c': [7, 8, 9], 'd': [10, 11, 0]})
+    ratio = calc_zero_ratio(df)
+    assert ratio == 0.25
+
+
+def test_calc_zero_ratio_no_zero():
+    df = pd.DataFrame({'a': [2, 2, 3], 'b': [4, 3, 6], 'c': [7, 8, 9], 'd': [10, 11, 5]})
+    ratio = calc_zero_ratio(df)
+    assert ratio == 0
+
+
+def test_add_extra_sparsity():
+    df = pd.DataFrame({'sample_1': [4, 0, 6], 'sample_2': [7, 8, 9], 'sample_3': [10, 11, 0],
+                      'sample_4': [12, 13, 10]})
+    target_sparsity = 0.5
+    result = add_extra_sparsity(df, target_sparsity)
+    new_sparsity = calc_zero_ratio(result)
+    assert new_sparsity >= target_sparsity
+
