@@ -630,7 +630,7 @@ def calc_zero_ratio(df):
 
 
 def add_extra_sparsity(gene_summary_df, sparsity_target):
-    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")]
+    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")].copy()
 
     marbel_mean = calc_zero_ratio(filtered_counts)
     difference_to_mean = sparsity_target - marbel_mean

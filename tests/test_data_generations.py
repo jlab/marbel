@@ -185,4 +185,3 @@ def test_add_extra_sparsity():
     result = add_extra_sparsity(df, target_sparsity)
     new_sparsity = calc_zero_ratio(result)
     assert new_sparsity >= target_sparsity
-
