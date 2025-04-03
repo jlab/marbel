@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import FloatVector, IntVector
 from scipy import stats
 from Bio import SeqIO, bgzf
 from pathlib import Path
@@ -11,7 +8,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
-from iss.app import generate_reads as gen_reads
+from iss.app import generate_reads
 from joblib import Parallel, delayed
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
@@ -113,7 +110,7 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
     return sampled_groups
 
 
-def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
+def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, force):
     """
     Draws orthologous groups based on actual occurences in the dataset, instead of rates based on the pdf.
     Given a dataframe slice of orthologous groups, a number of orthologous groups to be drawn, and a list of species,
@@ -124,6 +121,8 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
         orthogroup_slice (pandas.DataFrame): The orthologous group dataframe.
         number_of_orthogous_groups (int): The number of orthologous groups to be drawn.
         species (list): A list of species.
+        force (bool): If True, returns all available orthogroups when there aren't enough to satisfy the request.
+                      If False, exits with an error message when there aren't enough orthogroups.
 
     Returns:
         pandas.DataFrame: A randomly sampled dataframe of orthologous groups based on their actual occurences and filtered by species.
@@ -131,9 +130,11 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species):
     orthogroups = orthogroup_slice[species].copy()
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    if orthogroups.shape[0] < number_of_orthogous_groups:
+    if orthogroups.shape[0] < number_of_orthogous_groups and not force:
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
         quit()
+    elif force:
+        return orthogroups
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
 
@@ -188,51 +189,6 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     up_regulated = dge_genes[:int((dge_ratio[0] / sum(dge_ratio)) * len(dge_genes))]
     fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
     return fold_changes
-
-
-def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed, read_length):
-    """
-    Generates reads for a given dataset using the polyester package.
-
-    Parameters:
-    gene_summarary_df (pandas.DataFrame): A DataFrame containing information about the genes.
-    replicates_per_sample (list): A list of integers representing the number of replicates per sample. Should contain two values.
-    filtered_genes_file (str): The path to the filtered genes file. Based on this file, the reads will be generated.
-    outdir (str): The output directory for the generated reads.
-    dge_ratio (tuple): A tuple representing the ratio of up regulated genes and down regulated genes. The first value
-                        represents the ratio of up regulated genes, the second represents the ratio of down regulated
-                        genes.
-    seed (int, optional): Random seed for reproducibility. Defaults to None.
-    read_length (int): The length of the reads.
-    """
-    polyester = importr('polyester')
-    base_expression_values = gene_summarary_df["read_mean_count"].to_list()
-
-    reads_per_transcript = FloatVector(base_expression_values)
-    num_reps = IntVector(replicates_per_sample)
-    number_of_transcripts = len(base_expression_values)
-    fold_changes = generate_fold_changes(number_of_transcripts, dge_ratio)
-    fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
-    gene_summarary_df["fold_change_ratio"] = [float(i[0]) / float(i[1]) for i in fold_changes]
-
-    if seed:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir,
-            seed=seed,
-            readlen=read_length
-        )
-    else:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir
-        )
 
 
 def filter_genes_from_ground(gene_list, output_fasta):
@@ -350,7 +306,8 @@ def write_as_fastq(fa_path, fq_path):
 
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
-                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, summary_dir):
+                            min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
+                            force, actual_orthogroups, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -383,6 +340,9 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Library size: {library_size}\n")
         result_file.write(f"Library size distribution: {library_distribution}\n")
         result_file.write(f"Library sizes for samples: {library_sizes}\n")
+        result_file.write(f"Minimum sparsity: {min_sparsity}\n")
+        result_file.write(f"Forced creation: {force}\n")
+        result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
 
 
 def generate_report(summary_dir, gene_summary):
@@ -469,7 +429,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         threads (int): The number of threads to use.
     """
     read_count_file = f"{output_dir}/{sample_name}.tsv"
-    sample_df[["gene_name", "absolute_numbers"]].to_csv(read_count_file, sep="\t", index=False, header=False)
+    number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
+    number_of_pairs["absolute_numbers"] = number_of_pairs["absolute_numbers"] * 2
+    number_of_pairs.to_csv(read_count_file, sep="\t", index=False, header=False)
+
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
@@ -505,7 +468,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         debug=True,
         quiet=False
     )
-    gen_reads(args)
+    generate_reads(args)
     if os.path.exists(read_count_file):
         os.remove(read_count_file)
     else:
@@ -645,14 +608,45 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
     return [index_species_dict[species] for species in chosen_species]
 
 
-def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True):
+def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
-    if orthogroups.shape[0] < number_of_groups:
+    if orthogroups.shape[0] < number_of_groups and not force:
         print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
+        print(f"Number of available max orthogroups: {orthogroups.shape[0]}")
         quit()
+    elif force:
+        return orthogroups
     return orthogroups.head(number_of_groups)
+
+
+def calc_zero_ratio(df):
+    df = df[~(df == 0).all(axis=1)]
+    return (df == 0).sum().sum() / df.size
+
+
+def add_extra_sparsity(gene_summary_df, sparsity_target):
+    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")].copy()
+
+    marbel_mean = calc_zero_ratio(filtered_counts)
+    difference_to_mean = sparsity_target - marbel_mean
+
+    if difference_to_mean > 0:
+        gene_summary_numeric = gene_summary_df.apply(pd.to_numeric, errors="coerce")
+
+        # select non zero integers for sparsity
+        all_non_zero_integers = np.where((gene_summary_numeric.to_numpy() != 0) & (gene_summary_numeric.to_numpy() == gene_summary_numeric.to_numpy().astype(int)))
+        cells_to_zero = min(round(difference_to_mean * filtered_counts.size), len(all_non_zero_integers[0]))
+        zero_indices = np.random.choice(len(all_non_zero_integers[0]), cells_to_zero, replace=False)
+        indices_to_zero = (all_non_zero_integers[0][zero_indices], all_non_zero_integers[1][zero_indices])
+
+        # convert to numpy array, iloc based modification did not work
+        arr = gene_summary_df.to_numpy()
+        arr[indices_to_zero] = 0
+        gene_summary_df[:] = arr
+
+    return gene_summary_df

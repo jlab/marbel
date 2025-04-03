@@ -1,7 +1,6 @@
 arviz
 pymc
 typer
-rpy2
 biopython
 pyarrow
 typing_extensions

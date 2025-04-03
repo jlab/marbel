@@ -11,13 +11,14 @@ authors = [
 ]
 description = "A CLI for creating a simulated metatranscritpome dataset"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10,<3.13"
 classifiers = [
-          "License :: OSI Approved :: Apache Software License",
-          "Operating System :: OS Independent",
-          "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.8",
-          "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 [project.urls]
