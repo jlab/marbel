@@ -11,7 +11,9 @@ from progress.bar import Bar
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
-from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
+from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity, aggregate_blocks
+import subprocess
+from pathlib import Path
 
 app = typer.Typer()
 
@@ -219,6 +221,17 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                             force_creation, selected_ortho_groups.shape[0], summary_dir)
 
     generate_report(summary_dir, gene_summary_df)
+    aggregated_bed_file = f"{summary_dir}/aggregated.bed"
+    aggregate_bed_files(outdir, aggregated_bed_file)
+    aggregate_blocks(aggregated_bed_file, tmp_fasta_name, summary_dir)
+    aggregate_blocks(aggregated_bed_file, tmp_fasta_name, summary_dir, min_overlap=20)
+
+
+def aggregate_bed_files(dir, output_name):
+    bed_files = sorted(Path(dir).glob("*.bed"))
+    cmd = ["cat"] + [str(f) for f in bed_files]
+    with open(output_name, "w") as out_f:
+        subprocess.run(cmd, stdout=out_f, check=True)
 
 
 if __name__ == "__main__":

@@ -10,6 +10,8 @@ import multiprocessing
 import argparse
 from iss.app import generate_reads
 from joblib import Parallel, delayed
+import subprocess
+import polars as pl
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
 from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
@@ -650,3 +652,50 @@ def add_extra_sparsity(gene_summary_df, sparsity_target):
         gene_summary_df[:] = arr
 
     return gene_summary_df
+
+
+def aggregate_blocks(bed, fasta, summary_dir, min_overlap=0):
+    """
+    Aggregates blocks from a bed file and writes them to a fasta file. You can specify the minimum overlap accounting for KMERs.
+
+    Parameters:
+        bed (str): Path to the bed file.
+        fasta (str): Path to the fasta file.
+        summary_dir (str): Directory to save the output files.
+        min_overlap (int): Minimum overlap for two reads. Default is 0.
+
+    Returns:
+        str: Path to the output fasta file.
+    """
+    test = pl.read_csv(bed, separator="\t", has_header=False)
+    bed_df = test.rename({"column_1": "cds", "column_2": "start", "column_3": "end"})
+
+    blocks_df = (
+        bed_df.sort(["cds", "start"])
+        .with_columns([
+            ((pl.col("start") >= pl.col("end").shift(1).fill_null(-1) - min_overlap).cum_sum().over("cds")).alias("block_index")
+        ])
+        .with_columns([
+            (pl.col("cds") + "_block" + pl.col("block_index").cast(pl.Utf8)).alias("block_name")
+        ])
+        .group_by(["cds", "block_name"])
+        .agg([
+            pl.col("start").min().alias("block_start"),
+            pl.col("end").max().alias("end"),
+            pl.len().alias("fragment_count")
+        ])
+        .select(["cds", "block_start", "end", "block_name", "fragment_count"])
+    )
+
+    bed_blocks_fl = f"{summary_dir}/blocks_overlap_{min_overlap}.bed"
+    fa_blocks_fl = f"{summary_dir}/blocks_overlap_{min_overlap}.fasta"
+
+    blocks_df.write_csv(bed_blocks_fl, separator="\t", include_header=False)
+
+    subprocess.run([
+        "bedtools", "getfasta",
+        "-fi", fasta,
+        "-bed", bed_blocks_fl,
+        "-fo", fa_blocks_fl,
+        "-nameOnly"
+    ], check=True)
