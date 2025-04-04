@@ -193,21 +193,43 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     return fold_changes
 
 
-def filter_genes_from_ground(gene_list, output_fasta):
+def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
     """
-    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
-
-    Parameters:
-    gene_list (list): A list of gene names.
-    output_fasta (str): Path to the output FASTA file where the sequences will be saved.
+    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is preserved.
     """
     ground_genes = SeqIO.index_db(PATH_TO_GROUND_GENES_INDEX)
-    with open(output_fasta, "w") as outfile:
-        for gene in gene_list:
-            if gene in ground_genes:
-                SeqIO.write(ground_genes[gene], outfile, "fasta")
-            else:
-                print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    records = []
+    gtf_entries = []
+
+    for gene in gene_list:
+        try:
+            record = ground_genes[gene]
+            records.append(record)
+            gtf_entries.append({
+                "cds": gene,
+                "block_start": 1,
+                "end": len(record.seq),
+            })
+        except KeyError:
+            print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    SeqIO.write(records, output_fasta, "fasta")
+
+    blocks_df = pl.DataFrame(gtf_entries).with_columns(
+        pl.lit("marbel").alias("source"),
+        pl.lit("gene").alias("feature"),
+        pl.lit(".").alias("score"),
+        pl.lit("+").alias("strand"),
+        pl.lit(".").alias("frame"),
+        pl.format(
+            "gene_id {}; transcript_id {};",
+            pl.col("cds"), pl.col("cds")
+        ).alias("attributes"),
+        (pl.col("block_start") + 1).alias("gtf_start"),
+    )
+
+    blocks_df.select([
+        "cds", "source", "feature", "gtf_start", "end", "score", "strand", "frame", "attributes"
+    ]).write_csv(gtf_path, separator="\t", include_header=False)
 
 
 def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts):
@@ -691,6 +713,23 @@ def aggregate_blocks(bed, fasta, summary_dir, min_overlap=0):
     fa_blocks_fl = f"{summary_dir}/blocks_overlap_{min_overlap}.fasta"
 
     blocks_df.write_csv(bed_blocks_fl, separator="\t", include_header=False)
+
+    blocks_df = blocks_df.with_columns(
+        pl.lit("marbel").alias("source"),
+        pl.lit("block").alias("feature"),
+        pl.lit(".").alias("score"),
+        pl.lit("+").alias("strand"),
+        pl.lit(".").alias("frame"),
+        pl.format(
+            "gene_id {}; transcript_id {}; block_index {};",
+            pl.col("cds"), pl.col("cds"), pl.col("cds")
+        ).alias("attributes"),
+        (pl.col("block_start") + 1).alias("gtf_start"),
+    )
+
+    blocks_df.select([
+        "cds", "source", "feature", "gtf_start", "end", "score", "strand", "frame", "attributes"
+    ]).write_csv(f"{summary_dir}/blocks.gtf", separator="\t", include_header=False)
 
     subprocess.run([
         "bedtools", "getfasta",

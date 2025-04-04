@@ -193,7 +193,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
     tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
-    filter_genes_from_ground(all_species_genes, tmp_fasta_name)
+    out_put_gtf = f"{summary_dir}/metatranscriptome_reference.gtf"
+    filter_genes_from_ground(all_species_genes, tmp_fasta_name, out_put_gtf)
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
     bar_next(bar)
     gene_summary_df["fold_change_ratio"] = dge_factors
