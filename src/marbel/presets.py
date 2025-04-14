@@ -1,7 +1,7 @@
 import pymc as pm
 import pandas as pd
 from importlib import resources
-from ete3 import Tree
+from ete4 import Tree
 from enum import Enum
 import json
 
@@ -41,9 +41,10 @@ PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Micro
 PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
 SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
 SPECIES_STATS = f"{data_package}/species_stats.json"
+ALL_GTF_PATH = ""
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
-species_tree = Tree(SPECIES_PHYLO_TREE)
+species_tree = Tree(open(SPECIES_PHYLO_TREE))
 DGE_LOG_2_CUTOFF_VALUE = 1
 species_stats_dict = json.load(open(SPECIES_STATS, 'r'))
 

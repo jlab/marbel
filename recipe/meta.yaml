@@ -1,0 +1,25 @@
+package:
+  name: marbel
+  version: "0.1.0"
+
+source:
+  git_rev: 0.1.0
+  git_url: https://github.com/jlab/marbel
+
+requirements:
+  build:
+    - python
+    - hatchling
+
+  run:
+    - python
+
+test:
+  imports:
+    - marbel
+  commands:
+    - marbel --help
+
+about:
+  home: https://github.com/jlab/marbel
+  license: Apache-2.0
