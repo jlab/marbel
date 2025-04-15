@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import FloatVector, IntVector
 from scipy import stats
 from Bio import SeqIO, bgzf
 from pathlib import Path
@@ -11,8 +8,10 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
-from iss.app import generate_reads as gen_reads
+from iss.app import generate_reads
 from joblib import Parallel, delayed
+import subprocess
+import polars as pl
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
 from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
@@ -194,66 +193,43 @@ def generate_fold_changes(number_of_transcripts, dge_ratio):
     return fold_changes
 
 
-def generate_reads(gene_summarary_df, replicates_per_sample, filtered_genes_file, outdir, dge_ratio, seed, read_length):
+def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
     """
-    Generates reads for a given dataset using the polyester package.
-
-    Parameters:
-    gene_summarary_df (pandas.DataFrame): A DataFrame containing information about the genes.
-    replicates_per_sample (list): A list of integers representing the number of replicates per sample. Should contain two values.
-    filtered_genes_file (str): The path to the filtered genes file. Based on this file, the reads will be generated.
-    outdir (str): The output directory for the generated reads.
-    dge_ratio (tuple): A tuple representing the ratio of up regulated genes and down regulated genes. The first value
-                        represents the ratio of up regulated genes, the second represents the ratio of down regulated
-                        genes.
-    seed (int, optional): Random seed for reproducibility. Defaults to None.
-    read_length (int): The length of the reads.
-    """
-    polyester = importr('polyester')
-    base_expression_values = gene_summarary_df["read_mean_count"].to_list()
-
-    reads_per_transcript = FloatVector(base_expression_values)
-    num_reps = IntVector(replicates_per_sample)
-    number_of_transcripts = len(base_expression_values)
-    fold_changes = generate_fold_changes(number_of_transcripts, dge_ratio)
-    fold_changes_r = robjects.r.matrix(FloatVector([elem for sublist in fold_changes for elem in sublist]), nrow=number_of_transcripts, byrow=True)
-    gene_summarary_df["fold_change_ratio"] = [float(i[0]) / float(i[1]) for i in fold_changes]
-
-    if seed:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir,
-            seed=seed,
-            readlen=read_length
-        )
-    else:
-        polyester.simulate_experiment(
-            filtered_genes_file,
-            reads_per_transcript=reads_per_transcript,
-            num_reps=num_reps,
-            fold_changes=fold_changes_r,
-            outdir=outdir
-        )
-
-
-def filter_genes_from_ground(gene_list, output_fasta):
-    """
-    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
-
-    Parameters:
-    gene_list (list): A list of gene names.
-    output_fasta (str): Path to the output FASTA file where the sequences will be saved.
+    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is preserved.
     """
     ground_genes = SeqIO.index_db(PATH_TO_GROUND_GENES_INDEX)
-    with open(output_fasta, "w") as outfile:
-        for gene in gene_list:
-            if gene in ground_genes:
-                SeqIO.write(ground_genes[gene], outfile, "fasta")
-            else:
-                print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    records = []
+    gtf_entries = []
+
+    for gene in gene_list:
+        try:
+            record = ground_genes[gene]
+            records.append(record)
+            gtf_entries.append({
+                "cds": gene,
+                "block_start": 1,
+                "end": len(record.seq),
+            })
+        except KeyError:
+            print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    SeqIO.write(records, output_fasta, "fasta")
+
+    blocks_df = pl.DataFrame(gtf_entries).with_columns(
+        pl.lit("marbel").alias("source"),
+        pl.lit("gene").alias("feature"),
+        pl.lit(".").alias("score"),
+        pl.lit("+").alias("strand"),
+        pl.lit(".").alias("frame"),
+        pl.format(
+            "gene_id {}; transcript_id {};",
+            pl.col("cds"), pl.col("cds")
+        ).alias("attributes"),
+        (pl.col("block_start") + 1).alias("gtf_start"),
+    )
+
+    blocks_df.select([
+        "cds", "source", "feature", "gtf_start", "end", "score", "strand", "frame", "attributes"
+    ]).write_csv(gtf_path, separator="\t", include_header=False)
 
 
 def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts):
@@ -355,7 +331,7 @@ def write_as_fastq(fa_path, fq_path):
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, summary_dir):
+                            force, actual_orthogroups, min_overlap, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -391,6 +367,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
+        result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
 
 
 def generate_report(summary_dir, gene_summary):
@@ -477,7 +454,10 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         threads (int): The number of threads to use.
     """
     read_count_file = f"{output_dir}/{sample_name}.tsv"
-    sample_df[["gene_name", "absolute_numbers"]].to_csv(read_count_file, sep="\t", index=False, header=False)
+    number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
+    number_of_pairs["absolute_numbers"] = number_of_pairs["absolute_numbers"] * 2
+    number_of_pairs.to_csv(read_count_file, sep="\t", index=False, header=False)
+
     mode = "kde"
     if model == ErrorModel.basic or model == ErrorModel.perfect:
         mode = model
@@ -513,7 +493,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         debug=True,
         quiet=False
     )
-    gen_reads(args)
+    generate_reads(args)
     if os.path.exists(read_count_file):
         os.remove(read_count_file)
     else:
@@ -657,7 +637,6 @@ def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=Tru
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
-    print(orthogroups.head())
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
@@ -676,7 +655,7 @@ def calc_zero_ratio(df):
 
 
 def add_extra_sparsity(gene_summary_df, sparsity_target):
-    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")]
+    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")].copy()
 
     marbel_mean = calc_zero_ratio(filtered_counts)
     difference_to_mean = sparsity_target - marbel_mean

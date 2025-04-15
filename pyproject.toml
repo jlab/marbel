@@ -1,23 +1,38 @@
 [build-system]
-requires = ["hatchling", "hatch-requirements-txt"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "marbel"
-dynamic = ["version", "dependencies"]
+dynamic = ["version"]
 authors = [
   { name="Timo Wentong Lin", email="ge2317@uni-giessen.de" },
 
 ]
 description = "A CLI for creating a simulated metatranscritpome dataset"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10,<3.14"
 classifiers = [
-          "License :: OSI Approved :: Apache Software License",
-          "Operating System :: OS Independent",
-          "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.8",
-          "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "arviz",
+  "pymc",
+  "typer",
+  "biopython",
+  "pyarrow",
+  "typing_extensions",
+  "ete4",
+  "progress",
+  "InSilicoSeq @ git+https://github.com/jlab/InSilicoSeq.git",
+  "joblib",
+  "polars"
 ]
 
 [project.urls]
@@ -27,8 +42,7 @@ classifiers = [
 [project.scripts]
 marbel= "marbel.meta_tran_sim:app"
 
-[tool.hatch.metadata.hooks.requirements_txt]
-files = ["requirements.txt"]
+
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/marbel"]
@@ -38,6 +52,7 @@ include = [
     "src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz",
     "src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index",
     "src/marbel/data/orthologues_processed_combined_all.parquet",
+    "src/marbel/data/cds_genomic_locations.parquet",
     "src/marbel/data/EDGAR_all_species.newick",
 ]
 
