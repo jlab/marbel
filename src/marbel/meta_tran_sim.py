@@ -7,13 +7,15 @@ import numpy as np
 import os
 import pandas as pd
 from progress.bar import Bar
+import polars as pl
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
-from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity, aggregate_blocks
-import subprocess
-from pathlib import Path
+from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
+from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available
+from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, aggregate_blocks, write_block_gtf, write_overlap_blocks_fasta, calculate_overlap_blocks, write_overlap_blocks_summary
+
 
 app = typer.Typer()
 
@@ -141,6 +143,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
          force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
+         min_overlap: Annotated[int, typer.Option(help="Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome. Accounts for kmer size.")] = 16,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     bar = Bar('Generating random numbers for dataset', max=5)
@@ -188,7 +191,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     gene_summary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summary_df["gene_name"].to_list()
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]  # .apply(lambda x: f"{x}##{uuid.uuid4()}##")  # add uuid to gene names, the problem is some gene names are shared between orthogroups
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
@@ -213,26 +216,50 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]   # .apply(lambda x: re.sub(r'##.*?##', '', x))
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], summary_dir)
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, summary_dir)
 
     generate_report(summary_dir, gene_summary_df)
-    aggregated_bed_file = f"{summary_dir}/aggregated.bed"
-    aggregate_bed_files(outdir, aggregated_bed_file)
-    aggregate_blocks(aggregated_bed_file, tmp_fasta_name, summary_dir)
-    aggregate_blocks(aggregated_bed_file, tmp_fasta_name, summary_dir, min_overlap=20)
+    # summary output files
+    concatted_bed_file = f"{summary_dir}/aggregated.bed"
+    bed_fl_name = f"{summary_dir}/blocks.bed"
+    gtf_fl_name = f"{summary_dir}/blocks.gtf"
+    blocks_fasta_name = f"{summary_dir}/blocks.fasta"
+    overlap_blocks_fasta_name = f"{summary_dir}/blocks_overlap.fasta"
+    overlap_blocks_name = f"{summary_dir}/overlap_blocks.tsv"
 
+    # use cat for better performance if available
+    if is_cat_available():
+        concat_bed_files_with_cat(outdir, concatted_bed_file)
+    else:
+        concat_bed_files(outdir, concatted_bed_file)
 
-def aggregate_bed_files(dir, output_name):
-    bed_files = sorted(Path(dir).glob("*.bed"))
-    cmd = ["cat"] + [str(f) for f in bed_files]
-    with open(output_name, "w") as out_f:
-        subprocess.run(cmd, stdout=out_f, check=True)
+    bed_df = pl.read_csv(concatted_bed_file, separator="\t", has_header=False)
+    bed_df = bed_df[:, :-2]
+    bed_df.columns = ["cds", "start", "end"]
+
+    blocks_df = aggregate_blocks(bed_df)
+
+    blocks_df.write_csv(bed_fl_name, separator="\t", include_header=False)
+    write_block_gtf(blocks_df, gtf_fl_name)
+
+    # use bedtools if available for speed up
+    if is_bedtools_available():
+        write_blocks_fasta_bedtools(bed_fl_name, blocks_fasta_name, tmp_fasta_name)
+    else:
+        write_blocks_fasta(blocks_df, blocks_fasta_name)
+
+    blocks_df = map_blocks_to_genomic_location(blocks_df)
+
+    overlap_blocks = calculate_overlap_blocks(blocks_df, min_overlap)
+
+    write_overlap_blocks_summary(overlap_blocks, overlap_blocks_name)
+    write_overlap_blocks_fasta(overlap_blocks, overlap_blocks_fasta_name)
 
 
 if __name__ == "__main__":

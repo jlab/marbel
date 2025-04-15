@@ -39,9 +39,9 @@ data_package = str(resources.files(__package__) / 'data')
 PATH_TO_GROUND_GENES = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz"
 PATH_TO_GROUND_GENES_INDEX = f"{data_package}/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index"
 PANGENOME_OVERVIEW = f"{data_package}/orthologues_processed_combined_all.parquet"
+CDS_GENOMIC_LOCATIONS = f"{data_package}/cds_genomic_locations.parquet"
 SPECIES_PHYLO_TREE = f"{data_package}/EDGAR_all_species.newick"
 SPECIES_STATS = f"{data_package}/species_stats.json"
-ALL_GTF_PATH = ""
 
 pg_overview = pd.read_parquet(PANGENOME_OVERVIEW, engine='pyarrow')
 species_tree = Tree(open(SPECIES_PHYLO_TREE))

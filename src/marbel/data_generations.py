@@ -331,7 +331,7 @@ def write_as_fastq(fa_path, fq_path):
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, summary_dir):
+                            force, actual_orthogroups, min_overlap, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -367,6 +367,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
+        result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
 
 
 def generate_report(summary_dir, gene_summary):
@@ -674,67 +675,3 @@ def add_extra_sparsity(gene_summary_df, sparsity_target):
         gene_summary_df[:] = arr
 
     return gene_summary_df
-
-
-def aggregate_blocks(bed, fasta, summary_dir, min_overlap=0):
-    """
-    Aggregates blocks from a bed file and writes them to a fasta file. You can specify the minimum overlap accounting for KMERs.
-
-    Parameters:
-        bed (str): Path to the bed file.
-        fasta (str): Path to the fasta file.
-        summary_dir (str): Directory to save the output files.
-        min_overlap (int): Minimum overlap for two reads. Default is 0.
-
-    Returns:
-        str: Path to the output fasta file.
-    """
-    test = pl.read_csv(bed, separator="\t", has_header=False)
-    bed_df = test.rename({"column_1": "cds", "column_2": "start", "column_3": "end"})
-
-    blocks_df = (
-        bed_df.sort(["cds", "start"])
-        .with_columns([
-            ((pl.col("start") >= pl.col("end").shift(1).fill_null(-1) - min_overlap).cum_sum().over("cds")).alias("block_index")
-        ])
-        .with_columns([
-            (pl.col("cds") + "_block" + pl.col("block_index").cast(pl.Utf8)).alias("block_name")
-        ])
-        .group_by(["cds", "block_name"])
-        .agg([
-            pl.col("start").min().alias("block_start"),
-            pl.col("end").max().alias("end"),
-            pl.len().alias("fragment_count")
-        ])
-        .select(["cds", "block_start", "end", "block_name", "fragment_count"])
-    )
-
-    bed_blocks_fl = f"{summary_dir}/blocks_overlap_{min_overlap}.bed"
-    fa_blocks_fl = f"{summary_dir}/blocks_overlap_{min_overlap}.fasta"
-
-    blocks_df.write_csv(bed_blocks_fl, separator="\t", include_header=False)
-
-    blocks_df = blocks_df.with_columns(
-        pl.lit("marbel").alias("source"),
-        pl.lit("block").alias("feature"),
-        pl.lit(".").alias("score"),
-        pl.lit("+").alias("strand"),
-        pl.lit(".").alias("frame"),
-        pl.format(
-            "gene_id {}; transcript_id {}; block_index {};",
-            pl.col("cds"), pl.col("cds"), pl.col("cds")
-        ).alias("attributes"),
-        (pl.col("block_start") + 1).alias("gtf_start"),
-    )
-
-    blocks_df.select([
-        "cds", "source", "feature", "gtf_start", "end", "score", "strand", "frame", "attributes"
-    ]).write_csv(f"{summary_dir}/blocks.gtf", separator="\t", include_header=False)
-
-    subprocess.run([
-        "bedtools", "getfasta",
-        "-fi", fasta,
-        "-bed", bed_blocks_fl,
-        "-fo", fa_blocks_fl,
-        "-nameOnly"
-    ], check=True)
