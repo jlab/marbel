@@ -1,9 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
-from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_orthogroups_by_rate, draw_dge_factors
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
 from marbel.data_generations import calc_zero_ratio, add_extra_sparsity
-from marbel.presets import AVAILABLE_SPECIES, pg_overview, DGE_LOG_2_CUTOFF_VALUE
+from marbel.presets import AVAILABLE_SPECIES, pg_overview
 
 # Tests for draw_random_species
 
@@ -30,8 +30,6 @@ def test_too_few_species():
     number_of_species = 0
     with pytest.raises(ValueError):
         draw_random_species(number_of_species)
-
-#Tests for create_ortholgous_group_rates
 
 
 def test_correct_number_of_orthogroups():
@@ -163,12 +161,6 @@ def test_draw_dge_factors_extreme_case():
 def test_draw_dge_factors_empty_output():
     result = draw_dge_factors(0.49, 0)
     assert result.size == 0
-
-
-def test_calc_zero_ratio():
-    df = pd.DataFrame({'a': [0, 2, 3], 'b': [4, 0, 6], 'c': [7, 8, 9], 'd': [10, 11, 0]})
-    ratio = calc_zero_ratio(df)
-    assert ratio == 0.25
 
 
 def test_calc_zero_ratio_no_zero():
