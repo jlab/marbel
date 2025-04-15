@@ -5,6 +5,8 @@ from marbel.data_generations import draw_random_species, create_ortholgous_group
 from marbel.data_generations import calc_zero_ratio, add_extra_sparsity
 from marbel.presets import AVAILABLE_SPECIES, pg_overview
 
+# Tests for draw_random_species
+
 
 def test_correct_length():
     number_of_species = 5
@@ -40,14 +42,14 @@ def test_correct_number_of_orthogroups():
 def test_max_species_per_group_respected():
     number_of_orthogroups = 20
     max_species = 7
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)    
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
     assert np.all(result <= max_species), f"Some orthogroups exceed the max species of {max_species}"
 
 
 def test_non_negative_groups():
     number_of_orthogroups = 15
     max_species = 8
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)    
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
     assert np.all(result >= 0), "There are negative values in the orthogroup sizes"
 
 
@@ -84,7 +86,6 @@ def test_empty_orthogroups():
 
 
 # Tests for filter_by_seq_id_and_phylo_dist
-
 def test_no_filters():
     result = filter_by_seq_id_and_phylo_dist()
     pd.testing.assert_frame_equal(result, pg_overview)
