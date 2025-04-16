@@ -57,7 +57,6 @@ def write_blocks_fasta_bedtools(bed_blocks_fl, fa_blocks_fl, fasta):
         "-fo", fa_blocks_fl,
         "-nameOnly"
     ]
-    print("[DEBUG] Running:", " ".join(cmd))
     subprocess.run(cmd, check=True)
 
 
