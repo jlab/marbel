@@ -8,6 +8,8 @@ import os
 import pandas as pd
 from progress.bar import Bar
 import polars as pl
+import re
+import uuid
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
@@ -191,7 +193,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     gene_summary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
     all_species_genes = gene_summary_df["gene_name"].to_list()
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: f"{x}##{uuid.uuid4()}##")  # add uuid to gene names, the problem is some gene names are shared between orthogroups
     summary_dir = f"{outdir}/summary"
     if not os.path.exists(summary_dir):
         os.makedirs(summary_dir)
@@ -216,7 +218,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
-    gene_summary_df["gene_name"] = gene_summary_df["gene_name"]
+    gene_summary_df["gene_name"] = gene_summary_df["gene_name"].apply(lambda x: re.sub(r'##.*?##', '', x))
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
