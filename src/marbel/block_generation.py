@@ -171,7 +171,7 @@ def write_overlap_blocks_summary(overlap_blocks_df, filename):
     ])
 
     flattened_df.write_csv(
-        "simulated_reads/summary/overlap_blocks.tsv",
+        filename,
         separator="\t",
         include_header=True,
         quote_style="never"
