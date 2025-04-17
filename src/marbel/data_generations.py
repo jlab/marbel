@@ -10,7 +10,6 @@ import multiprocessing
 import argparse
 from iss.app import generate_reads
 from joblib import Parallel, delayed
-import subprocess
 import polars as pl
 
 from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
