@@ -524,28 +524,57 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     return sample_library_sizes
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads, bar):
-    """"
-    Calls the create_fastq_file function for each sample in the gene_summary_df.
+def scale_fastq_samples(gene_summary_df, sample_library_sizes):
+    """
+    Scales each sample in the gene_summary_df to scaled library size.
 
     Parameters:
-        gene_summary_df (pandas.DataFrame): A dataframe with the necessary information to create the fastq files.
+        gene_summary_df (pandas.DataFrame): Dataframe containing simuzlation information
+        sample_library_sizes (list): The library sizes for each sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+    Returns:
+        pandas.DataFrame: The filtered dataframe with all-zero columns removed.
+        """
+    # scale to library size
+    gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
+    # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
+    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
+        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
+        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+
+    return gene_summary_df
+
+
+def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read_length, threads, bar):
+    """
+    Calls the create_fastq_file function for each sample in the gene_summary_df.
+    Parameters:
         outdir (str): The output directory for the fastq files.
         compression (bool): Whether the fastq files should be gzipped.
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
-        sample_library_sizes (list): The library sizes for each sample.
-        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
-        threads (int): The number of threads to use.
-        """
-    gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
-    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
-        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
-        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+    """
+    for sample in [col for col in list(gene_summary_df.columns) if col.startswith("sample")]:
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
         bar.next()
+
+
+def filter_all_zero_cols(gene_summary_df):
+    """
+    Filter the gene_summary_df to remove all-zero columns.
+    Parameters:
+        gene_summary_df (pandas.DataFrame): The gene summary dataframe.
+    Returns:
+        pandas.DataFrame: The filtered dataframe with all-zero columns removed.
+    """
+    samples_cols = [col for col in list(gene_summary_df.columns) if col.startswith("sample")]
+    filtered_df = pl.DataFrame(gene_summary_df).filter(
+        ~pl.all_horizontal([pl.col(c) == 0 for c in samples_cols])
+    ).to_pandas()
+    return filtered_df
 
 
 def draw_dge_factors(dge_ratio, number_of_selected_genes):

@@ -10,11 +10,12 @@ from progress.bar import Bar
 import polars as pl
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel, SelectionCriterion
-from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, create_fastq_samples, draw_library_sizes
+from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
 from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
 from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available
 from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, aggregate_blocks, write_block_gtf, write_overlap_blocks_fasta, calculate_overlap_blocks, write_overlap_blocks_summary
+from marbel.data_generations import scale_fastq_samples, create_fastq_samples, filter_all_zero_cols
 
 
 app = typer.Typer()
@@ -217,7 +218,14 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
+    # scale to library size
+
+    gene_summary_df = scale_fastq_samples(gene_summary_df, sample_library_sizes)
+
+    gene_summary_df = filter_all_zero_cols(gene_summary_df)
+
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
+
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
                             force_creation, selected_ortho_groups.shape[0], min_overlap, summary_dir)
