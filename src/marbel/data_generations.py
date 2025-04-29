@@ -410,9 +410,9 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
         pandas.DataFrame: The summary df including the count matrix for the samples.
     """
     if first_group:
-        group = "group1"
+        group = "group_1"
     else:
-        group = "group2"
+        group = "group_2"
         gene_summary_df = gene_summary_df.copy()
         gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
 
@@ -430,7 +430,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
 
     simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
-    sample_columns = [f"sample_{i + 1}_{group}" for i in range(number_of_samples)]
+    sample_columns = [f"{group}_sample_{i + 1}" for i in range(number_of_samples)]
     simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
     simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
 
@@ -539,7 +539,7 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
     # scale to library size
     gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
     # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
-    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
+    for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
         gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
         gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
 
@@ -555,7 +555,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
     """
-    for sample in [col for col in list(gene_summary_df.columns) if col.startswith("sample")]:
+    for sample in [col for col in gene_summary_df.columns if "sample" in col]:
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
@@ -570,7 +570,7 @@ def filter_all_zero_cols(gene_summary_df):
     Returns:
         pandas.DataFrame: The filtered dataframe with all-zero columns removed.
     """
-    samples_cols = [col for col in list(gene_summary_df.columns) if col.startswith("sample")]
+    samples_cols = [col for col in gene_summary_df.columns if "sample" in col]
     filtered_df = pl.DataFrame(gene_summary_df).filter(
         ~pl.all_horizontal([pl.col(c) == 0 for c in samples_cols])
     ).to_pandas()

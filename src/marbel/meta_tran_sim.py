@@ -224,7 +224,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     gene_summary_df = filter_all_zero_cols(gene_summary_df)
 
-    create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, sample_library_sizes, read_length, threads, bar)
+    create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, read_length, threads, bar)
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
