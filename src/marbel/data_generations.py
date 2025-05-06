@@ -172,26 +172,6 @@ def generate_read_mean_counts(number_of_reads, seed=None):
     return reads.to_dataframe()["read_counts"].to_list()
 
 
-def generate_fold_changes(number_of_transcripts, dge_ratio):
-    """
-    Generates a list of fold changes for each transcript based on the given ratio of up and down regulated genes.
-
-    Parameters:
-    number_of_transcripts (int): The total number of transcripts.
-    dge_ratio (tuple): A tuple representing the ratio of up regulated genes and down regulated genes. The first value
-                        represents the ratio of up regulated genes, the second represents the ratio of down regulated
-                        genes.
-
-    Returns:
-    list: A list of fold changes for each transcript. Each fold change is represented as a list of two values
-          representing the fold change for up and down regulation respectively.
-    """
-    dge_genes = random.sample(range(number_of_transcripts), int(sum(dge_ratio) * number_of_transcripts))
-    up_regulated = dge_genes[:int((dge_ratio[0] / sum(dge_ratio)) * len(dge_genes))]
-    fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
-    return fold_changes
-
-
 def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
     """
     Writes genes from a list to a FASTA file. Duplicates will also be written, the order is preserved.
@@ -377,7 +357,6 @@ def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specifie
         summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
     """
-    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
@@ -391,16 +370,33 @@ def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specifie
 
     number_of_genes = gene_summary.shape[0]
     simulated_orthogroups = gene_summary["orthogroup"].unique().shape[0]
-    simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
-    simulated_down_regulated_genes = sum(gene_summary["fold_change_ratio"] <= 0.5)
+    simulated_up_regulated_genes = sum(gene_summary["simulation_fold_change"] >= 2.0)
+    simulated_down_regulated_genes = sum(gene_summary["simulation_fold_change"] <= 0.5)
+    up_regulated_genes = sum(gene_summary["actual_log2fc"] >= 1.0)
+    down_regulated_genes = sum(gene_summary["actual_log2fc"] <= -1.0)
+
+    gene_summary = move_column(gene_summary, "actual_log2fc", 6)
+
+    gene_summary = gene_summary.rename(columns={"simulation_fold_change": "Fold Change used for simlating counts, differs from the actual fold change",
+                                                "actual_log2fc": "Actual LOG2 Fold Change (includes +-inf for zero counts in one group)"})
+
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
 
     with open(f"{summary_dir}/simulation_stats.txt", "w") as f:
         f.write(f"Number of simulated genes: {number_of_genes}\n")
         f.write(f"Number of simulated orthogroups:  {simulated_orthogroups}\n")
         f.write(f"Dropped genes due to all zero assignment by distribution: {number_of_dropped_genes}\n")
-        f.write(f"Dropped orthogroups due to all zero assignment by distribution: {simulated_orthogroups-specified_orthogroups}\n")
-        f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
-        f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
+        f.write(f"Dropped orthogroups due to all zero assignment by distribution: {specified_orthogroups-simulated_orthogroups}\n")
+        f.write(f"Number of simulated up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of simulated down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of up regulated genes (according to actual fold change): {up_regulated_genes} (percentage: {up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of down regulated genes (according to actual fold change): {down_regulated_genes} (percentage: {down_regulated_genes / number_of_genes})\n")
+
+
+def move_column(df, col_name, new_pos):
+    cols = list(df.columns)
+    cols.insert(new_pos, cols.pop(cols.index(col_name)))
+    return df[cols]
 
 
 def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
@@ -419,7 +415,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     else:
         group = "group_2"
         gene_summary_df = gene_summary_df.copy()
-        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
+        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["simulation_fold_change"]
 
     dispersion_df = pd.DataFrame({
         "gene_name": gene_summary_df["gene_name"],
@@ -565,6 +561,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
         bar.next()
+    bar.finish()
 
 
 def get_all_zero_genes(gene_summary_df):
@@ -712,3 +709,20 @@ def add_extra_sparsity(gene_summary_df, sparsity_target):
         gene_summary_df[:] = arr
 
     return gene_summary_df
+
+
+def add_actual_log2fc(gene_summary_df):
+    gene_summary_df = pl.DataFrame(gene_summary_df)
+    sample_cols_group_1 = [col for col in gene_summary_df.columns if "group_1" in col]
+    sample_cols_group_2 = [col for col in gene_summary_df.columns if "group_2" in col]
+
+    gene_summary_df = gene_summary_df.with_columns([
+        pl.sum_horizontal(sample_cols_group_1).alias("sum_group1"),
+        pl.sum_horizontal(sample_cols_group_2).alias("sum_group2"),
+    ]).with_columns([
+        (pl.col("sum_group2") / (pl.col("sum_group1"))).alias("fold_change")
+    ]).with_columns([
+        pl.col("fold_change").log(2).alias("actual_log2fc"),
+    ]).drop(["sum_group1", "sum_group2", "fold_change"])
+
+    return gene_summary_df.to_pandas()

@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 import os
 
+
 def is_bedtools_available():
     return shutil.which("bedtools") is not None
 

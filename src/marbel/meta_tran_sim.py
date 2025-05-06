@@ -14,7 +14,7 @@ from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, 
 from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
 from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available, get_summary_paths
 from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, aggregate_blocks, write_block_gtf, write_overlap_blocks_fasta, calculate_overlap_blocks, write_overlap_blocks_summary
-from marbel.data_generations import scale_fastq_samples, create_fastq_samples, get_all_zero_genes
+from marbel.data_generations import scale_fastq_samples, create_fastq_samples, get_all_zero_genes, add_actual_log2fc
 
 
 app = typer.Typer()
@@ -193,7 +193,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
     bar_next(bar)
-    gene_summary_df["fold_change_ratio"] = dge_factors
+    gene_summary_df["simulation_fold_change"] = dge_factors
     if dge_ratio == 0:
         sample_group = create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
         gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
@@ -225,6 +225,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, read_length, threads, bar)
 
+    gene_summary_df = add_actual_log2fc(gene_summary_df)
     generate_report(paths["summary_dir"], gene_summary_df, len(all_zero_genes), n_orthogroups)
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
@@ -259,9 +260,10 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     write_overlap_blocks_summary(overlap_blocks, paths["overlap_tsv"])
     write_overlap_blocks_fasta(overlap_blocks, paths["overlap_fasta"])
 
-    number_of_simulated_orhtogroups = overlap_blocks["overlap_block_name"].unique().shape[0]
+    number_of_simulated_orhtogroups = gene_summary_df["orthogroup"].unique().shape[0]
     if number_of_simulated_orhtogroups < number_of_orthogroups:
         print(f"Info: The simulated number of orthogroups is smaller than the requested number of orthogroups. {number_of_simulated_orhtogroups} < {number_of_orthogroups}")
+        print("This is due to the removal of genes with all zero counts.")
         print("Possible adjustment of the parameters: decrease orthogroups, increase library size, change deseq_dispersion_parameters or decrease minimum sparsity")
 
 
