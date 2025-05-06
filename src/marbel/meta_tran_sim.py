@@ -225,7 +225,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, read_length, threads, bar)
 
-    generate_report(paths["summary_dir"], gene_summary_df)
+    generate_report(paths["summary_dir"], gene_summary_df, len(all_zero_genes), n_orthogroups)
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
@@ -243,7 +243,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     blocks_df = aggregate_blocks(bed_df)
 
-    blocks_df.write_csv(paths[""], separator="\t", include_header=False)
+    blocks_df.write_csv(paths["bed"], separator="\t", include_header=False)
     write_block_gtf(blocks_df, paths["gtf"])
 
     # use bedtools if available for speed up
