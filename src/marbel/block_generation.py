@@ -167,7 +167,11 @@ def write_overlap_blocks_summary(overlap_blocks_df, filename):
     nested_cols = ["overlap_cds_names", "overlap_blocks", "blocks_start", "blocks_end", "overlap_lengths"]
     # polars cannot write lists so we need to concat them and turn them to strings before writing
     flattened_df = overlap_blocks_df.with_columns([
-        pl.col(c).cast(pl.List(pl.Utf8)).list.join(",").alias(c) for c in nested_cols
+        pl.col(c)
+        .list.eval(pl.element().cast(pl.Utf8))
+        .list.join(",")
+        .alias(c)
+        for c in nested_cols
     ])
 
     flattened_df.write_csv(
