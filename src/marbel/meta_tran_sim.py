@@ -259,6 +259,11 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     write_overlap_blocks_summary(overlap_blocks, paths["overlap_tsv"])
     write_overlap_blocks_fasta(overlap_blocks, paths["overlap_fasta"])
 
+    number_of_simulated_orhtogroups = overlap_blocks["overlap_block_name"].unique().shape[0]
+    if number_of_simulated_orhtogroups < number_of_orthogroups:
+        print(f"Info: The simulated number of orthogroups is smaller than the requested number of orthogroups. {number_of_simulated_orhtogroups} < {number_of_orthogroups}")
+        print("Possible adjustment of the parameters: decrease orthogroups, increase library size, change deseq_dispersion_parameters or decrease minimum sparsity")
+
 
 if __name__ == "__main__":
     app()
