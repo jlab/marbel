@@ -4,7 +4,6 @@ from typing_extensions import Annotated
 import typer
 import random
 import numpy as np
-import os
 import pandas as pd
 from progress.bar import Bar
 import polars as pl
@@ -13,9 +12,9 @@ from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_dist
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, create_sample_values, draw_library_sizes
 from marbel.data_generations import draw_orthogroups_by_rate, draw_orthogroups, generate_species_abundance, generate_read_mean_counts, aggregate_gene_data, filter_genes_from_ground, generate_report
 from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
-from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available
+from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available, get_summary_paths
 from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, aggregate_blocks, write_block_gtf, write_overlap_blocks_fasta, calculate_overlap_blocks, write_overlap_blocks_summary
-from marbel.data_generations import scale_fastq_samples, create_fastq_samples, filter_all_zero_cols
+from marbel.data_generations import scale_fastq_samples, create_fastq_samples, get_all_zero_genes
 
 
 app = typer.Typer()
@@ -191,13 +190,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     bar_next(bar)
 
     gene_summary_df = aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
-    all_species_genes = gene_summary_df["gene_name"].to_list()
-    summary_dir = f"{outdir}/summary"
-    if not os.path.exists(summary_dir):
-        os.makedirs(summary_dir)
-    tmp_fasta_name = f"{summary_dir}/metatranscriptome_reference.fasta"
-    out_put_gtf = f"{summary_dir}/metatranscriptome_reference.gtf"
-    filter_genes_from_ground(all_species_genes, tmp_fasta_name, out_put_gtf)
+
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
     bar_next(bar)
     gene_summary_df["fold_change_ratio"] = dge_factors
@@ -222,50 +215,49 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     gene_summary_df = scale_fastq_samples(gene_summary_df, sample_library_sizes)
 
-    gene_summary_df = filter_all_zero_cols(gene_summary_df)
+    # filter all zero genes
+    all_zero_genes = get_all_zero_genes(gene_summary_df)
+    gene_summary_df = gene_summary_df[~gene_summary_df["gene_name"].isin(all_zero_genes)]
+
+    paths = get_summary_paths(outdir)
+
+    filter_genes_from_ground(gene_summary_df["gene_name"].to_list(), paths["cds_ref_fasta"], paths["ref_gtf"])
 
     create_fastq_samples(gene_summary_df, outdir, compressed, error_model, seed, read_length, threads, bar)
 
+    generate_report(paths["summary_dir"], gene_summary_df)
+
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], min_overlap, summary_dir)
-
-    generate_report(summary_dir, gene_summary_df)
-    # summary output files
-    concatted_bed_file = f"{summary_dir}/aggregated.bed"
-    bed_fl_name = f"{summary_dir}/blocks.bed"
-    gtf_fl_name = f"{summary_dir}/blocks.gtf"
-    blocks_fasta_name = f"{summary_dir}/blocks.fasta"
-    overlap_blocks_fasta_name = f"{summary_dir}/blocks_overlap.fasta"
-    overlap_blocks_name = f"{summary_dir}/overlap_blocks.tsv"
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"])
 
     # use cat for better performance if available
     if is_cat_available():
-        concat_bed_files_with_cat(outdir, concatted_bed_file)
+        concat_bed_files_with_cat(outdir, paths["concatted_bed"])
     else:
-        concat_bed_files(outdir, concatted_bed_file)
+        concat_bed_files(outdir, paths["concatted_bed"])
 
-    bed_df = pl.read_csv(concatted_bed_file, separator="\t", has_header=False)
+    bed_df = pl.read_csv(paths["concatted_bed"], separator="\t", has_header=False)
     bed_df = bed_df[:, :-2]
     bed_df.columns = ["cds", "start", "end"]
 
     blocks_df = aggregate_blocks(bed_df)
 
-    blocks_df.write_csv(bed_fl_name, separator="\t", include_header=False)
-    write_block_gtf(blocks_df, gtf_fl_name)
+    blocks_df.write_csv(paths[""], separator="\t", include_header=False)
+    write_block_gtf(blocks_df, paths["gtf"])
 
     # use bedtools if available for speed up
     if is_bedtools_available():
-        write_blocks_fasta_bedtools(bed_fl_name, blocks_fasta_name, tmp_fasta_name)
+        write_blocks_fasta_bedtools(paths["bed"], paths["blocks_fasta"], paths["cds_ref_fasta"])
     else:
-        write_blocks_fasta(blocks_df, blocks_fasta_name)
+        write_blocks_fasta(blocks_df, paths["blocks_fasta"])
 
     blocks_df = map_blocks_to_genomic_location(blocks_df)
 
     overlap_blocks = calculate_overlap_blocks(blocks_df, min_overlap)
 
-    write_overlap_blocks_summary(overlap_blocks, overlap_blocks_name)
-    write_overlap_blocks_fasta(overlap_blocks, overlap_blocks_fasta_name)
+    write_overlap_blocks_summary(overlap_blocks, paths["overlap_tsv"])
+    write_overlap_blocks_fasta(overlap_blocks, paths["overlap_fasta"])
 
 
 if __name__ == "__main__":

@@ -369,7 +369,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
 
 
-def generate_report(summary_dir, gene_summary):
+def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
     """
     Generates a report of the simulation parameters.
 
@@ -390,10 +390,15 @@ def generate_report(summary_dir, gene_summary):
     species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
 
     number_of_genes = gene_summary.shape[0]
+    simulated_orthogroups = gene_summary["orthogroup"].unique().shape[0]
     simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
     simulated_down_regulated_genes = sum(gene_summary["fold_change_ratio"] <= 0.5)
+
     with open(f"{summary_dir}/simulation_stats.txt", "w") as f:
-        f.write(f"Number of selected genes: {number_of_genes}\n")
+        f.write(f"Number of simulated genes: {number_of_genes}\n")
+        f.write(f"Number of simulated orthogroups:  {simulated_orthogroups}\n")
+        f.write(f"Dropped genes due to all zero assignment by distribution: {number_of_dropped_genes}\n")
+        f.write(f"Dropped orthogroups due to all zero assignment by distribution: {simulated_orthogroups-specified_orthogroups}\n")
         f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
         f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
 
@@ -562,19 +567,23 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read
         bar.next()
 
 
-def filter_all_zero_cols(gene_summary_df):
+def get_all_zero_genes(gene_summary_df):
     """
-    Filter the gene_summary_df to remove all-zero columns.
+    Get all genes of the gene_summary_df with all-zero columns.
     Parameters:
         gene_summary_df (pandas.DataFrame): The gene summary dataframe.
     Returns:
-        pandas.DataFrame: The filtered dataframe with all-zero columns removed.
+        set: A set of all zero genes.
     """
-    samples_cols = [col for col in gene_summary_df.columns if "sample" in col]
-    filtered_df = pl.DataFrame(gene_summary_df).filter(
-        ~pl.all_horizontal([pl.col(c) == 0 for c in samples_cols])
-    ).to_pandas()
-    return filtered_df
+    pl_df = pl.DataFrame(gene_summary_df)
+    sample_cols = [col for col in pl_df.columns if "sample" in col]
+    all_zero_genes = (
+        pl_df.filter(pl.all_horizontal([pl.col(col) == 0 for col in sample_cols]))
+        .select("gene_name")
+        .to_series()
+        .to_list()
+    )
+    return set(all_zero_genes)
 
 
 def draw_dge_factors(dge_ratio, number_of_selected_genes):

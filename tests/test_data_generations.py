@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
-from marbel.data_generations import calc_zero_ratio, add_extra_sparsity, filter_all_zero_cols
+from marbel.data_generations import calc_zero_ratio, add_extra_sparsity, get_all_zero_genes
 from marbel.presets import AVAILABLE_SPECIES, pg_overview
 
 # Tests for draw_random_species
@@ -177,10 +177,15 @@ def test_add_extra_sparsity():
     new_sparsity = calc_zero_ratio(result)
     assert new_sparsity >= target_sparsity
 
-
-def test_filter_all_zero_cols():
-    df = pd.DataFrame({'sample_1': [4, 0, 6], 'sample_2': [7, 0, 9], 'sample_3': [10, 0, 0]})
-    result_df = filter_all_zero_cols(df)
-    expected_df = pd.DataFrame({'sample_1': [4, 6], 'sample_2': [7, 9], 'sample_3': [10, 0]})
-
-    assert (expected_df.sort_index(axis=1).reset_index(drop=True) == result_df.sort_index(axis=1).reset_index(drop=True)).all().all()
+def test_get_all_zero_genes():
+    data = {
+        "gene_name": ["geneA", "geneB", "geneC"],
+        "sample1": [0, 1, 0],
+        "sample2": [0, 0, 0],
+        "sample3": [0, 2, 0],
+    }
+    df = pd.DataFrame(data)
+    
+    result = get_all_zero_genes(df)
+    
+    assert result == {"geneA", "geneC"}, f"Expected {{'geneA', 'geneC'}}, got {result}"
