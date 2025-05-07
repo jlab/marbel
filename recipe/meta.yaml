@@ -3,8 +3,9 @@ package:
   version: "0.1.0"
 
 source:
-  git_rev: 0.1.0
-  git_url: https://github.com/jlab/marbel
+  path: /home/tlin/Projects/marbel
+  #  git_url: https://github.com/jlab/marbel
+  #   git_rev: dev  # <-- use 'dev' instead of '0.1.0'
 
 requirements:
   build:
@@ -13,6 +14,18 @@ requirements:
 
   run:
     - python
+    - arviz
+    - pymc
+    - typer
+    - biopython
+    - pyarrow
+    - typing-extensions
+    - pandas
+    - ete4  
+    - progress
+    - joblib
+    - polars
+    - insilicoseq-marbel 
 
 test:
   imports:
@@ -23,3 +36,4 @@ test:
 about:
   home: https://github.com/jlab/marbel
   license: Apache-2.0
+

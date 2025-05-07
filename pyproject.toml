@@ -28,6 +28,7 @@ dependencies = [
   "biopython",
   "pyarrow",
   "typing_extensions",
+  "pandas",
   "ete4",
   "progress",
   "InSilicoSeq @ git+https://github.com/jlab/InSilicoSeq.git",
