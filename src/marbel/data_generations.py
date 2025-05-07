@@ -387,10 +387,10 @@ def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specifie
         f.write(f"Number of simulated orthogroups:  {simulated_orthogroups}\n")
         f.write(f"Dropped genes due to all zero assignment by distribution: {number_of_dropped_genes}\n")
         f.write(f"Dropped orthogroups due to all zero assignment by distribution: {specified_orthogroups - simulated_orthogroups}\n")
-        f.write(f"Number of simulated up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
-        f.write(f"Number of simulated down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
-        f.write(f"Number of up regulated genes (according to actual fold change): {up_regulated_genes} (percentage: {up_regulated_genes / number_of_genes})\n")
-        f.write(f"Number of down regulated genes (according to actual fold change): {down_regulated_genes} (percentage: {down_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of simulated up regulated genes: {simulated_up_regulated_genes} (percentage = {simulated_up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of simulated down regulated genes: {simulated_down_regulated_genes} (percentage = {simulated_down_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of up regulated genes (accoring to actual fold change): {up_regulated_genes} (percentage = {up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of down regulated genes (according to actual fold change): {down_regulated_genes} (percentage = {down_regulated_genes / number_of_genes})\n")
 
 
 def move_column(df, col_name, new_pos):
