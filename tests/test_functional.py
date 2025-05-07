@@ -56,6 +56,20 @@ def read_parameters(fp_basedir):
     return params
 
 
+def read_simulation_stats(fp_basedir):
+    params = pd.read_csv(
+        join(fp_basedir, 'summary', 'simulation_stats.txt'),
+        index_col=0, sep=": ", header=None,
+        names=['parameter', 'value'], engine='python')['value'].to_dict()
+
+    params['Number of simulated genes'] = int(params['Number of species'])
+    params['Number of simulated orthogroups'] = int(params['Number of orthogroups'])
+    params['Dropped genes due to all zero assignment by distribution'] = int(params['Dropped genes due to all zero assignment by distribution'])
+    params['Dropped orthogroups due to all zero assignment by distribution'] = int(params['Dropped orthogroups due to all zero assignment by distribution'])
+
+    return params
+
+
 def test_gene_summary(genes, params):
     counts = genes[[s for s in genes.columns if s.startswith('sample_')]]
 
@@ -71,10 +85,9 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "gene_name prefix does not match origin_species"
 
-    genes['cdsID'] = list(map(lambda x: x.split('_')[-1], genes.index))
-    assert genes['orthogroup'].unique().shape[0] == \
+    assert genes['orthogroup'].unique().shape[0] > \
            params['Number of orthogroups'], \
-           "number orthogroups does not match"
+           "too many orthogroups?!"
 
     assert genes.groupby('orthogroup').size().describe()['max'] > 1, \
            "orthogroups consists of only 1 CDS"
@@ -111,6 +124,15 @@ def test_gene_summary(genes, params):
     print(len(set(list(map(lambda x: x.split('_')[1], genes.index)))),
           "number CDS?!")
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
+
+
+def test_simulation_stats(genes, params):
+    assert genes['orthogroup'].unique().shape[0] == \
+           params['Number of simulated orthogroups'], \
+           "simulation stats and gene summ"
+    assert genes.shape[0] == \
+           params['Number of simulated genes'], \
+           "too many orthogroups?!"
 
 
 def test_metaT_reference(fp_basedir, genes, params):
@@ -237,7 +259,6 @@ def test_number_of_reads(params):
                 gene_counts = pd.Series(ids).value_counts()
                 gene_counts.name = column_name
                 df_r2 = pd.concat([df_r2, gene_counts], axis=1)
-            
     df_r1 = df_r1.fillna(0)
     df_r2 = df_r2.fillna(0)
 
@@ -255,6 +276,7 @@ if __name__ == "__main__":
 
     # read used marbel parameters from file
     params = read_parameters(fp_basedir)
+    sim_stats = read_simulation_stats(fp_basedir)
 
     # read gene summary information from file
     genes = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'),
@@ -268,3 +290,5 @@ if __name__ == "__main__":
     test_tree(fp_basedir, genes)
 
     test_fastq(fp_basedir, genes)
+
+    test_simulation_stats(fp_basedir, sim_stats)
