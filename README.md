@@ -3,13 +3,13 @@
 
 # Marbel
 
-
-
 ![Marbel logo](./marbel_logo.svg)Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters.
 
 ## Installation
 
-### Install guide for development purposes
+### Conda requirements
+
+Conda is recommended for both development and usage.
 
 #### Install miniconda (if not installed already)
 
@@ -22,25 +22,27 @@ bash Miniconda3-latest-Linux-x86_64.sh
 #### Create conda env
 
 ```
-conda create -n marbel python=3.10 r-base
+conda create -n marbel python=3.10
 conda activate marbel
 ```
 
+### Installation for usage:
+
+In the conda environment install the package with:
+
+`conda install tensulin::marbel `
+
+### Installation for development purposes
+
 #### Install git-lfs (absolutely necessary)
 
-Before cloning the repo you need to have git-lfs installed! If you do not have git-lfs and root rights install with
-
-```
-sudo apt-get install git-lfs
-```
-
-If you do not have root permission, install it in the Conda env:
+Before cloning the repo you need to have git-lfs installed! You can install it in the Conda env:
 
 ```
 conda install anaconda::git-lfs
 ```
 
-Now we need to initialize Git LFS:
+ Initialize Git LFS:
 
 ```
 git lfs install
@@ -68,24 +70,6 @@ cd marbel
 pip install -e .
 ```
 
-### (Not ready, this is for later) nda build and install
-
-It is recomended to install the package with conda install.
-
-Build the package with:
-
-`conda build . `
-
-For this you need to have conda-build installed `(conda install conda-build`)
-
-Create new environment and install package:
-
-```
-conda create -n marbel
-conda activate marbel
-conda install --use-local marbel
-```
-
 ## Usage
 
 To get help on how to use the script, run:
@@ -93,6 +77,10 @@ To get help on how to use the script, run:
 ```sh
 marbel --help
 ```
+
+### Advice
+
+Note that large datasets may require days to run. Therefore, cluster or cloud based execution is advised. Multiple threads will help to speed it up. Bedtools in the environment will have slight performance gains.
 
 ### Command Line Arguments
 
@@ -155,7 +143,6 @@ marbel --help
 - `--threads` **INTEGER**  
   Number of threads to be used.  
   **[default: 10]**
-
 - `--version`  
   Show the version and exit.
 
@@ -184,6 +171,21 @@ This command will generate a dataset with:
 - 500 orthologous groups
 - 5 samples for group 1
 - 8 samples for group 2
+
+## Release Guide
+
+For publishing a new version to conda you can build it with the recipe. For this you need to have conda-build installed `(conda install conda-build`). For uploading to anaconda anaconda client needs to be installed. Installing the build tools and building in conda base environment is preferred.
+
+Instructions (inside marbel directory):
+
+```
+cd recipe
+conda-build .
+```
+
+Then upload to Anaconda, for this see:
+
+https://www.anaconda.com/docs/tools/anaconda-org/user-guide/packages/conda-packages
 
 ## Contributing
 

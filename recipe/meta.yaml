@@ -3,9 +3,8 @@ package:
   version: "0.1.0"
 
 source:
-  path: /home/tlin/Projects/marbel
-  #  git_url: https://github.com/jlab/marbel
-  #   git_rev: dev  # <-- use 'dev' instead of '0.1.0'
+  git_url: https://github.com/jlab/marbel
+  git_rev: master
 
 requirements:
   build:
