@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
 from marbel.data_generations import calc_zero_ratio, get_all_zero_genes
-from marbel.presets import AVAILABLE_SPECIES, pg_overview
+from marbel.presets import MAX_SPECIES
+from marbel.preload import get_pg_overview
 
 # Tests for draw_random_species
 
@@ -21,7 +22,7 @@ def test_unique_species():
 
 
 def test_too_many_species():
-    number_of_species = len(AVAILABLE_SPECIES) + 1
+    number_of_species = MAX_SPECIES + 1
     with pytest.raises(ValueError):
         draw_random_species(number_of_species)
 
@@ -88,11 +89,13 @@ def test_empty_orthogroups():
 # Tests for filter_by_seq_id_and_phylo_dist
 def test_no_filters():
     result = filter_by_seq_id_and_phylo_dist()
+    pg_overview = get_pg_overview()
     pd.testing.assert_frame_equal(result, pg_overview)
 
 
 def test_max_phylo_distance_filter():
     max_phylo_distance = 0.9
+    pg_overview = get_pg_overview()
     expected = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance)
     pd.testing.assert_frame_equal(result, expected)
@@ -100,6 +103,7 @@ def test_max_phylo_distance_filter():
 
 def test_min_identity_filter():
     min_identity = 90
+    pg_overview = get_pg_overview()
     expected = pg_overview[pg_overview["mean_identity"] >= min_identity]
     result = filter_by_seq_id_and_phylo_dist(min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
@@ -108,6 +112,7 @@ def test_min_identity_filter():
 def test_both_filters():
     max_phylo_distance = 0.9
     min_identity = 90
+    pg_overview = get_pg_overview()
     expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
@@ -116,6 +121,7 @@ def test_both_filters():
 def test_no_matching_records():
     max_phylo_distance = 0.1
     min_identity = 100
+    pg_overview = get_pg_overview()
     expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)

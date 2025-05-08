@@ -41,7 +41,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/jlab/marbel/issues" 
 
 [project.scripts]
-marbel= "marbel.meta_tran_sim:app"
+marbel= "marbel.cli:app"
 
 
 

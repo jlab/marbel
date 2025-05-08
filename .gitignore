@@ -5,3 +5,5 @@ simulated_reads/
 tmp.fasta
 combined_test_output/
 lcov.info
+
+.coverage

@@ -1,4 +1,4 @@
-from marbel.meta_tran_sim import checknegative
+from marbel.cli import checknegative
 
 
 def test_checknegative():

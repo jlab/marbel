@@ -11,9 +11,12 @@ import argparse
 from iss.app import generate_reads
 from joblib import Parallel, delayed
 import polars as pl
+import pymc as pm
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
+from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
+from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
+
+from marbel.preload import get_pg_overview, get_species_tree, get_species_stats_dict, get_pymc_model
 
 
 def draw_random_species(number_of_species):
@@ -26,9 +29,10 @@ def draw_random_species(number_of_species):
     Returns:
     list: A list of randomly drawn species from the list of available species.
     """
-    if number_of_species < 1 or number_of_species > len(AVAILABLE_SPECIES):
-        raise ValueError(f"Number of species must be between 1 and {AVAILABLE_SPECIES}.")
-    return random.sample(AVAILABLE_SPECIES, number_of_species)
+    if number_of_species < 1 or number_of_species > MAX_SPECIES:
+        raise ValueError(f"Number of species must be between 1 and {MAX_SPECIES}.")
+    available_species = pl.read_parquet(PANGENOME_OVERVIEW).columns[:MAX_SPECIES]
+    return random.sample(available_species, number_of_species)
 
 
 def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed=None):
@@ -47,6 +51,7 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     """
     if number_of_orthogous_groups < 1:
         raise ValueError("Number of orthogroups must be greater than 0.")
+    model = get_pymc_model()
     with model:
         orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
     orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
@@ -67,6 +72,7 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     Returns:
         pandas.DataFrame: The filtered orthologous group overview dataframe.
     """
+    pg_overview = get_pg_overview()
     if max_phylo_distance is not None:
         filtered_slice = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
     else:
@@ -151,6 +157,7 @@ def generate_species_abundance(number_of_species, seed=None):
     Returns:
     list: A list of species abundances.
     """
+    model = get_pymc_model()
     with model:
         species_samples = pm.sample_prior_predictive(number_of_species, var_names=['species'], random_seed=seed)
     return species_samples.to_dataframe()['species'].to_list()
@@ -167,6 +174,7 @@ def generate_read_mean_counts(number_of_reads, seed=None):
     Returns:
     list: A list of read mean counts.
     """
+    model = get_pymc_model()
     with model:
         reads = pm.sample_prior_predictive(number_of_reads, var_names=['read_counts'], random_seed=seed)
     return reads.to_dataframe()["read_counts"].to_list()
@@ -357,6 +365,8 @@ def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specifie
         summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
     """
+    species_tree = get_species_tree()
+    species_stats_dict = get_species_stats_dict()
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
@@ -646,6 +656,7 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
     random_species = random.randint(0, MAX_SPECIES)
     chosen_species = [random_species]
     # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
+    pg_overview = get_pg_overview()
     id_sets = pg_overview.apply(lambda x: frozenset([i for i in range(0, MAX_SPECIES) if x.iloc[i] != "-"]), axis=1)
 
     for _ in range(number_of_species - 1):
