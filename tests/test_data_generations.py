@@ -203,7 +203,9 @@ def test_add_extra_sparsity_random_seed(rows, cols, init_sparsity, target_sparsi
             or np.isclose(new_sparsity, max_possible_sparsity)
         ), (
             f"Seed={seed}, rows={rows}, cols={cols}, "
-            f"init={init_sparsity_val:.3f}, target={target_sparsity:.3f}, new={new_sparsity:.3f}, max_possible={max_possible_sparsity:.3f}"
+            f"init={init_sparsity_val:.3f}, target={target_sparsity:.3f}, "
+            f"new={new_sparsity:.3f}, max_possible={max_possible_sparsity:.3f}, "
+            f"delta={target_sparsity - init_sparsity_val:.3f}"
         )
 
         assert (result.values >= 0).all()

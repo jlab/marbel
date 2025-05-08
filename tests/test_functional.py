@@ -85,7 +85,7 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "gene_name prefix does not match origin_species"
 
-    assert genes['orthogroup'].nunique() > params['Number of orthogroups'], \
+    assert genes['orthogroup'].nunique() <= params['Number of orthogroups'], \
         f"Too many orthogroups?! Found: {genes['orthogroup'].nunique()}, Expected max: {params['Number of orthogroups']}"
 
     assert genes.groupby('orthogroup').size().describe()['max'] > 1, \
