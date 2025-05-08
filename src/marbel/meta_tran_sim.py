@@ -204,8 +204,6 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
-
-
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
     bar.finish()
