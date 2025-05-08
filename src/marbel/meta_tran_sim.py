@@ -204,8 +204,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
-    if min_sparsity > 0:
-        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity)
+
 
     # TODO: make a list what lenghts there are for the differing error models
     sample_library_sizes = draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
@@ -218,6 +217,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     # filter all zero genes
     all_zero_genes = get_all_zero_genes(gene_summary_df)
     gene_summary_df = gene_summary_df[~gene_summary_df["gene_name"].isin(all_zero_genes)]
+
+    if min_sparsity > 0:
+        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, seed)
 
     paths = get_summary_paths(outdir)
 

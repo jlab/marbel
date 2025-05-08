@@ -688,27 +688,53 @@ def calc_zero_ratio(df):
     return (df == 0).sum().sum() / df.size
 
 
-def add_extra_sparsity(gene_summary_df, sparsity_target):
-    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")].copy()
+def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
+    """"
+    Adds more zeros to dataframe to reach sparsity target. Will avoid all-zero rows. This means target sparsity may not be reached.
 
-    marbel_mean = calc_zero_ratio(filtered_counts)
-    difference_to_mean = sparsity_target - marbel_mean
+    Parameters:
+        gene_summary_df (pd.Dataframe): The ratio of up and downregulated genes
+        sparsity_target (float): Sparsity target, between 0 and 1
+        seed (int): Random seed for reproducibility.
 
-    if difference_to_mean > 0:
-        gene_summary_numeric = gene_summary_df.apply(pd.to_numeric, errors="coerce")
+    Returns:
+        pd.Dataframe: The dataframe with added zeros, provided sparsity target is not already reached.
+    """
+    gene_summary_df = pl.DataFrame(gene_summary_df)
+    sample_cols = [col for col in gene_summary_df.columns if "sample" in col]
+    df_filtered = gene_summary_df.select(sample_cols)
+    df_np = df_filtered.to_numpy().copy()
+    total_cells = df_np.size
+    current_zeros = np.count_nonzero(df_np == 0)
+    target_zeros = int(np.ceil(total_cells * sparsity_target))
 
-        # select non zero integers for sparsity
-        all_non_zero_integers = np.where((gene_summary_numeric.to_numpy() != 0) & (gene_summary_numeric.to_numpy() == gene_summary_numeric.to_numpy().astype(int)))
-        cells_to_zero = min(round(difference_to_mean * filtered_counts.size), len(all_non_zero_integers[0]))
-        zero_indices = np.random.choice(len(all_non_zero_integers[0]), cells_to_zero, replace=False)
-        indices_to_zero = (all_non_zero_integers[0][zero_indices], all_non_zero_integers[1][zero_indices])
+    if current_zeros >= target_zeros:
+        return gene_summary_df.to_pandas()
 
-        # convert to numpy array, iloc based modification did not work
-        arr = gene_summary_df.to_numpy()
-        arr[indices_to_zero] = 0
-        gene_summary_df[:] = arr
+    n_to_zero = target_zeros - current_zeros
+    nonzero_indices = np.argwhere(df_np != 0)
+    row_nonzeros = (df_np != 0).sum(axis=1)
 
-    return gene_summary_df
+    safe_mask = row_nonzeros[nonzero_indices[:, 0]] > 1
+    safe_indices = nonzero_indices[safe_mask]
+
+    n_to_zero = min(n_to_zero, len(safe_indices))
+
+    if n_to_zero == 0:
+        return gene_summary_df.to_pandas()
+
+    if n_to_zero < target_zeros - current_zeros:
+        print(f"Can only zero {n_to_zero} cells without causing all-zero rows.")
+
+    rng = np.random.default_rng(seed)
+    selected = rng.choice(len(safe_indices), n_to_zero, replace=False)
+    rows, cols = safe_indices[selected].T
+    df_np[rows, cols] = 0
+
+    updated_sample_cols = [
+        pl.Series(name, df_np[:, i]) for i, name in enumerate(sample_cols)
+    ]
+    return gene_summary_df.with_columns(updated_sample_cols).to_pandas()
 
 
 def add_actual_log2fc(gene_summary_df):
