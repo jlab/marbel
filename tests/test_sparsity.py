@@ -47,6 +47,6 @@ def test_add_extra_sparsity_random_seed(rows, cols, init_sparsity, target_sparsi
         assert (result.values >= 0).all()
 
     except AssertionError:
-        print(f"\n❌ Test failed with seed={seed}, init={init_sparsity_val:.3f}, target={target_sparsity:.3f}")
+        print(f"\nTest failed with seed={seed}, init={init_sparsity_val:.3f}, target={target_sparsity:.3f}")
         df.to_csv(f"failed_case_seed_{seed}_rows_{rows}_cols_{cols}.csv", index=False)
         raise
