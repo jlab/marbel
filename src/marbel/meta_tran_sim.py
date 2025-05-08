@@ -113,10 +113,10 @@ def bar_next(bar):
 
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
-                                                help="Number of species to be drawn for the metatranscriptomic in silico dataset")] = 20,
+                                                help="Number of species to be drawn for the metatranscriptomic in silico dataset. Maximum value: 614.")] = 20,
          n_orthogroups: Annotated[int,
                                   typer.Option(callback=orthogroups_callback,
-                                               help="Number of orthologous groups to be drawn for the metatranscriptomic in silico dataset")] = 1000,
+                                               help="Number of orthologous groups to be drawn for the metatranscriptomic in silico dataset. Maximum value: 364,118.")] = 1000,
          n_samples: Annotated[Tuple[int, int],
                               typer.Option(callback=sample_callback,
                                            help="Number of samples to be created for the metatranscriptomic in silico dataset"
