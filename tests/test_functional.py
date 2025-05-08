@@ -203,7 +203,7 @@ def test_fastq(fp_basedir, genes):
             for direction in [1, 2]:
                 fastqs.append(
                     join(fp_basedir, 'group_%i_sample_%i_R%i.fastq.gz' % (
-                        sample, group, direction)))
+                        group, sample, direction)))
 
     phredscores = dict()
     print('Loading sequencing data: ', end="", file=sys.stderr)
@@ -244,7 +244,7 @@ def test_number_of_reads(params):
             for direction in [1, 2]:
                 fastqs.append(
                     join(fp_basedir, 'group_%i_sample_%i_R%i.fastq.gz' % (
-                        sample, group, direction)))
+                        group, sample, direction)))
 
     df_r1 = pd.DataFrame()
     df_r2 = pd.DataFrame()
