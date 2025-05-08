@@ -71,7 +71,7 @@ def read_simulation_stats(fp_basedir):
 
 
 def test_gene_summary(genes, params):
-    counts = genes[[s for s in genes.columns if s.startswith('sample_')]]
+    counts = genes[[s for s in genes.columns if 'sample' in s]]
 
     assert len(genes.index) == len(set(genes.index)), \
            "genes are ambiguous"
