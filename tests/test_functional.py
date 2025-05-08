@@ -162,7 +162,8 @@ def test_metaT_reference(fp_basedir, genes, params):
             genes.groupby('orthogroup')
             if g.shape[0] > 1]) > 1).value_counts()
     if False in data:
-        assert data[False] < data[True] * 0.1, \
+        # TODO: assertion was changed to to removal of all zero genes
+        assert data[False] < data[True] * 0.04, \
             "too few orthogroups with more than one member have identical" \
             " length sequences"
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
@@ -295,4 +296,4 @@ if __name__ == "__main__":
 
     test_fastq(fp_basedir, genes)
 
-    test_simulation_stats(fp_basedir, sim_stats)
+    test_simulation_stats(genes, sim_stats)
