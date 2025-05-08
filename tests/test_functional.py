@@ -109,7 +109,7 @@ def test_gene_summary(genes, params):
            "negative count values?!"
 
     # foldchange <=0.5 (down) >=2 (up) (log2 foldchange<= -1 / >=1 )
-    data = genes['Fold Change used for simlating counts, differs from the actual fold change'].apply(
+    data = genes['Fold Change used for simulating counts, differs from the actual fold change'].apply(
         lambda x: 0.5 <= x <= 2).value_counts()
     if params['Number of orthogroups'] >= 1000:
         epsilon = (200 / params['Number of orthogroups'])

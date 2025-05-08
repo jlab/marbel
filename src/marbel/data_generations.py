@@ -387,7 +387,7 @@ def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specifie
 
     gene_summary = move_column(gene_summary, "actual_log2fc", 6)
 
-    gene_summary = gene_summary.rename(columns={"simulation_fold_change": "Fold Change used for simlating counts, differs from the actual fold change",
+    gene_summary = gene_summary.rename(columns={"simulation_fold_change": "Fold Change used for simulating counts, differs from the actual fold change",
                                                 "actual_log2fc": "Actual LOG2 Fold Change (includes +-inf for zero counts in one group)"})
 
     gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
