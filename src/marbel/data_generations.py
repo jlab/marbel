@@ -726,6 +726,8 @@ def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
     if not safe_indices:
         return gene_summary_df.to_pandas()
 
+    safe_indices = np.array(safe_indices)
+
     n_to_zero = min(n_to_zero, len(safe_indices))
 
     if n_to_zero < target_zeros - current_zeros:
