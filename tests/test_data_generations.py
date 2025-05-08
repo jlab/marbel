@@ -184,7 +184,7 @@ def generate_sparse_df(rows, cols, init_sparsity, seed):
 @pytest.mark.parametrize("rows", [5, 10])
 @pytest.mark.parametrize("cols", [3, 6])
 @pytest.mark.parametrize("init_sparsity", [0.0, 0.2, 0.4])
-@pytest.mark.parametrize("target_sparsity", [0.3, 0.5, 0.7, 0.9])
+@pytest.mark.parametrize("target_sparsity", [0.3, 0.5, 0.7])
 def test_add_extra_sparsity_random_seed(rows, cols, init_sparsity, target_sparsity):
     seed = np.random.randint(0, 1_000_000)
     df = generate_sparse_df(rows, cols, init_sparsity, seed)

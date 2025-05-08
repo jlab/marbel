@@ -90,13 +90,18 @@ def test_gene_summary(genes, params):
 
     assert genes.groupby('orthogroup').size().describe()['max'] > 1, \
            "orthogroups consists of only 1 CDS"
-    data = (genes.groupby('orthogroup').size() > 1).value_counts()
-    assert data[True] > data[False] * 0.2, \
-           "surprisingly few orthogroups consists of more than one CDS"
 
-    data = (counts.stack() == 0).value_counts()
-    assert data[True] / data.sum() > 0.1, \
-           "surprisingly low sparseness in count matrix!"
+    # Check orthogroup multiplicity
+    orthogroup_counts = (genes.groupby('orthogroup').size() > 1).value_counts()
+    multi = orthogroup_counts.get(True, 0)
+    single = orthogroup_counts.get(False, 0)
+    assert multi > single * 0.2, "Surprisingly few orthogroups consist of more than one CDS"
+
+    # Check count matrix sparsity
+    sparsity_counts = (counts.stack() == 0).value_counts()
+    zeros = sparsity_counts.get(True, 0)
+    total = sparsity_counts.sum()
+    assert zeros / total > 0.1, "Surprisingly low sparseness in count matrix!"
 
 #    assert len(set(counts.sum())) == sum(params['Number of samples']), \
 #           "not all samples have different coverage"
