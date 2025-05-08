@@ -63,7 +63,7 @@ def read_simulation_stats(fp_basedir):
         names=['parameter', 'value'], engine='python')['value'].to_dict()
 
     params['Number of simulated genes'] = int(params['Number of simulated genes'])
-    params['Number of simulated orthogroups'] = int(params['Number of orthogroups'])
+    params['Number of simulated orthogroups'] = int(params['Number of simulated orthogroups'])
     params['Dropped genes due to all zero assignment by distribution'] = int(params['Dropped genes due to all zero assignment by distribution'])
     params['Dropped orthogroups due to all zero assignment by distribution'] = int(params['Dropped orthogroups due to all zero assignment by distribution'])
 
