@@ -708,25 +708,29 @@ def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
     current_zeros = np.count_nonzero(df_np == 0)
     target_zeros = int(np.ceil(total_cells * sparsity_target))
 
-    if current_zeros >= target_zeros:
+    n_to_zero = target_zeros - current_zeros
+
+    if n_to_zero <= 0:
         return gene_summary_df.to_pandas()
 
-    n_to_zero = target_zeros - current_zeros
-    nonzero_indices = np.argwhere(df_np != 0)
-    row_nonzeros = (df_np != 0).sum(axis=1)
+    rng = np.random.default_rng(seed)
+    safe_indices = []
 
-    safe_mask = row_nonzeros[nonzero_indices[:, 0]] > 1
-    safe_indices = nonzero_indices[safe_mask]
+    for i, row in enumerate(df_np):
+        nonzero_cols = np.flatnonzero(row != 0)
+        if len(nonzero_cols) > 1:
+            reserved = rng.choice(nonzero_cols, 1)
+            available = [c for c in nonzero_cols if c != reserved]
+            safe_indices.extend((i, c) for c in available)
+
+    if not safe_indices:
+        return gene_summary_df.to_pandas()
 
     n_to_zero = min(n_to_zero, len(safe_indices))
-
-    if n_to_zero == 0:
-        return gene_summary_df.to_pandas()
 
     if n_to_zero < target_zeros - current_zeros:
         print(f"Can only zero {n_to_zero} cells without causing all-zero rows.")
 
-    rng = np.random.default_rng(seed)
     selected = rng.choice(len(safe_indices), n_to_zero, replace=False)
     rows, cols = safe_indices[selected].T
     df_np[rows, cols] = 0
