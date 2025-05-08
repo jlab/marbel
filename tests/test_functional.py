@@ -85,9 +85,8 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "gene_name prefix does not match origin_species"
 
-    assert genes['orthogroup'].unique().shape[0] > \
-           params['Number of orthogroups'], \
-           "too many orthogroups?!"
+    assert genes['orthogroup'].nunique() > params['Number of orthogroups'], \
+        f"Too many orthogroups?! Found: {genes['orthogroup'].nunique()}, Expected max: {params['Number of orthogroups']}"
 
     assert genes.groupby('orthogroup').size().describe()['max'] > 1, \
            "orthogroups consists of only 1 CDS"
@@ -279,8 +278,7 @@ if __name__ == "__main__":
     sim_stats = read_simulation_stats(fp_basedir)
 
     # read gene summary information from file
-    genes = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'),
-                        index_col=0)
+    genes = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'), index_col=0)
 
     # execute tests focussing on file gene_summary.csv
     test_gene_summary(genes, params)
