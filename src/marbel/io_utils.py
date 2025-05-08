@@ -9,7 +9,7 @@ def is_bedtools_available():
 
 
 def is_cat_available():
-    return shutil.which("bedtools") is not None
+    return shutil.which("cat") is not None
 
 
 def concat_bed_files_with_cat(dir, output_name):
