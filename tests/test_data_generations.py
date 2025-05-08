@@ -100,7 +100,7 @@ def test_max_phylo_distance_filter():
 
 def test_min_identity_filter():
     min_identity = 90
-    expected = pg_overview[pg_overview["medium_identity"] >= min_identity]
+    expected = pg_overview[pg_overview["mean_identity"] >= min_identity]
     result = filter_by_seq_id_and_phylo_dist(min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 
@@ -108,7 +108,7 @@ def test_min_identity_filter():
 def test_both_filters():
     max_phylo_distance = 0.9
     min_identity = 90
-    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["medium_identity"] >= min_identity)]
+    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 
@@ -116,7 +116,7 @@ def test_both_filters():
 def test_no_matching_records():
     max_phylo_distance = 0.1
     min_identity = 100
-    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["medium_identity"] >= min_identity)]
+    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 

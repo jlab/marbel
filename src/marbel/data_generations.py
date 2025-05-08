@@ -72,7 +72,7 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     else:
         filtered_slice = pg_overview
     if min_identity is not None:
-        filtered_slice = filtered_slice[filtered_slice["medium_identity"] >= min_identity]
+        filtered_slice = filtered_slice[filtered_slice["mean_identity"] >= min_identity]
     if max_phylo_distance is None and min_identity is None:
         return pg_overview
     return filtered_slice
