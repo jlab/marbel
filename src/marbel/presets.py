@@ -1,7 +1,7 @@
 from importlib import resources
 from enum import Enum
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 CPMS_MEAN_LOG = 3.73411080985053
 CPMS_SD_LOG = 1.90214574373138
