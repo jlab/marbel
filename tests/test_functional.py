@@ -163,10 +163,10 @@ def test_metaT_reference(fp_basedir, genes, params):
             if g.shape[0] > 1]) > 1).value_counts()
     if False in data:
         # TODO: assertion was changed to to removal of all zero genes
-        # assert data[False] < data[True] * 0.1, \
-        #     "too few orthogroups with more than one member have identical" \
-        #    " length sequences"
-        pass
+        assert data[False] < data[True] * 0.1, \
+             "too few orthogroups with more than one member have identical" \
+             " length sequences"
+        #pass
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
