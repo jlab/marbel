@@ -190,6 +190,7 @@ def test_tree(fp_basedir, genes):
     assert data['min'] > 0, \
            "there seems to be an orthogroup with no member in any species?!"
     # due to the removal of the all zero row genes, this is not always true now; TODO: new assertion
+    print(data)
     assert data['max'] >= 0.99999, \
            "I would expect at least one orthogroup to be present in all " \
            "species, like a housekeeping gene"
