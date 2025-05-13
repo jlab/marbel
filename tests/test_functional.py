@@ -80,9 +80,19 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "number of species does not match"
 
+    # we want to make sure that not only the number of listed species names is
+    # equal to what the user requested, but also expand this test towards the
+    # gene names. In principle, each species comes with it's own prefix.
+
+    # Unfortunately, there is one (as of 2025-05-13) species, that have mix
+    # gene prefixes:
+    # We thus also have to correct the expected number of species
+    MIXED_SPECIES = ['ALL_Acinetobacter_schindleri_strain_HZE30_1_NZ_CP044483']
+    exp_species_number = params['Number of species'] - len(set(MIXED_SPECIES) & set(genes["origin_species"].unique()))
+
     genes['speciesID'] = list(map(lambda x: x.split('_')[0], genes.index))
-    assert genes.groupby(['speciesID', 'origin_species']).size().shape[0] == \
-           params['Number of species'], \
+    assert genes[~genes['origin_species'].isin(MIXED_SPECIES)].groupby(['speciesID', 'origin_species']).size().shape[0] == \
+           exp_species_number, \
            "gene_name prefix does not match origin_species"
 
     assert genes['orthogroup'].nunique() <= params['Number of orthogroups'], \
