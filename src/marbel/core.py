@@ -6,7 +6,7 @@ import polars as pl
 
 from marbel.presets import SelectionCriterion, OrthologyLevel
 from marbel import data_generations as dg
-from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity
+from marbel.data_generations import draw_dge_factors, write_parameter_summary, select_species_with_criterion, select_orthogroups, add_extra_sparsity, add_counts_to_large_orthogroups
 from marbel.io_utils import is_bedtools_available, concat_bed_files, concat_bed_files_with_cat, is_cat_available, get_summary_paths
 from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, aggregate_blocks, write_block_gtf, write_overlap_blocks_fasta, calculate_overlap_blocks, write_overlap_blocks_summary
 
@@ -77,6 +77,9 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     # scale to library size
     gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
+
+    # ensure at least one orthogroup survives filtering
+    add_counts_to_large_orthogroups(gene_summary_df, number_of_species)
 
     # filter all zero genes
     all_zero_genes = dg.get_all_zero_genes(gene_summary_df)
