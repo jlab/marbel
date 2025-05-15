@@ -80,9 +80,19 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "number of species does not match"
 
+    # we want to make sure that not only the number of listed species names is
+    # equal to what the user requested, but also expand this test towards the
+    # gene names. In principle, each species comes with it's own prefix.
+
+    # Unfortunately, there is one (as of 2025-05-13) species, that have mix
+    # gene prefixes:
+    # We thus also have to correct the expected number of species
+    MIXED_SPECIES = ['ALL_Acinetobacter_schindleri_strain_HZE30_1_NZ_CP044483']
+    exp_species_number = params['Number of species'] - len(set(MIXED_SPECIES) & set(genes["origin_species"].unique()))
+
     genes['speciesID'] = list(map(lambda x: x.split('_')[0], genes.index))
-    assert genes.groupby(['speciesID', 'origin_species']).size().shape[0] == \
-           params['Number of species'], \
+    assert genes[~genes['origin_species'].isin(MIXED_SPECIES)].groupby(['speciesID', 'origin_species']).size().shape[0] == \
+           exp_species_number, \
            "gene_name prefix does not match origin_species"
 
     assert genes['orthogroup'].nunique() <= params['Number of orthogroups'], \
@@ -163,10 +173,10 @@ def test_metaT_reference(fp_basedir, genes, params):
             if g.shape[0] > 1]) > 1).value_counts()
     if False in data:
         # TODO: assertion was changed to to removal of all zero genes
-        # assert data[False] < data[True] * 0.1, \
-        #     "too few orthogroups with more than one member have identical" \
-        #    " length sequences"
-        pass
+        assert data[False] < data[True] * 0.1, \
+             "too few orthogroups with more than one member have identical" \
+             " length sequences"
+        #pass
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
@@ -190,9 +200,10 @@ def test_tree(fp_basedir, genes):
     assert data['min'] > 0, \
            "there seems to be an orthogroup with no member in any species?!"
     # due to the removal of the all zero row genes, this is not always true now; TODO: new assertion
-    # assert data['max'] >= 0.99999, \
-    #       "I would expect at least one orthogroup to be present in all " \
-    #       "species, like a housekeeping gene"
+    print(data)
+    assert data['max'] >= 0.99999, \
+           "I would expect at least one orthogroup to be present in all " \
+           "species, like a housekeeping gene"
 
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
