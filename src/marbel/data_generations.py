@@ -769,3 +769,22 @@ def add_actual_log2fc(gene_summary_df):
     ]).drop(["sum_group1", "sum_group2", "fold_change"])
 
     return gene_summary_df.to_pandas()
+
+
+def add_counts_to_large_orthogroups(gene_summary, species_count):
+    og_sizes = gene_summary["orthogroup"].value_counts()
+    large_orthogroups = og_sizes[og_sizes == species_count].index.to_list()
+    og_to_modify = random.choice(large_orthogroups)
+
+    filtered_gene_summary = gene_summary[gene_summary["orthogroup"] == og_to_modify]
+
+    count_cols = [col for col in gene_summary.columns if "sample" in col]
+    row_indices = []
+
+    for row in filtered_gene_summary[count_cols].iterrows():
+        if sum(row[1]) == 0:
+            row_indices.append(row[0])
+
+    for row_index in row_indices:
+        sample_to_one = random.choice(count_cols)
+        gene_summary.at[row_index, sample_to_one] = 1

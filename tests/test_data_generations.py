@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
-from marbel.data_generations import calc_zero_ratio, get_all_zero_genes
+from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups
 from marbel.presets import MAX_SPECIES
 from marbel.preload import get_pg_overview
 
@@ -183,7 +183,21 @@ def test_get_all_zero_genes():
         "sample3": [0, 2, 0],
     }
     df = pd.DataFrame(data)
-    
     result = get_all_zero_genes(df)
-    
     assert result == {"geneA", "geneC"}, f"Expected {{'geneA', 'geneC'}}, got {result}"
+
+
+def test_add_counts_to_large_orthogroups():
+    data = {
+        "gene_name": ["geneA", "geneB", "geneC"],
+        "orthogroup": ["og1", "og1", "og2"],
+        "sample1": [0, 1, 0],
+        "sample2": [0, 0, 0],
+        "sample3": [0, 2, 0],
+    }
+    df = pd.DataFrame(data)
+
+    add_counts_to_large_orthogroups(df, 2)
+    all_zero_genes = get_all_zero_genes(df)
+
+    assert all_zero_genes == {"geneC"}, f"Expected to filter {{'geneC'}}, not {all_zero_genes}"
