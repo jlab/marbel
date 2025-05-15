@@ -114,7 +114,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
                                                           + "Specify for more ")] = None,
          dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."
-                                                  "This is a random drawing process from normal distribution, so the actual ratio might vary.")] = 0.1,
+                                                  "This is a random drawing process from normal distribution, so the actual ratio might vary.")] = 0.2,
          seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
          error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length")] = ErrorModel.HiSeq,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,

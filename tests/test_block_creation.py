@@ -1,7 +1,7 @@
 import pytest
 import polars as pl
 import numpy as np
-from marbel.block_generation import aggregate_blocks, write_block_gtf, write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location
+from marbel.block_generation import aggregate_blocks, write_block_gtf, write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, calculate_overlap_blocks
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
@@ -144,21 +144,35 @@ def test_map_blocks_to_genomic_location(monkeypatch):
     assert result.sort(result.columns).to_dicts() == expected.sort(expected.columns).to_dicts()
 
 
-def calculate_overlap_blocks():
+def test_calculate_overlap_blocks():
     df = pl.DataFrame({
-        "cds": ["gene1", "gene2", "gene3", "gene4"],
-        "block_start": [0, 2],
-        "block_end": [4, 8],
-        "block_name": ["block1", "block2"],
-        'fragment_count': [2, 1],
-        "accession": ["acc1", "acc2"],
-        "chr": ["chr1", "chr2"],
-        "genomic_start": [1000, 2000],
-        "genomic_end": [2000, 3000],
+        "species": ["bac1", "bac1", "bac1", "bac1", "bac2"],
+        "chr": ["chr1", "chr1", "chr1", "chr2", "chr2"],
+        "genomic_start": [100, 100, 100, 100, 100],
+        "block_start": [0, 30, 70, 0, 0],
+        "block_end": [50, 80, 120, 50, 50],
+        "fragment_count": [1, 2, 1, 5, 4],
+        "block_name": ["block_1", "block_2", "block_3", "block_1", "block_1"],
+        "cds": ["cds1", "cds2", "cds3", "cds4", "cds5"],
     })
 
-    result = aggregate_blocks(df)
+    result = calculate_overlap_blocks(df, min_overlap=20)
+
     expected = pl.DataFrame({
-
+        "overlap_block_name": ["bac1_chr1_block1"],
+        "species": ["bac1"],
+        "chr": ["chr1"],
+        "overlap_block_start": [100],
+        "overlap_block_end": [180],
+        "fragment_count": [3],
+        "block_count": [2],
+        "overlap_blocks": [["block_1", "block_2"]],
+        "overlap_cds_names": [["cds1", "cds2"]],
+        "overlap_lengths": [["-101", "20"]],
+        "blocks_start": [["0", "30"]],
+        "blocks_end": [["50", "80"]],
     })
+
+    with pl.Config(tbl_rows=-1, tbl_cols=-1):
+        print(result)
     assert result.sort(result.columns).to_dicts() == expected.sort(expected.columns).to_dicts()
