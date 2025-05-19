@@ -12,6 +12,7 @@ from iss.app import generate_reads
 from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
+import sys
 
 from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
 from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
@@ -137,13 +138,28 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, forc
     orthogroups = orthogroup_slice[species].copy()
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    if orthogroups.shape[0] < number_of_orthogous_groups and not force:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
-        quit()
-    elif force:
-        return orthogroups
+
+    check_force_result = check_enough_orthogroups(orthogroups, number_of_orthogous_groups, force)
+    if check_force_result is not None:
+        return check_force_result
+
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
+
+
+def check_enough_orthogroups(orthogroups, required_count, force):
+    if orthogroups.shape[0] < required_count:
+        print("Not enough orthogroups to satisfy the parameters.")
+        print("Try increasing the number of species, relaxing filters, or lowering the count.")
+        print(f"Available: {orthogroups.shape[0]}, Required: {required_count}")
+
+        if force:
+            print("Returning all available orthogroups due to --force flag.")
+            return orthogroups
+        else:
+            print("Exiting. Use --force to override.")
+            sys.exit(1)
+    return None
 
 
 def generate_species_abundance(number_of_species, seed=None):
@@ -681,16 +697,14 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
 def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
-    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - (x == "-").sum(), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
-    if orthogroups.shape[0] < number_of_groups and not force:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
-        print(f"Number of available max orthogroups: {orthogroups.shape[0]}")
-        quit()
-    elif force:
-        return orthogroups
+    check_force_result = check_enough_orthogroups(orthogroups, number_of_groups, force)
+    if check_force_result is not None:
+        return check_force_result
+
     return orthogroups.head(number_of_groups)
 
 
