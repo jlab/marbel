@@ -32,7 +32,9 @@ dependencies = [
   "ete4",
   "progress",
   "joblib",
-  "polars"
+  "polars",
+  "pysam",
+  "requests"
 ]
 
 [project.urls]
