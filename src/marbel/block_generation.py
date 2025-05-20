@@ -8,9 +8,7 @@ This module contains functions to aggregate blocks from bed file containing read
 
 The bed files are generated from modified code of InSilicoSeq when simulating the reads. We define blocks as a continous region of reads that are overlapping on a transcript.
 One transcript may be split into multiple blocks, and one block may contain multiple reads. The purpose of the blocks is to be a better reference for assembly tools.
-Overlap blocks are defined as blocks that are overlapping on the same genomic region with a minimum overlap. Overlap blocks are calculated to test whether assembly tools merge these regions. 
-Which would be valid behaviour.
-
+Overlap blocks are defined as blocks that are overlapping on the same genomic region with a minimum overlap. Overlap blocks are calculated to test whether assembly tools merge these regions. Which would be valid behaviour.
 """
 
 
