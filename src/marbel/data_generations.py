@@ -1,12 +1,9 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from Bio import SeqIO, bgzf
-from pathlib import Path
+from Bio import SeqIO
 import os
 import random
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import multiprocessing
 import argparse
 from marbel.vendor.insilicoseq.app import generate_reads
 from joblib import Parallel, delayed
@@ -15,7 +12,7 @@ import pymc as pm
 import sys
 
 from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
+from marbel.presets import ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
 
 from marbel.preload import get_pg_overview, get_species_tree, get_species_stats_dict, get_pymc_model
 
