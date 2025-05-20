@@ -24,7 +24,6 @@ requirements:
     - progress
     - joblib
     - polars
-    - insilicoseq-marbel 
 
 test:
   imports:

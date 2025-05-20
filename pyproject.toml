@@ -31,7 +31,6 @@ dependencies = [
   "pandas",
   "ete4",
   "progress",
-  "InSilicoSeq @ git+https://github.com/jlab/InSilicoSeq.git",
   "joblib",
   "polars"
 ]

@@ -1,3 +1,0 @@
-ignore:
-  - "**/test/*.py" # ignore test scripts
-  - "**/app.py"    # ignore main application script

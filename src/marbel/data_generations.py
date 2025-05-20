@@ -8,7 +8,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import argparse
-from iss.app import generate_reads
+from marbel.vendor.insilicoseq.app import generate_reads
 from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
