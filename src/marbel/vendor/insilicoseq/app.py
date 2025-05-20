@@ -168,7 +168,7 @@ def model_from_bam(args):
 
     try:  # try to import bam module and write model data to file
         logger.info("Starting iss model")
-        from marbel.vendor.insilicoseq  import bam
+        from marbel.vendor.insilicoseq import bam
     except ImportError as e:
         logger.error("Failed to import bam module: %s" % e)
         sys.exit(1)
