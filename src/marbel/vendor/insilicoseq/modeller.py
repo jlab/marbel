@@ -6,7 +6,7 @@ import logging
 import numpy as np
 from scipy import stats
 
-from iss import util
+from marbel.vendor.insilicoseq  import util
 
 
 def insert_size(template_length_dist, read_length):

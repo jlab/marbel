@@ -14,9 +14,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqUtils import gc_fraction
 
-from iss import abundance, download, util
-from iss.error_models import basic, kde, perfect
-from iss.util import load, rev_comp
+from marbel.vendor.insilicoseq  import abundance, download, util
+from marbel.vendor.insilicoseq .error_models import basic, kde, perfect
+from marbel.vendor.insilicoseq .util import load, rev_comp
 from collections import deque
 import uuid
 
@@ -76,7 +76,7 @@ def simulate_reads(
         reverse_buffer.append(reverse_record)
         mutations_buffer.extend(mutations)
         bed_buffer.extend(bed_entries)
-        #only_bed = False
+        # only_bed = False
 
         if len(forward_buffer) >= batch_size:
             write_bed_entries(bed_buffer, bed_handle)
@@ -161,7 +161,7 @@ def simulate_read(record, error_model, i, cpu_number, sequence_type):
 
     # generate the forward read
     try:  # a ref sequence has to be longer than 2 * read_length + i_size
-        assert read_length < len(record.seq)  
+        assert read_length < len(record.seq)
         # assign the start position of the forward read
         # if sequence_type == metagenomics, get a random start position
         # if sequence_type == amplicon, start position is the start of the read
@@ -396,7 +396,7 @@ def generate_work_divider(
         yield chunk_work
 
 
-def load_error_model(mode, seed, model, read_length,fragment_length, fragment_length_sd, store_mutations):
+def load_error_model(mode, seed, model, read_length, fragment_length, fragment_length_sd, store_mutations):
     """
     Load the error model based on the specified mode and parameters.
 

@@ -9,15 +9,15 @@ import sys
 
 from Bio import SeqIO
 
-from iss import util
-from iss.generator import (
+from marbel.vendor.insilicoseq  import util
+from marbel.vendor.insilicoseq .generator import (
     generate_work_divider,
     load_error_model,
     load_genomes,
     load_readcount_or_abundance,
     worker_iterator,
 )
-from iss.version import __version__
+from marbel.vendor.insilicoseq .version import __version__
 
 
 def generate_reads(args):
@@ -168,7 +168,7 @@ def model_from_bam(args):
 
     try:  # try to import bam module and write model data to file
         logger.info("Starting iss model")
-        from iss import bam
+        from marbel.vendor.insilicoseq  import bam
     except ImportError as e:
         logger.error("Failed to import bam module: %s" % e)
         sys.exit(1)

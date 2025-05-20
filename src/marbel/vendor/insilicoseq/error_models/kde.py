@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from iss.error_models import ErrorModel
+from marbel.vendor.insilicoseq .error_models import ErrorModel
 
 
 class KDErrorModel(ErrorModel):

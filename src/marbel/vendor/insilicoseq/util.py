@@ -8,7 +8,6 @@ import pickle
 import random
 import sys
 from shutil import copyfileobj
-import gzip
 
 import numpy as np
 from Bio import SeqIO

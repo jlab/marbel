@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from iss.error_models import ErrorModel
+from marbel.vendor.insilicoseq .error_models import ErrorModel
 
 
 class PerfectErrorModel(ErrorModel):

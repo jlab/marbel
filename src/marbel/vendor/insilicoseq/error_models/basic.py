@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from iss import util
-from iss.error_models import ErrorModel
+from marbel.vendor.insilicoseq  import util
+from marbel.vendor.insilicoseq .error_models import ErrorModel
 
 
 class BasicErrorModel(ErrorModel):

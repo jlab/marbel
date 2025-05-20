@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from iss.app import main
+from marbel.vendor.insilicoseq .app import main
 
 main()
