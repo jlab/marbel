@@ -276,62 +276,6 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
     return gene_summary_df
 
 
-def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
-    """
-    Converts a directory containing .fasta files to a directory containing .fastq files. If gzipped is True, the output files will be gzipped.
-
-    Parameters:
-    - fasta_dir (str): The path to the directory containing the .fasta files.
-    - gzipped (bool): Whether the output files should be gzipped.
-
-    Note that the input .fasta files will be removed after the conversion is done.
-    """
-    fasta_dir = Path(fasta_dir)
-    futures = []
-    max_workers = multiprocessing.cpu_count()
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        for fa_path in fasta_dir.glob("*.fasta"):
-            fq_path = fasta_dir / fa_path.with_suffix(".fastq.gz" if gzipped else ".fastq").name
-            if gzipped:
-                futures.append(executor.submit(write_as_fastq_gz, fa_path, fq_path))
-            else:
-                futures.append(executor.submit(write_as_fastq, fa_path, fq_path))
-        for future in as_completed(futures):
-            future.result()
-    for fa_path in fasta_dir.glob("*.fasta"):
-        os.remove(fa_path)
-
-
-def write_as_fastq_gz(fa_path, fq_path):
-    """
-    Converts a .fasta file to a .fastq.gz file. The function reads the .fasta file,
-    adds phred quality scores to each sequence and writes the output to a .fastq.gz file.
-
-    Args:
-        fa_path (str): Path to the input .fasta file.
-        fq_path (str): Path to the output .fastq.gz file.
-    """
-    with open(fa_path, "r") as fasta, bgzf.BgzfWriter(fq_path, "wb") as fastq_gz:
-        for record in SeqIO.parse(fasta, "fasta"):
-            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
-            SeqIO.write(record, fastq_gz, "fastq")
-
-
-def write_as_fastq(fa_path, fq_path):
-    """
-    Converts a .fasta file to a .fastq file. The function reads the .fasta file,
-    adds phred quality scores to each sequence and writes the output to a .fastq file.
-
-    Args:
-        fa_path (str): Path to the input .fasta file.
-        fq_path (str): Path to the output .fastq file.
-    """
-    with open(fa_path, "r") as fasta, open(fq_path, "w") as fastq:
-        for record in SeqIO.parse(fasta, "fasta"):
-            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
-            SeqIO.write(record, fastq, "fastq")
-
-
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
                             force, actual_orthogroups, min_overlap, summary_dir):

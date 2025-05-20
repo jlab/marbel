@@ -3,7 +3,36 @@
 
 # Marbel
 
-![Marbel logo](./marbel_logo.svg)Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters.
+![Marbel logo](./marbel_logo.svg)
+
+## Summary
+
+Marbel (MetAtranscriptomic Reference Builder Evaluation Library) generates realistic *in silico* metatranscriptomic dataset based on specified parameters. It is intended as a helpful tool for metatranscriptomics pipeline developers.
+
+## Description
+
+Marbel uses a dataset of 614 bacterial transcriptomes for simulating a metatranscriptomic dataset. The user can specify the number of orthogroups and species they want to simulate. Accordingly, marbel will randomly select orthogroups and assign read counts to the resulting gene set. The read count matrix is produced using DESeq2 based modeling with custom fitted parameters. The read count matrix is then used to generate reads with a modified version of [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq). Marbel will then calculate maximum blocks, i.e., regions of transcript sequences that are continously covered by reads. The reason for this is to have a better reference for assemblers. Marbel will also calculate overlap blocks (default minimum overlap: 16), i.e., blocks that overlap on the genome, as assembler may merge these blocks.
+
+### Assumptions
+
+- We choose orthogroups as basis for the selection to model functional redundancies commonly present in microbial communities
+- Species and gene abundances are modelled following a lognormal distribution
+- The base formula for the gene level mean read count is `species abundance * gene abundance`
+- Log2 fold changes are modelled according to a normal distribution
+- The sample count is modelled with a negative binomial distribution with DESeq2 assumption like dispersion parameters
+
+### Customisation:
+
+The user has a wide range of option to influence dataset creation, apart from basic parameters it is possible to specify:
+
+- a mininimum mean sequence identity of genes in orthogroups (`--min-identity`)
+- a maximum phylogenetic distance of members in orthogroups (`--max-phylo-distance`)
+- a library size distribution (`--library-size-distribution`)
+- the modelled ratio of differentially expressed genes (`--dge-ratio`)
+- a selection strategy for chosing orthogroups in relation to orthogroup size (i.e. orthology level) (`--group-orthology-level`)
+- a minimum sparsity target for the count matrix (ratio of zeros) in the count matrix (`--min-sparsity`)
+- a minum overlap for the calculation of overlap blocks (i.e. genes covered by reads that overlap on the genome) (`--min-overlap`)
+- deseq2 dispersion parameters can be modified (`--deseq-dispersion-parameter-a0, --deseq-dispersion-parameter-a1`)
 
 ## Installation
 
@@ -114,7 +143,7 @@ Note that large datasets may require days to run. Therefore, cluster or cloud ba
 
 - `--dge-ratio` **FLOAT**  
   Ratio of up- and down-regulated genes. The first value is the ratio of up-regulated genes, and the second represents the ratio of down-regulated genes.  
-  **[default: 0.1]**
+  **[default: 0.2]**
 
 - `--seed` **INTEGER**  
   Seed for sampling. Set for reproducibility.  
@@ -139,6 +168,19 @@ Note that large datasets may require days to run. Therefore, cluster or cloud ba
 - `--library-size-distribution` **[poisson|uniform|negative_binomial]**  
   Distribution for the library size.  
   **[default: uniform]**
+
+
+- `--min-sparsity` **FLOAT**  
+     Will archive the minimum specified sparcity by zeroing count randomly.  
+  **[default: 0]**
+
+- `--min-overlap` **INTEGER**  
+  Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome.  
+  **[default: 16]**
+
+- `--group-orthology-level` **[very_low|low|normal|high|very_high]**  
+  Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.  
+  **[default: normal]**
 
 - `--threads` **INTEGER**  
   Number of threads to be used.  
