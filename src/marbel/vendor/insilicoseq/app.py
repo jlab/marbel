@@ -9,7 +9,7 @@ import sys
 
 from Bio import SeqIO
 
-from marbel.vendor.insilicoseq  import util
+from marbel.vendor.insilicoseq import util
 from marbel.vendor.insilicoseq .generator import (
     generate_work_divider,
     load_error_model,

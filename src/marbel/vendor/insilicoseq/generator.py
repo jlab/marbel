@@ -14,9 +14,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqUtils import gc_fraction
 
-from marbel.vendor.insilicoseq  import abundance, download, util
-from marbel.vendor.insilicoseq .error_models import basic, kde, perfect
-from marbel.vendor.insilicoseq .util import load, rev_comp
+from marbel.vendor.insilicoseq import abundance, download, util
+from marbel.vendor.insilicoseq.error_models import basic, kde, perfect
+from marbel.vendor.insilicoseq.util import load, rev_comp
 from collections import deque
 import uuid
 
