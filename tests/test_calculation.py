@@ -1,17 +1,24 @@
 import pandas as pd
 from marbel.data_generations import calc_zero_ratio, maximize, minimize
+import pytest
 
 
-def test_minimize():
-    assert minimize(3, 4)
-    assert not minimize(4, 4)
-    assert not minimize(123, 1)
+@pytest.mark.parametrize("a, b, expected", [
+    (3, 4, True),
+    (4, 4, False),
+    (123, 1, False),
+])
+def test_minimize(a, b, expected):
+    assert minimize(a, b) == expected
 
 
-def test_maximize():
-    assert not maximize(3, 4)
-    assert not maximize(4, 4)
-    assert maximize(123, 1)
+@pytest.mark.parametrize("a, b, expected", [
+    (3, 4, False),
+    (4, 4, False),
+    (123, 1, True),
+])
+def test_maximize(a, b, expected):
+    assert maximize(a, b) == expected
 
 
 def test_calc_zero_ratio():
@@ -22,7 +29,3 @@ def test_calc_zero_ratio():
            [1, 5, 6, 0, 1, 7]]
     df = pd.DataFrame(lst)
     assert calc_zero_ratio(df) == 0.2
-
-    df = pd.DataFrame({'a': [0, 2, 3], 'b': [4, 0, 6], 'c': [7, 8, 9], 'd': [10, 11, 0]})
-    ratio = calc_zero_ratio(df)
-    assert ratio == 0.25

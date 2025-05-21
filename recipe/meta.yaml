@@ -1,0 +1,37 @@
+package:
+  name: marbel
+  version: "0.2.0"
+
+source:
+  git_url: https://github.com/jlab/marbel
+  git_rev: master
+
+requirements:
+  build:
+    - python
+    - hatchling
+
+  run:
+    - python
+    - arviz
+    - pymc
+    - typer
+    - biopython
+    - pyarrow
+    - typing-extensions
+    - pandas
+    - ete4  
+    - progress
+    - joblib
+    - polars
+
+test:
+  imports:
+    - marbel
+  commands:
+    - marbel --help
+
+about:
+  home: https://github.com/jlab/marbel
+  license: Apache-2.0
+

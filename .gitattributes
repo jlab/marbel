@@ -1,3 +1,4 @@
 src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz filter=lfs diff=lfs merge=lfs -text
 src/marbel/data/deduplicated_pangenome_EDGAR_Microbiome_JLAB2.fas.bgz.bio_index filter=lfs diff=lfs merge=lfs -text
 src/marbel/data/orthologues_processed_combined_all.parquet filter=lfs diff=lfs merge=lfs -text
+src/marbel/data/cds_genomic_locations.parquet filter=lfs diff=lfs merge=lfs -text

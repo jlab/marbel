@@ -2,8 +2,12 @@ import pytest
 import pandas as pd
 import numpy as np
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
-from marbel.data_generations import calc_zero_ratio, add_extra_sparsity
-from marbel.presets import AVAILABLE_SPECIES, pg_overview
+from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups
+from marbel import data_generations as dg
+from marbel.presets import MAX_SPECIES, ErrorModel
+from marbel.preload import get_pg_overview
+
+# Tests for draw_random_species
 
 
 def test_correct_length():
@@ -19,7 +23,7 @@ def test_unique_species():
 
 
 def test_too_many_species():
-    number_of_species = len(AVAILABLE_SPECIES) + 1
+    number_of_species = MAX_SPECIES + 1
     with pytest.raises(ValueError):
         draw_random_species(number_of_species)
 
@@ -40,14 +44,14 @@ def test_correct_number_of_orthogroups():
 def test_max_species_per_group_respected():
     number_of_orthogroups = 20
     max_species = 7
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)    
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
     assert np.all(result <= max_species), f"Some orthogroups exceed the max species of {max_species}"
 
 
 def test_non_negative_groups():
     number_of_orthogroups = 15
     max_species = 8
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)    
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
     assert np.all(result >= 0), "There are negative values in the orthogroup sizes"
 
 
@@ -84,14 +88,15 @@ def test_empty_orthogroups():
 
 
 # Tests for filter_by_seq_id_and_phylo_dist
-
 def test_no_filters():
     result = filter_by_seq_id_and_phylo_dist()
+    pg_overview = get_pg_overview()
     pd.testing.assert_frame_equal(result, pg_overview)
 
 
 def test_max_phylo_distance_filter():
     max_phylo_distance = 0.9
+    pg_overview = get_pg_overview()
     expected = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance)
     pd.testing.assert_frame_equal(result, expected)
@@ -99,7 +104,8 @@ def test_max_phylo_distance_filter():
 
 def test_min_identity_filter():
     min_identity = 90
-    expected = pg_overview[pg_overview["medium_identity"] >= min_identity]
+    pg_overview = get_pg_overview()
+    expected = pg_overview[pg_overview["mean_identity"] >= min_identity]
     result = filter_by_seq_id_and_phylo_dist(min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 
@@ -107,7 +113,8 @@ def test_min_identity_filter():
 def test_both_filters():
     max_phylo_distance = 0.9
     min_identity = 90
-    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["medium_identity"] >= min_identity)]
+    pg_overview = get_pg_overview()
+    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 
@@ -115,7 +122,8 @@ def test_both_filters():
 def test_no_matching_records():
     max_phylo_distance = 0.1
     min_identity = 100
-    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["medium_identity"] >= min_identity)]
+    pg_overview = get_pg_overview()
+    expected = pg_overview[(pg_overview["tip2tip_distance"] <= max_phylo_distance) & (pg_overview["mean_identity"] >= min_identity)]
     result = filter_by_seq_id_and_phylo_dist(max_phylo_distance=max_phylo_distance, min_identity=min_identity)
     pd.testing.assert_frame_equal(result, expected)
 
@@ -168,10 +176,36 @@ def test_calc_zero_ratio_no_zero():
     assert ratio == 0
 
 
-def test_add_extra_sparsity():
-    df = pd.DataFrame({'sample_1': [4, 0, 6], 'sample_2': [7, 8, 9], 'sample_3': [10, 11, 0],
-                      'sample_4': [12, 13, 10]})
-    target_sparsity = 0.5
-    result = add_extra_sparsity(df, target_sparsity)
-    new_sparsity = calc_zero_ratio(result)
-    assert new_sparsity >= target_sparsity
+def test_get_all_zero_genes():
+    data = {
+        "gene_name": ["geneA", "geneB", "geneC"],
+        "sample1": [0, 1, 0],
+        "sample2": [0, 0, 0],
+        "sample3": [0, 2, 0],
+    }
+    df = pd.DataFrame(data)
+    result = get_all_zero_genes(df)
+    assert result == {"geneA", "geneC"}, f"Expected {{'geneA', 'geneC'}}, got {result}"
+
+
+def test_add_counts_to_large_orthogroups():
+    data = {
+        "gene_name": ["geneA", "geneB", "geneC"],
+        "orthogroup": ["og1", "og1", "og2"],
+        "sample1": [0, 1, 0],
+        "sample2": [0, 0, 0],
+        "sample3": [0, 2, 0],
+    }
+    df = pd.DataFrame(data)
+
+    add_counts_to_large_orthogroups(df, 2)
+    all_zero_genes = get_all_zero_genes(df)
+
+    assert all_zero_genes == {"geneC"}, f"Expected to filter {{'geneC'}}, not {all_zero_genes}"
+
+
+def test_determine_mode_and_model():
+    assert dg.determine_mode_and_model(ErrorModel.basic, 150) == (ErrorModel.basic, None)
+    assert dg.determine_mode_and_model(ErrorModel.perfect, 100) == (ErrorModel.perfect, None)
+    assert dg.determine_mode_and_model(ErrorModel.HiSeq, 150) == ("kde", ErrorModel.HiSeq)
+    assert dg.determine_mode_and_model(ErrorModel.NextSeq, None) == ("kde", ErrorModel.NextSeq)

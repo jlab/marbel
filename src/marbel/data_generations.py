@@ -1,18 +1,20 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from Bio import SeqIO, bgzf
-from pathlib import Path
+from Bio import SeqIO
 import os
 import random
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import multiprocessing
 import argparse
-from iss.app import generate_reads
+from marbel.vendor.insilicoseq.app import generate_reads
 from joblib import Parallel, delayed
+import polars as pl
+import pymc as pm
+import sys
 
-from marbel.presets import AVAILABLE_SPECIES, model, pm, pg_overview, species_tree, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE
-from marbel.presets import DEFAULT_PHRED_QUALITY, ErrorModel, LibrarySizeDistribution, __version__, species_stats_dict, MAX_SPECIES, SelectionCriterion
+from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
+from marbel.presets import ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
+
+from marbel.preload import get_pg_overview, get_species_tree, get_species_stats_dict, get_pymc_model
 
 
 def draw_random_species(number_of_species):
@@ -25,9 +27,10 @@ def draw_random_species(number_of_species):
     Returns:
     list: A list of randomly drawn species from the list of available species.
     """
-    if number_of_species < 1 or number_of_species > len(AVAILABLE_SPECIES):
-        raise ValueError(f"Number of species must be between 1 and {AVAILABLE_SPECIES}.")
-    return random.sample(AVAILABLE_SPECIES, number_of_species)
+    if number_of_species < 1 or number_of_species > MAX_SPECIES:
+        raise ValueError(f"Number of species must be between 1 and {MAX_SPECIES}.")
+    available_species = pl.read_parquet(PANGENOME_OVERVIEW).columns[:MAX_SPECIES]
+    return random.sample(available_species, number_of_species)
 
 
 def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed=None):
@@ -46,6 +49,7 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     """
     if number_of_orthogous_groups < 1:
         raise ValueError("Number of orthogroups must be greater than 0.")
+    model = get_pymc_model()
     with model:
         orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
     orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
@@ -66,12 +70,13 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
     Returns:
         pandas.DataFrame: The filtered orthologous group overview dataframe.
     """
+    pg_overview = get_pg_overview()
     if max_phylo_distance is not None:
         filtered_slice = pg_overview[pg_overview["tip2tip_distance"] <= max_phylo_distance]
     else:
         filtered_slice = pg_overview
     if min_identity is not None:
-        filtered_slice = filtered_slice[filtered_slice["medium_identity"] >= min_identity]
+        filtered_slice = filtered_slice[filtered_slice["mean_identity"] >= min_identity]
     if max_phylo_distance is None and min_identity is None:
         return pg_overview
     return filtered_slice
@@ -130,13 +135,28 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, forc
     orthogroups = orthogroup_slice[species].copy()
     orthogroups["group_size"] = orthogroups.apply(lambda x: len(species) - len(x[x == "-"].index.to_list()), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    if orthogroups.shape[0] < number_of_orthogous_groups and not force:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
-        quit()
-    elif force:
-        return orthogroups
+
+    check_force_result = check_enough_orthogroups(orthogroups, number_of_orthogous_groups, force)
+    if check_force_result is not None:
+        return check_force_result
+
     orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
     return orthogroups_sample
+
+
+def check_enough_orthogroups(orthogroups, required_count, force):
+    if orthogroups.shape[0] < required_count:
+        print("Not enough orthogroups to satisfy the parameters.")
+        print("Try increasing the number of species, relaxing filters, or lowering the count.")
+        print(f"Available: {orthogroups.shape[0]}, Required: {required_count}")
+
+        if force:
+            print("Returning all available orthogroups due to --force flag.")
+            return orthogroups
+        else:
+            print("Exiting. Use --force to override.")
+            sys.exit(1)
+    return None
 
 
 def generate_species_abundance(number_of_species, seed=None):
@@ -150,6 +170,7 @@ def generate_species_abundance(number_of_species, seed=None):
     Returns:
     list: A list of species abundances.
     """
+    model = get_pymc_model()
     with model:
         species_samples = pm.sample_prior_predictive(number_of_species, var_names=['species'], random_seed=seed)
     return species_samples.to_dataframe()['species'].to_list()
@@ -166,46 +187,49 @@ def generate_read_mean_counts(number_of_reads, seed=None):
     Returns:
     list: A list of read mean counts.
     """
+    model = get_pymc_model()
     with model:
         reads = pm.sample_prior_predictive(number_of_reads, var_names=['read_counts'], random_seed=seed)
     return reads.to_dataframe()["read_counts"].to_list()
 
 
-def generate_fold_changes(number_of_transcripts, dge_ratio):
+def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
     """
-    Generates a list of fold changes for each transcript based on the given ratio of up and down regulated genes.
-
-    Parameters:
-    number_of_transcripts (int): The total number of transcripts.
-    dge_ratio (tuple): A tuple representing the ratio of up regulated genes and down regulated genes. The first value
-                        represents the ratio of up regulated genes, the second represents the ratio of down regulated
-                        genes.
-
-    Returns:
-    list: A list of fold changes for each transcript. Each fold change is represented as a list of two values
-          representing the fold change for up and down regulation respectively.
-    """
-    dge_genes = random.sample(range(number_of_transcripts), int(sum(dge_ratio) * number_of_transcripts))
-    up_regulated = dge_genes[:int((dge_ratio[0] / sum(dge_ratio)) * len(dge_genes))]
-    fold_changes = [[1, 1] if i not in dge_genes else [2, 1] if i in up_regulated else [1, 2] for i in range(number_of_transcripts)]
-    return fold_changes
-
-
-def filter_genes_from_ground(gene_list, output_fasta):
-    """
-    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is perserved.
-
-    Parameters:
-    gene_list (list): A list of gene names.
-    output_fasta (str): Path to the output FASTA file where the sequences will be saved.
+    Writes genes from a list to a FASTA file. Duplicates will also be written, the order is preserved.
     """
     ground_genes = SeqIO.index_db(PATH_TO_GROUND_GENES_INDEX)
-    with open(output_fasta, "w") as outfile:
-        for gene in gene_list:
-            if gene in ground_genes:
-                SeqIO.write(ground_genes[gene], outfile, "fasta")
-            else:
-                print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    records = []
+    gtf_entries = []
+
+    for gene in gene_list:
+        try:
+            record = ground_genes[gene]
+            records.append(record)
+            gtf_entries.append({
+                "cds": gene,
+                "block_start": 1,
+                "end": len(record.seq),
+            })
+        except KeyError:
+            print(f"Critical Warning: Gene {gene} not found in the ground genes.")
+    SeqIO.write(records, output_fasta, "fasta")
+
+    blocks_df = pl.DataFrame(gtf_entries).with_columns(
+        pl.lit("marbel").alias("source"),
+        pl.lit("gene").alias("feature"),
+        pl.lit(".").alias("score"),
+        pl.lit("+").alias("strand"),
+        pl.lit(".").alias("frame"),
+        pl.format(
+            "gene_id {}; transcript_id {};",
+            pl.col("cds"), pl.col("cds")
+        ).alias("attributes"),
+        (pl.col("block_start") + 1).alias("gtf_start"),
+    )
+
+    blocks_df.select([
+        "cds", "source", "feature", "gtf_start", "end", "score", "strand", "frame", "attributes"
+    ]).write_csv(gtf_path, separator="\t", include_header=False)
 
 
 def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts):
@@ -249,65 +273,9 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
     return gene_summary_df
 
 
-def convert_fasta_dir_to_fastq_dir(fasta_dir, gzipped=True):
-    """
-    Converts a directory containing .fasta files to a directory containing .fastq files. If gzipped is True, the output files will be gzipped.
-
-    Parameters:
-    - fasta_dir (str): The path to the directory containing the .fasta files.
-    - gzipped (bool): Whether the output files should be gzipped.
-
-    Note that the input .fasta files will be removed after the conversion is done.
-    """
-    fasta_dir = Path(fasta_dir)
-    futures = []
-    max_workers = multiprocessing.cpu_count()
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        for fa_path in fasta_dir.glob("*.fasta"):
-            fq_path = fasta_dir / fa_path.with_suffix(".fastq.gz" if gzipped else ".fastq").name
-            if gzipped:
-                futures.append(executor.submit(write_as_fastq_gz, fa_path, fq_path))
-            else:
-                futures.append(executor.submit(write_as_fastq, fa_path, fq_path))
-        for future in as_completed(futures):
-            future.result()
-    for fa_path in fasta_dir.glob("*.fasta"):
-        os.remove(fa_path)
-
-
-def write_as_fastq_gz(fa_path, fq_path):
-    """
-    Converts a .fasta file to a .fastq.gz file. The function reads the .fasta file,
-    adds phred quality scores to each sequence and writes the output to a .fastq.gz file.
-
-    Args:
-        fa_path (str): Path to the input .fasta file.
-        fq_path (str): Path to the output .fastq.gz file.
-    """
-    with open(fa_path, "r") as fasta, bgzf.BgzfWriter(fq_path, "wb") as fastq_gz:
-        for record in SeqIO.parse(fasta, "fasta"):
-            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
-            SeqIO.write(record, fastq_gz, "fastq")
-
-
-def write_as_fastq(fa_path, fq_path):
-    """
-    Converts a .fasta file to a .fastq file. The function reads the .fasta file,
-    adds phred quality scores to each sequence and writes the output to a .fastq file.
-
-    Args:
-        fa_path (str): Path to the input .fasta file.
-        fq_path (str): Path to the output .fastq file.
-    """
-    with open(fa_path, "r") as fasta, open(fq_path, "w") as fastq:
-        for record in SeqIO.parse(fasta, "fasta"):
-            record.letter_annotations["phred_quality"] = [DEFAULT_PHRED_QUALITY] * len(record)
-            SeqIO.write(record, fastq, "fastq")
-
-
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, summary_dir):
+                            force, actual_orthogroups, min_overlap, summary_dir):
     """
     Writes the simulation parameters to the result_file.
 
@@ -343,9 +311,10 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
+        result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
 
 
-def generate_report(summary_dir, gene_summary):
+def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
     """
     Generates a report of the simulation parameters.
 
@@ -353,7 +322,8 @@ def generate_report(summary_dir, gene_summary):
         summary_dir (str): The output directory for the summary
         gene_summary (pandas.DataFrame): The summary of genes.
     """
-    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
+    species_tree = get_species_tree()
+    species_stats_dict = get_species_stats_dict()
     with open(f"{summary_dir}/species_tree.newick", "w") as f:
         species_subtree = species_tree.copy()
         species_subtree.prune(gene_summary["origin_species"].unique().tolist())
@@ -366,12 +336,34 @@ def generate_report(summary_dir, gene_summary):
     species_info_df.to_csv(f"{summary_dir}/species_stats.csv")
 
     number_of_genes = gene_summary.shape[0]
-    simulated_up_regulated_genes = sum(gene_summary["fold_change_ratio"] >= 2.0)
-    simulated_down_regulated_genes = sum(gene_summary["fold_change_ratio"] <= 0.5)
+    simulated_orthogroups = gene_summary["orthogroup"].unique().shape[0]
+    simulated_up_regulated_genes = sum(gene_summary["simulation_fold_change"] >= 2.0)
+    simulated_down_regulated_genes = sum(gene_summary["simulation_fold_change"] <= 0.5)
+    up_regulated_genes = sum(gene_summary["actual_log2fc"] >= 1.0)
+    down_regulated_genes = sum(gene_summary["actual_log2fc"] <= -1.0)
+
+    gene_summary = move_column(gene_summary, "actual_log2fc", 6)
+
+    gene_summary = gene_summary.rename(columns={"simulation_fold_change": "Fold Change used for simulating counts, differs from the actual fold change",
+                                                "actual_log2fc": "Actual LOG2 Fold Change (includes +-inf for zero counts in one group)"})
+
+    gene_summary.to_csv(f"{summary_dir}/gene_summary.csv", index=False)
+
     with open(f"{summary_dir}/simulation_stats.txt", "w") as f:
-        f.write(f"Number of selected genes: {number_of_genes}\n")
-        f.write(f"Number of up regulated genes: {simulated_up_regulated_genes} (percentage: {simulated_up_regulated_genes / number_of_genes})\n")
-        f.write(f"Number of down regulated genes: {simulated_down_regulated_genes} (percentage: {simulated_down_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of simulated genes: {number_of_genes}\n")
+        f.write(f"Number of simulated orthogroups:  {simulated_orthogroups}\n")
+        f.write(f"Dropped genes due to all zero assignment by distribution: {number_of_dropped_genes}\n")
+        f.write(f"Dropped orthogroups due to all zero assignment by distribution: {specified_orthogroups - simulated_orthogroups}\n")
+        f.write(f"Number of simulated up regulated genes: {simulated_up_regulated_genes} (percentage = {simulated_up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of simulated down regulated genes: {simulated_down_regulated_genes} (percentage = {simulated_down_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of up regulated genes (accoring to actual fold change): {up_regulated_genes} (percentage = {up_regulated_genes / number_of_genes})\n")
+        f.write(f"Number of down regulated genes (according to actual fold change): {down_regulated_genes} (percentage = {down_regulated_genes / number_of_genes})\n")
+
+
+def move_column(df, col_name, new_pos):
+    cols = list(df.columns)
+    cols.insert(new_pos, cols.pop(cols.index(col_name)))
+    return df[cols]
 
 
 def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
@@ -386,11 +378,11 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
         pandas.DataFrame: The summary df including the count matrix for the samples.
     """
     if first_group:
-        group = "group1"
+        group = "group_1"
     else:
-        group = "group2"
+        group = "group_2"
         gene_summary_df = gene_summary_df.copy()
-        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["fold_change_ratio"]
+        gene_summary_df["read_mean_count"] = gene_summary_df["read_mean_count"] * gene_summary_df["simulation_fold_change"]
 
     dispersion_df = pd.DataFrame({
         "gene_name": gene_summary_df["gene_name"],
@@ -406,7 +398,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
 
     simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
-    sample_columns = [f"sample_{i + 1}_{group}" for i in range(number_of_samples)]
+    sample_columns = [f"{group}_sample_{i + 1}" for i in range(number_of_samples)]
     simulated_data_matrix = pd.DataFrame(simulated_counts.T, columns=sample_columns)
     simulated_data_matrix.insert(0, "gene_name", dispersion_df["gene_name"])
 
@@ -414,7 +406,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, read_length, threads):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -423,7 +415,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         sample_name (str): The name of the sample.
         output_dir (str): The output directory for the fastq files.
         gzip (bool): Whether the fastq files should be gzipped.
-        model (ErrorModel): The error model for the reads (Illumina).
+        mode (str): The mode for the simulation. Can be 'kde', 'perfect' or 'basic'.
+        model (str): The error model for the reads Illumina (InSilicoSeq Simulation). Can be None.
         seed (int): The seed for the simulation. Can be None.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
@@ -432,14 +425,6 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
     number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
     number_of_pairs["absolute_numbers"] = number_of_pairs["absolute_numbers"] * 2
     number_of_pairs.to_csv(read_count_file, sep="\t", index=False, header=False)
-
-    mode = "kde"
-    if model == ErrorModel.basic or model == ErrorModel.perfect:
-        mode = model
-        model = None
-    elif read_length:
-        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
-        # TODO write the read length of the selected model
 
     args = argparse.Namespace(
         mode=mode,
@@ -500,28 +485,73 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     return sample_library_sizes
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, sample_library_sizes, read_length, threads, bar):
-    """"
-    Calls the create_fastq_file function for each sample in the gene_summary_df.
+def scale_fastq_samples(gene_summary_df, sample_library_sizes):
+    """
+    Scales each sample in the gene_summary_df to scaled library size.
 
     Parameters:
-        gene_summary_df (pandas.DataFrame): A dataframe with the necessary information to create the fastq files.
+        gene_summary_df (pandas.DataFrame): Dataframe containing simuzlation information
+        sample_library_sizes (list): The library sizes for each sample.
+        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
+        threads (int): The number of threads to use.
+    Returns:
+        pandas.DataFrame: The filtered dataframe with all-zero columns removed.
+        """
+    # scale to library size
+    gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
+    # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
+    for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
+        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
+        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+
+    return gene_summary_df
+
+
+def determine_mode_and_model(model, read_length):
+    mode = "kde"
+    if model == ErrorModel.basic or model == ErrorModel.perfect:
+        mode = model
+        model = None
+    elif read_length:
+        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
+        # TODO write the read length of the selected model
+    return mode, model
+
+
+def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, seed, read_length, threads, bar):
+    """
+    Calls the create_fastq_file function for each sample in the gene_summary_df.
+    Parameters:
         outdir (str): The output directory for the fastq files.
         compression (bool): Whether the fastq files should be gzipped.
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
-        sample_library_sizes (list): The library sizes for each sample.
-        read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
-        threads (int): The number of threads to use.
-        """
-    gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
-    for sample, sample_library_size in zip([col for col in list(gene_summary_df.columns) if col.startswith("sample")], sample_library_sizes):
-        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
-        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+    """
+    for sample in [col for col in gene_summary_df.columns if "sample" in col]:
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
-        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
+        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads)
         bar.next()
+    bar.finish()
+
+
+def get_all_zero_genes(gene_summary_df):
+    """
+    Get all genes of the gene_summary_df with all-zero columns.
+    Parameters:
+        gene_summary_df (pandas.DataFrame): The gene summary dataframe.
+    Returns:
+        set: A set of all zero genes.
+    """
+    pl_df = pl.DataFrame(gene_summary_df)
+    sample_cols = [col for col in pl_df.columns if "sample" in col]
+    all_zero_genes = (
+        pl_df.filter(pl.all_horizontal([pl.col(col) == 0 for col in sample_cols]))
+        .select("gene_name")
+        .to_series()
+        .to_list()
+    )
+    return set(all_zero_genes)
 
 
 def draw_dge_factors(dge_ratio, number_of_selected_genes):
@@ -587,6 +617,7 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
     random_species = random.randint(0, MAX_SPECIES)
     chosen_species = [random_species]
     # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
+    pg_overview = get_pg_overview()
     id_sets = pg_overview.apply(lambda x: frozenset([i for i in range(0, MAX_SPECIES) if x.iloc[i] != "-"]), axis=1)
 
     for _ in range(number_of_species - 1):
@@ -611,16 +642,14 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
 def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
-    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - len(x[x == "-"]), axis=1)
+    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - (x == "-").sum(), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
     orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
     orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
-    if orthogroups.shape[0] < number_of_groups and not force:
-        print("Error: Not enough orthogroups to satisfy the parameters, specify different parameters, i.e. higher number of species, less orthogroups and less stringent sequence similarity and allow more phygenetic distance.")
-        print(f"Number of available max orthogroups: {orthogroups.shape[0]}")
-        quit()
-    elif force:
-        return orthogroups
+    check_force_result = check_enough_orthogroups(orthogroups, number_of_groups, force)
+    if check_force_result is not None:
+        return check_force_result
+
     return orthogroups.head(number_of_groups)
 
 
@@ -629,24 +658,92 @@ def calc_zero_ratio(df):
     return (df == 0).sum().sum() / df.size
 
 
-def add_extra_sparsity(gene_summary_df, sparsity_target):
-    filtered_counts = gene_summary_df.loc[:, gene_summary_df.columns.str.contains("sample_")].copy()
+def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
+    """"
+    Adds more zeros to dataframe to reach sparsity target. Will avoid all-zero rows. This means target sparsity may not be reached.
 
-    marbel_mean = calc_zero_ratio(filtered_counts)
-    difference_to_mean = sparsity_target - marbel_mean
+    Parameters:
+        gene_summary_df (pd.Dataframe): The ratio of up and downregulated genes
+        sparsity_target (float): Sparsity target, between 0 and 1
+        seed (int): Random seed for reproducibility.
 
-    if difference_to_mean > 0:
-        gene_summary_numeric = gene_summary_df.apply(pd.to_numeric, errors="coerce")
+    Returns:
+        pd.Dataframe: The dataframe with added zeros, provided sparsity target is not already reached.
+    """
+    gene_summary_df = pl.DataFrame(gene_summary_df)
+    sample_cols = [col for col in gene_summary_df.columns if "sample" in col]
+    df_filtered = gene_summary_df.select(sample_cols)
+    df_np = df_filtered.to_numpy().copy()
+    total_cells = df_np.size
+    current_zeros = np.count_nonzero(df_np == 0)
+    target_zeros = int(np.ceil(total_cells * sparsity_target))
 
-        # select non zero integers for sparsity
-        all_non_zero_integers = np.where((gene_summary_numeric.to_numpy() != 0) & (gene_summary_numeric.to_numpy() == gene_summary_numeric.to_numpy().astype(int)))
-        cells_to_zero = min(round(difference_to_mean * filtered_counts.size), len(all_non_zero_integers[0]))
-        zero_indices = np.random.choice(len(all_non_zero_integers[0]), cells_to_zero, replace=False)
-        indices_to_zero = (all_non_zero_integers[0][zero_indices], all_non_zero_integers[1][zero_indices])
+    n_to_zero = target_zeros - current_zeros
 
-        # convert to numpy array, iloc based modification did not work
-        arr = gene_summary_df.to_numpy()
-        arr[indices_to_zero] = 0
-        gene_summary_df[:] = arr
+    if n_to_zero <= 0:
+        return gene_summary_df.to_pandas()
 
-    return gene_summary_df
+    rng = np.random.default_rng(seed)
+    safe_indices = []
+
+    for i, row in enumerate(df_np):
+        nonzero_cols = np.flatnonzero(row != 0)
+        if len(nonzero_cols) > 1:
+            reserved = rng.choice(nonzero_cols, 1)
+            available = [c for c in nonzero_cols if c != reserved]
+            safe_indices.extend((i, c) for c in available)
+
+    if not safe_indices:
+        return gene_summary_df.to_pandas()
+
+    safe_indices = np.array(safe_indices)
+
+    n_to_zero = min(n_to_zero, len(safe_indices))
+
+    if n_to_zero < target_zeros - current_zeros:
+        print(f"Can only zero {n_to_zero} cells without causing all-zero rows.")
+
+    selected = rng.choice(len(safe_indices), n_to_zero, replace=False)
+    rows, cols = safe_indices[selected].T
+    df_np[rows, cols] = 0
+
+    updated_sample_cols = [
+        pl.Series(name, df_np[:, i]) for i, name in enumerate(sample_cols)
+    ]
+    return gene_summary_df.with_columns(updated_sample_cols).to_pandas()
+
+
+def add_actual_log2fc(gene_summary_df):
+    gene_summary_df = pl.DataFrame(gene_summary_df)
+    sample_cols_group_1 = [col for col in gene_summary_df.columns if "group_1" in col]
+    sample_cols_group_2 = [col for col in gene_summary_df.columns if "group_2" in col]
+
+    gene_summary_df = gene_summary_df.with_columns([
+        pl.sum_horizontal(sample_cols_group_1).alias("sum_group1"),
+        pl.sum_horizontal(sample_cols_group_2).alias("sum_group2"),
+    ]).with_columns([
+        (pl.col("sum_group2") / (pl.col("sum_group1"))).alias("fold_change")
+    ]).with_columns([
+        pl.col("fold_change").log(2).alias("actual_log2fc"),
+    ]).drop(["sum_group1", "sum_group2", "fold_change"])
+
+    return gene_summary_df.to_pandas()
+
+
+def add_counts_to_large_orthogroups(gene_summary, species_count):
+    og_sizes = gene_summary["orthogroup"].value_counts()
+    large_orthogroups = og_sizes[og_sizes == species_count].index.to_list()
+    og_to_modify = random.choice(large_orthogroups)
+
+    filtered_gene_summary = gene_summary[gene_summary["orthogroup"] == og_to_modify]
+
+    count_cols = [col for col in gene_summary.columns if "sample" in col]
+    row_indices = []
+
+    for row in filtered_gene_summary[count_cols].iterrows():
+        if sum(row[1]) == 0:
+            row_indices.append(row[0])
+
+    for row_index in row_indices:
+        sample_to_one = random.choice(count_cols)
+        gene_summary.at[row_index, sample_to_one] = 1

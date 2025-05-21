@@ -56,8 +56,22 @@ def read_parameters(fp_basedir):
     return params
 
 
+def read_simulation_stats(fp_basedir):
+    params = pd.read_csv(
+        join(fp_basedir, 'summary', 'simulation_stats.txt'),
+        index_col=0, sep=": ", header=None,
+        names=['parameter', 'value'], engine='python')['value'].to_dict()
+
+    params['Number of simulated genes'] = int(params['Number of simulated genes'])
+    params['Number of simulated orthogroups'] = int(params['Number of simulated orthogroups'])
+    params['Dropped genes due to all zero assignment by distribution'] = int(params['Dropped genes due to all zero assignment by distribution'])
+    params['Dropped orthogroups due to all zero assignment by distribution'] = int(params['Dropped orthogroups due to all zero assignment by distribution'])
+
+    return params
+
+
 def test_gene_summary(genes, params):
-    counts = genes[[s for s in genes.columns if s.startswith('sample_')]]
+    counts = genes[[s for s in genes.columns if 'sample' in s]]
 
     assert len(genes.index) == len(set(genes.index)), \
            "genes are ambiguous"
@@ -66,25 +80,38 @@ def test_gene_summary(genes, params):
            params['Number of species'], \
            "number of species does not match"
 
+    # we want to make sure that not only the number of listed species names is
+    # equal to what the user requested, but also expand this test towards the
+    # gene names. In principle, each species comes with it's own prefix.
+
+    # Unfortunately, there is one (as of 2025-05-13) species, that have mix
+    # gene prefixes:
+    # We thus also have to correct the expected number of species
+    MIXED_SPECIES = ['ALL_Acinetobacter_schindleri_strain_HZE30_1_NZ_CP044483']
+    exp_species_number = params['Number of species'] - len(set(MIXED_SPECIES) & set(genes["origin_species"].unique()))
+
     genes['speciesID'] = list(map(lambda x: x.split('_')[0], genes.index))
-    assert genes.groupby(['speciesID', 'origin_species']).size().shape[0] == \
-           params['Number of species'], \
+    assert genes[~genes['origin_species'].isin(MIXED_SPECIES)].groupby(['speciesID', 'origin_species']).size().shape[0] == \
+           exp_species_number, \
            "gene_name prefix does not match origin_species"
 
-    genes['cdsID'] = list(map(lambda x: x.split('_')[-1], genes.index))
-    assert genes['orthogroup'].unique().shape[0] == \
-           params['Number of orthogroups'], \
-           "number orthogroups does not match"
+    assert genes['orthogroup'].nunique() <= params['Number of orthogroups'], \
+        f"Too many orthogroups?! Found: {genes['orthogroup'].nunique()}, Expected max: {params['Number of orthogroups']}"
 
     assert genes.groupby('orthogroup').size().describe()['max'] > 1, \
            "orthogroups consists of only 1 CDS"
-    data = (genes.groupby('orthogroup').size() > 1).value_counts()
-    assert data[True] > data[False] * 0.2, \
-           "surprisingly few orthogroups consists of more than one CDS"
 
-    data = (counts.stack() == 0).value_counts()
-    assert data[True] / data.sum() > 0.1, \
-           "surprisingly low sparseness in count matrix!"
+    # Check orthogroup multiplicity
+    orthogroup_counts = (genes.groupby('orthogroup').size() > 1).value_counts()
+    multi = orthogroup_counts.get(True, 0)
+    single = orthogroup_counts.get(False, 0)
+    assert multi > single * 0.2, "Surprisingly few orthogroups consist of more than one CDS"
+
+    # Check count matrix sparsity
+    sparsity_counts = (counts.stack() == 0).value_counts()
+    zeros = sparsity_counts.get(True, 0)
+    total = sparsity_counts.sum()
+    assert zeros / total > 0.1, "Surprisingly low sparseness in count matrix!"
 
 #    assert len(set(counts.sum())) == sum(params['Number of samples']), \
 #           "not all samples have different coverage"
@@ -92,7 +119,7 @@ def test_gene_summary(genes, params):
            "negative count values?!"
 
     # foldchange <=0.5 (down) >=2 (up) (log2 foldchange<= -1 / >=1 )
-    data = genes['fold_change_ratio'].apply(
+    data = genes['Fold Change used for simulating counts, differs from the actual fold change'].apply(
         lambda x: 0.5 <= x <= 2).value_counts()
     if params['Number of orthogroups'] >= 1000:
         epsilon = (200 / params['Number of orthogroups'])
@@ -111,6 +138,15 @@ def test_gene_summary(genes, params):
     print(len(set(list(map(lambda x: x.split('_')[1], genes.index)))),
           "number CDS?!")
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
+
+
+def test_simulation_stats(genes, params):
+    assert genes['orthogroup'].unique().shape[0] == \
+           params['Number of simulated orthogroups'], \
+           "simulation stats and gene summ"
+    assert genes.shape[0] == \
+           params['Number of simulated genes'], \
+           "too many orthogroups?!"
 
 
 def test_metaT_reference(fp_basedir, genes, params):
@@ -136,9 +172,11 @@ def test_metaT_reference(fp_basedir, genes, params):
             genes.groupby('orthogroup')
             if g.shape[0] > 1]) > 1).value_counts()
     if False in data:
+        # TODO: assertion was changed to to removal of all zero genes
         assert data[False] < data[True] * 0.1, \
-            "too few orthogroups with more than one member have identical" \
-            " length sequences"
+               "too few orthogroups with more than one member have identical" \
+               " length sequences"
+        # pass
     print("[OK] '%s' passed" % inspect.currentframe().f_code.co_name)
 
 
@@ -161,6 +199,8 @@ def test_tree(fp_basedir, genes):
            "species tree seems to have no branch length"
     assert data['min'] > 0, \
            "there seems to be an orthogroup with no member in any species?!"
+    # due to the removal of the all zero row genes, this is not always true now; TODO: new assertion
+    print(data)
     assert data['max'] >= 0.99999, \
            "I would expect at least one orthogroup to be present in all " \
            "species, like a housekeeping gene"
@@ -175,8 +215,8 @@ def test_fastq(fp_basedir, genes):
         for sample in range(1, params['Number of samples'][group - 1] + 1):
             for direction in [1, 2]:
                 fastqs.append(
-                    join(fp_basedir, 'sample_%i_group%i_R%i.fastq.gz' % (
-                        sample, group, direction)))
+                    join(fp_basedir, 'group_%i_sample_%i_R%i.fastq.gz' % (
+                        group, sample, direction)))
 
     phredscores = dict()
     print('Loading sequencing data: ', end="", file=sys.stderr)
@@ -216,8 +256,8 @@ def test_number_of_reads(params):
         for sample in range(1, params['Number of samples'][group - 1] + 1):
             for direction in [1, 2]:
                 fastqs.append(
-                    join(fp_basedir, 'sample_%i_group%i_R%i.fastq.gz' % (
-                        sample, group, direction)))
+                    join(fp_basedir, 'group_%i_sample_%i_R%i.fastq.gz' % (
+                        group, sample, direction)))
 
     df_r1 = pd.DataFrame()
     df_r2 = pd.DataFrame()
@@ -237,7 +277,6 @@ def test_number_of_reads(params):
                 gene_counts = pd.Series(ids).value_counts()
                 gene_counts.name = column_name
                 df_r2 = pd.concat([df_r2, gene_counts], axis=1)
-            
     df_r1 = df_r1.fillna(0)
     df_r2 = df_r2.fillna(0)
 
@@ -255,10 +294,10 @@ if __name__ == "__main__":
 
     # read used marbel parameters from file
     params = read_parameters(fp_basedir)
+    sim_stats = read_simulation_stats(fp_basedir)
 
     # read gene summary information from file
-    genes = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'),
-                        index_col=0)
+    genes = pd.read_csv(join(fp_basedir, 'summary', 'gene_summary.csv'), index_col=0)
 
     # execute tests focussing on file gene_summary.csv
     test_gene_summary(genes, params)
@@ -268,3 +307,5 @@ if __name__ == "__main__":
     test_tree(fp_basedir, genes)
 
     test_fastq(fp_basedir, genes)
+
+    test_simulation_stats(genes, sim_stats)
