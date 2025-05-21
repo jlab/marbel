@@ -1,6 +1,4 @@
-import pytest
 import polars as pl
-import numpy as np
 from marbel.block_generation import aggregate_blocks, write_block_gtf, write_blocks_fasta, write_blocks_fasta_bedtools, map_blocks_to_genomic_location, calculate_overlap_blocks
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord

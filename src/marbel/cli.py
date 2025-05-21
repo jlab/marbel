@@ -116,9 +116,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."
                                                   "This is a random drawing process from normal distribution, so the actual ratio might vary.")] = 0.2,
          seed: Annotated[int, typer.Option(help="Seed for the sampling. Set for reproducibility")] = None,
-         error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length")] = ErrorModel.HiSeq,
+         error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length. Note that read lenght must be set when using basic or perfect.")] = ErrorModel.HiSeq,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
-         read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = 120,
+         read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = None,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
@@ -129,6 +129,14 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
          min_overlap: Annotated[int, typer.Option(help="Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome. Accounts for kmer size.")] = 16,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
+
+    if error_model == ErrorModel.basic or error_model == ErrorModel.perfect:
+        if read_length is None:
+            if force_creation:
+                print("Warning: Read length is not specified. Using default read length of 100, because --force-creation is set.")
+                read_length = 100
+            else:
+                raise typer.BadParameter('Read length must be specified when using --error-model "basic" or "perfect".')
 
     library_size_distribution = library_size_distribution_callback(library_size_distribution)
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,

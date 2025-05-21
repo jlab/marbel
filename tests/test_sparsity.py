@@ -16,6 +16,7 @@ def generate_sparse_df(rows, cols, init_sparsity, seed):
     col_names = [f"sample_{i}" for i in range(cols)]
     return pd.DataFrame(values, columns=col_names)
 
+
 @pytest.mark.parametrize("rows", [5, 10])
 @pytest.mark.parametrize("cols", [3, 6])
 @pytest.mark.parametrize("init_sparsity", [0.0, 0.1, 0.2, 0.3, 0.4])

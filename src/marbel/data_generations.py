@@ -406,7 +406,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, read_length, threads):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -415,7 +415,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
         sample_name (str): The name of the sample.
         output_dir (str): The output directory for the fastq files.
         gzip (bool): Whether the fastq files should be gzipped.
-        model (ErrorModel): The error model for the reads (Illumina).
+        mode (str): The mode for the simulation. Can be 'kde', 'perfect' or 'basic'.
+        model (str): The error model for the reads Illumina (InSilicoSeq Simulation). Can be None.
         seed (int): The seed for the simulation. Can be None.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
@@ -424,14 +425,6 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, model, seed, rea
     number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
     number_of_pairs["absolute_numbers"] = number_of_pairs["absolute_numbers"] * 2
     number_of_pairs.to_csv(read_count_file, sep="\t", index=False, header=False)
-
-    mode = "kde"
-    if model == ErrorModel.basic or model == ErrorModel.perfect:
-        mode = model
-        model = None
-    elif read_length:
-        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
-        # TODO write the read length of the selected model
 
     args = argparse.Namespace(
         mode=mode,
@@ -514,7 +507,18 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
     return gene_summary_df
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read_length, threads, bar):
+def determine_mode_and_model(model, read_length):
+    mode = "kde"
+    if model == ErrorModel.basic or model == ErrorModel.perfect:
+        mode = model
+        model = None
+    elif read_length:
+        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
+        # TODO write the read length of the selected model
+    return mode, model
+
+
+def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, seed, read_length, threads, bar):
     """
     Calls the create_fastq_file function for each sample in the gene_summary_df.
     Parameters:
@@ -526,7 +530,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, model, seed, read
     for sample in [col for col in gene_summary_df.columns if "sample" in col]:
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
-        create_fastq_file(sample_copy, sample, outdir, compression, model, seed, read_length, threads)
+        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads)
         bar.next()
     bar.finish()
 
