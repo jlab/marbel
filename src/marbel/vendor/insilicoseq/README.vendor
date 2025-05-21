@@ -1,0 +1,16 @@
+## Vendored Code Notice
+
+This code is vendored from [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq), originally licensed under the MIT License.
+
+### Upstream Repository
+https://github.com/HadrienG/InSilicoSeq  
+Used tag: [2.0.1](https://github.com/HadrienG/InSilicoSeq/releases/tag/2.0.1)
+
+### Forked and Modified Version
+https://github.com/jlab/InSilicoSeq  
+Used tag: [v0.1.0.marbeldep](https://github.com/jlab/InSilicoSeq/releases/tag/v0.1.0.marbeldep)
+
+### License
+Code in this folder and its subfolders is provided under the [MIT License](LICENSE), as per the original authors.  
+All original copyright and license information has been preserved.
+
