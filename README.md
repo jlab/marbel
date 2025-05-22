@@ -233,7 +233,6 @@ https://www.anaconda.com/docs/tools/anaconda-org/user-guide/packages/conda-packa
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
 
-
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE.md).
@@ -253,7 +252,7 @@ This project includes code from the [InSilicoSeq](https://github.com/HadrienG/In
 
 #### License
 
-The vendored code is included in the `src/marbel/vendor/insilicoseq/` directory and retains the original
+The vendored code is included in the `src/marbel/vendor/insilicoseq/` and `tests/vendor/insilicoseq`directory and retains the original
 [MIT License](third_party_licenses/LICENSE_InSilicoSeq).
 
 Modifications may have been made to adapt the code for integration with this project.
