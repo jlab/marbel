@@ -5,7 +5,7 @@ from Bio import SeqIO
 import os
 import random
 import argparse
-from marbel.vendor.insilicoseq.app import generate_reads
+from insilicicoseq_marbeldep.app import generate_reads
 from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
