@@ -28,7 +28,7 @@ jobs:
     - name: Install modified insilicoseq
       run: |
         wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
-        $CONDA/bin/conda  python -m pip install v0.1.1.marbeldep.tar.gz
+        $CONDA/bin/python -m pip install v0.1.1.marbeldep.tar.gz
 
     - name: Lint with flake8
       run: |
