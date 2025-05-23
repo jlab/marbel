@@ -236,26 +236,7 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE.md).
-It also includes a vendored dependency under the MIT License. See [`third_party_licenses/LICENSE_InSilicoSeq`](third_party_licenses/LICENSE_InSilicoSeq) for details.
 
----
+## Support
 
-### Vendored Dependency: InSilicoSeq
-
-This project includes code from the [InSilicoSeq](https://github.com/HadrienG/InSilicoSeq) repository, which is licensed under the MIT License.
-
-#### Provenance
-
-- **Original repository**: [HadrienG/InSilicoSeq](https://github.com/HadrienG/InSilicoSeq)Tag used: [2.0.1](https://github.com/HadrienG/InSilicoSeq/releases/tag/2.0.1)
-- **Modified fork**: [jlab/InSilicoSeq](https://github.com/jlab/InSilicoSeq)
-  Tag used: [v0.1.0.marbeldep](https://github.com/jlab/InSilicoSeq/releases/tag/v0.1.0.marbeldep)
-
-#### License
-
-The vendored code is included in the `src/marbel/vendor/insilicoseq/` and `tests/vendor/insilicoseq`directory and retains the original
-[MIT License](third_party_licenses/LICENSE_InSilicoSeq).
-
-Modifications may have been made to adapt the code for integration with this project.
-All rights remain with the original authors where applicable.
-
-Feel free to reach out if you have any questions or need further assistance with the usage of the tool.
+Feel free to reach out or open an issue if you have any questions or need further assistance with the usage of the tool.
