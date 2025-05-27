@@ -733,6 +733,11 @@ def add_actual_log2fc(gene_summary_df):
 def add_counts_to_large_orthogroups(gene_summary, species_count):
     og_sizes = gene_summary["orthogroup"].value_counts()
     large_orthogroups = og_sizes[og_sizes == species_count].index.to_list()
+
+    if not large_orthogroups:
+        print("Warning: No orthogroups with the specified number of species found. Skipping count addition.")
+        return
+
     og_to_modify = random.choice(large_orthogroups)
 
     filtered_gene_summary = gene_summary[gene_summary["orthogroup"] == og_to_modify]
