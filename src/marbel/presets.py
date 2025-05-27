@@ -1,7 +1,7 @@
 from importlib import resources
 from enum import Enum
 
-__version__ = "0.2.0"
+__version__ = "0.2.2"
 
 READS_MEAN_LOG = 5.57141333132782
 READS_SD_LOG = 2.1412080853728

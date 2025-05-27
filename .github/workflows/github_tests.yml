@@ -24,6 +24,11 @@ jobs:
     - name: Install dependencies
       run: |
         $CONDA/bin/conda env update --file environment.yml --name base
+  
+    - name: Install modified insilicoseq
+      run: |
+        wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
+        $CONDA/bin/python -m pip install v0.1.1.marbeldep.tar.gz
 
     - name: Lint with flake8
       run: |
@@ -57,7 +62,11 @@ jobs:
         auto-activate-base: false
         channels: conda-forge,defaults
         use-mamba: true
-
+   
+    - name: Install modified insilicoseq
+      run: |
+        wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
+        pip install v0.1.1.marbeldep.tar.gz
     - name: Install the package
       run: |
         pip install -e .
