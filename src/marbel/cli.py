@@ -45,7 +45,7 @@ def sample_callback(value: Optional[Tuple[int, int]]):
 
 def dge_ratio_callback(value: float):
     if value < 0:
-        raise typer.BadParameter("Ratio cannot be negative")
+        raise typer.BadParameter("DGE ratio cannot be negative")
     if value >= 1:
         raise typer.BadParameter("DGE ratio must be smaller than 1")
     return value
@@ -125,7 +125,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
-         min_sparsity: Annotated[float, typer.Option(help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
+         min_sparsity: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
          force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
          min_overlap: Annotated[int, typer.Option(help="Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome. Accounts for kmer size.")] = 16,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):

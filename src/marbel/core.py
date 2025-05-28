@@ -75,6 +75,10 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
 
+    # add extra sparsity if requested, i guess it makes more sense before scaling to library size
+    if min_sparsity > 0:
+        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, seed)
+
     # scale to library size
     gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
 
@@ -84,9 +88,6 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     # filter all zero genes
     all_zero_genes = dg.get_all_zero_genes(gene_summary_df)
     gene_summary_df = gene_summary_df[~gene_summary_df["gene_name"].isin(all_zero_genes)]
-
-    if min_sparsity > 0:
-        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, seed)
 
     paths = get_summary_paths(outdir)
 
