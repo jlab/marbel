@@ -42,6 +42,7 @@ requirements:
     - polars
     - pysam
     - requests
+    - threadpoolctl
 
 test:
   commands:

@@ -95,6 +95,15 @@ def rank_species_callback(value: Optional[str]):
             raise typer.BadParameter(f"Rank {value} is not a valid rank or a valid float. Choose from {list(rank_distance.keys())} or specify a float.")
 
 
+def limitthreads(value: int):
+    if value < 1:
+        raise typer.BadParameter("The number of threads must be at least 1")
+    if value > 128:
+        print("Info: The number of threads is set to 128, which is the upper limit.")
+        value = 128
+    return value
+
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help=f"Number of species to be drawn for the metatranscriptomic in silico dataset. Maximum value: {MAX_SPECIES}.")] = 20,
@@ -122,7 +131,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
-         threads: Annotated[int, typer.Option(help="Number of threads to be used")] = 10,
+         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Uppler limit: 128.")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
