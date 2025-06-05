@@ -3,6 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 import polars as pl
+import sys
 
 from marbel.presets import SelectionCriterion, OrthologyLevel
 from marbel import data_generations as dg
@@ -75,6 +76,10 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
 
+    # add extra sparsity if requested, I guess it makes more sense before scaling to library size
+    if min_sparsity > 0:
+        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, seed)
+
     # scale to library size
     gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
 
@@ -84,9 +89,6 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     # filter all zero genes
     all_zero_genes = dg.get_all_zero_genes(gene_summary_df)
     gene_summary_df = gene_summary_df[~gene_summary_df["gene_name"].isin(all_zero_genes)]
-
-    if min_sparsity > 0:
-        gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, seed)
 
     paths = get_summary_paths(outdir)
 
@@ -132,9 +134,9 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     number_of_simulated_orhtogroups = gene_summary_df["orthogroup"].unique().shape[0]
     if number_of_simulated_orhtogroups < number_of_orthogroups:
-        print(f"Info: The simulated number of orthogroups is smaller than the requested number of orthogroups. {number_of_simulated_orhtogroups} < {number_of_orthogroups}")
-        print("This is due to the removal of genes with all zero counts.")
-        print("Possible adjustment of the parameters: decrease orthogroups, increase library size, change deseq_dispersion_parameters or decrease minimum sparsity")
+        print(f"Info: The simulated number of orthogroups is smaller than the requested number of orthogroups. {number_of_simulated_orhtogroups} < {number_of_orthogroups}", file=sys.stderr)
+        print("This is due to the removal of genes with all zero counts.", file=sys.stderr)
+        print("Possible adjustment of the parameters: decrease orthogroups, increase library size, change deseq_dispersion_parameters or decrease minimum sparsity", file=sys.stderr)
 
 
 def bar_next(bar):
