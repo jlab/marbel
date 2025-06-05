@@ -146,15 +146,15 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, forc
 
 def check_enough_orthogroups(orthogroups, required_count, force):
     if orthogroups.shape[0] < required_count:
-        print("Not enough orthogroups to satisfy the parameters.")
-        print("Try increasing the number of species, relaxing filters, or lowering the count.")
-        print(f"Available: {orthogroups.shape[0]}, Required: {required_count}")
+        print("Not enough orthogroups to satisfy the parameters.", file=sys.stderr)
+        print("Try increasing the number of species, relaxing filters, or lowering the count.", file=sys.stderr)
+        print(f"Available: {orthogroups.shape[0]}, Required: {required_count}", file=sys.stderr)
 
         if force:
-            print("Returning all available orthogroups due to --force flag.")
+            print("Returning all available orthogroups due to --force flag.", file=sys.stderr)
             return orthogroups
         else:
-            print("Exiting. Use --force to override.")
+            print("Exiting. Use --force to override.", file=sys.stderr)
             sys.exit(1)
     return None
 
@@ -513,7 +513,7 @@ def determine_mode_and_model(model, read_length):
         mode = model
         model = None
     elif read_length:
-        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.")
+        print("Warning: Read length is ignored if model is not 'basic' or 'perfect'.", file=sys.stderr)
         # TODO write the read length of the selected model
     return mode, model
 
@@ -735,7 +735,7 @@ def add_counts_to_large_orthogroups(gene_summary, species_count):
     large_orthogroups = og_sizes[og_sizes == species_count].index.to_list()
 
     if not large_orthogroups:
-        print("Warning: No orthogroups with the specified number of species found. Skipping count addition.")
+        print("Info: No orthogroups with the specified number of species found. Skipping count addition.", file=sys.stderr)
         return
 
     og_to_modify = random.choice(large_orthogroups)

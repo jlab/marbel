@@ -2,6 +2,8 @@ from typing import Optional, Tuple
 from typing_extensions import Annotated
 
 import typer
+import os
+import sys
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
 from marbel.core import generate_dataset
@@ -96,10 +98,13 @@ def rank_species_callback(value: Optional[str]):
 
 
 def limitthreads(value: int):
-    if value < 1:
-        raise typer.BadParameter("The number of threads must be at least 1")
-    if value > 128:
-        print("Info: The number of threads is set to 128, which is the upper limit.")
+    if value == 0 or value == -1:
+        value = min(os.cpu_count() or 1, 128)
+        print(f"Info: Automatic thread detection, detected: {value} threads.", file=sys.stderr)
+    elif value < 1:
+        raise typer.BadParameter("The number of threads must be at least 1. Use 0 or -1 for automatic thread detection.")
+    elif value > 128:
+        print("Info: The number of threads is set to 128, which is the upper limit.", file=sys.stderr)
         value = 128
     return value
 
@@ -131,7 +136,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
-         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Uppler limit: 128.")] = 10,
+         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto detection. Uppler limit: 128.")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
@@ -142,7 +147,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     if error_model == ErrorModel.basic or error_model == ErrorModel.perfect:
         if read_length is None:
             if force_creation:
-                print("Warning: Read length is not specified. Using default read length of 100, because --force-creation is set.")
+                print("Info: Read length is not specified. Using default read length of 100, because --force-creation is set.", file=sys.stderr)
                 read_length = 100
             else:
                 raise typer.BadParameter('Read length must be specified when using --error-model "basic" or "perfect".')
