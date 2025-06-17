@@ -4,6 +4,8 @@ from typing_extensions import Annotated
 import typer
 import os
 import sys
+import shutil
+
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
 from marbel.core import generate_dataset
@@ -109,6 +111,15 @@ def limitthreads(value: int):
     return value
 
 
+def check_outdir(outdir, force_creation):
+    if os.path.exists(outdir) and os.path.isdir(outdir):
+        if force_creation:
+            print(f"Info: The output directory {outdir} already exists. Overwriting the existing directory because of force.", file=sys.stderr)
+            shutil.rmtree(outdir)
+            return
+        raise typer.BadParameter(f"The output directory {outdir} already exists. Please choose a different directory or remove the existing one.")
+
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help=f"Number of species to be drawn for the metatranscriptomic in silico dataset. Maximum value: {MAX_SPECIES}.")] = 20,
@@ -136,7 +147,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
-         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto detection. Uppler limit: 128.")] = 10,
+         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto etection. Uppler limit: 128.")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
@@ -151,6 +162,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                 read_length = 100
             else:
                 raise typer.BadParameter('Read length must be specified when using --error-model "basic" or "perfect".')
+
+    check_outdir(outdir, force_creation)
 
     library_size_distribution = library_size_distribution_callback(library_size_distribution)
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
