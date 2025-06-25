@@ -15,7 +15,7 @@ from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedto
 def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
                      error_model, compressed, read_length, library_size, library_size_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
-                     min_sparsity, force_creation, min_overlap):
+                     min_sparsity, force_creation, min_overlap, error_multiplier):
     bar = Bar('Generating random numbers for dataset', max=5)
 
     bar.start()
@@ -95,14 +95,14 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     dg.filter_genes_from_ground(gene_summary_df["gene_name"].to_list(), paths["cds_ref_fasta"], paths["ref_gtf"])
 
     mode, model = dg.determine_mode_and_model(error_model, read_length)
-    dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, seed, read_length, threads, bar)
+    dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, seed, read_length, threads, error_multiplier, bar)
 
     gene_summary_df = dg.add_actual_log2fc(gene_summary_df)
     dg.generate_report(paths["summary_dir"], gene_summary_df, len(all_zero_genes), n_orthogroups)
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"])
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier)
 
     # use cat for better performance if available
     if is_cat_available():

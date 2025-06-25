@@ -275,7 +275,7 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, min_overlap, summary_dir):
+                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier):
     """
     Writes the simulation parameters to the result_file.
 
@@ -312,6 +312,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
+        result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
@@ -406,7 +407,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads, error_multiplier):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -451,7 +452,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         gc_bias=False,
         compress=gzip,
         debug=True,
-        quiet=False
+        quiet=False,
+        error_multiplier=error_multiplier
     )
     generate_reads(args)
     if os.path.exists(read_count_file):
@@ -518,7 +520,7 @@ def determine_mode_and_model(model, read_length):
     return mode, model
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, seed, read_length, threads, bar):
+def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, seed, read_length, threads, error_multiplier, bar):
     """
     Calls the create_fastq_file function for each sample in the gene_summary_df.
     Parameters:
@@ -530,7 +532,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, seed
     for sample in [col for col in gene_summary_df.columns if "sample" in col]:
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
-        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads)
+        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier)
         bar.next()
     bar.finish()
 
