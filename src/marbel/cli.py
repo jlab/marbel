@@ -48,8 +48,10 @@ def sample_callback(value: Optional[Tuple[int, int]]):
 
 
 def check_error_multiplier(value, error_model):
+    if value < 0:
+        raise typer.BadParameter("Error multiplier cannot be negative")
     if value < 0.01 and value > 100:
-        raise typer.BadParameter("Error multiplier must be at least 0.01 and at most 100")
+        print(f"Info: Error multiplier: {value} is very large or small, might distort error introduction.", file=sys.stderr)
     if value == 1.0 and error_model == ErrorModel.perfect:
         print("Warning: The error multiplier will be ignored, as perfect does not introduce read errors.", file=sys.stderr)
     return value
