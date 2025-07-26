@@ -182,7 +182,7 @@ Note that large datasets may require days to run. Therefore, cluster or cloud ba
   **[default: normal]**
 
 - `--threads` **INTEGER**  
-  Number of threads to be used.  
+  Number of threads to be used. Use 0 or -1 for auto detection. Upper limit: 128.
   **[default: 10]**
 - `--version`  
   Show the version and exit.
