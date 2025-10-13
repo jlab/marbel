@@ -2,7 +2,7 @@
 
 # Marbel
 
-![Marbel logo](./resources/logos/marbel_logo_light_mode.png)
+![Marbel logo](./resources/logos/marbel_logo2_lm.png)
 
 ## Summary
 
