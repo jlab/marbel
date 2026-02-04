@@ -15,7 +15,7 @@ from marbel.block_generation import write_blocks_fasta, write_blocks_fasta_bedto
 def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
                      error_model, compressed, read_length, library_size, library_size_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
-                     min_sparsity, force_creation, min_overlap, error_multiplier):
+                     min_sparsity, force_creation, min_overlap, error_multiplier, lock_genes_only_seed):
     bar = Bar('Generating random numbers for dataset', max=5)
 
     bar.start()
@@ -30,6 +30,10 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     random.seed(seed)
     np.random.seed(seed)
+    if lock_genes_only_seed:
+        random.seed(lock_genes_only_seed)
+        np.random.seed(lock_genes_only_seed)
+
     if group_orthology_level == OrthologyLevel.normal:
         species = dg.draw_random_species(number_of_species)
     elif group_orthology_level == OrthologyLevel.very_low or group_orthology_level == OrthologyLevel.low:
@@ -48,6 +52,11 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
         selected_ortho_groups = dg.draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
         if selected_ortho_groups is None:
             selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, force=force_creation)
+
+    if lock_genes_only_seed:
+        random.seed(seed)
+        np.random.seed(seed)
+
 
     bar_next(bar)
     species_abundances = dg.generate_species_abundance(number_of_species, seed)
@@ -102,7 +111,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier)
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier, lock_genes_only_seed)
 
     # use cat for better performance if available
     if is_cat_available():

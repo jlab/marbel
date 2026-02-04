@@ -33,7 +33,7 @@ def draw_random_species(number_of_species):
     return random.sample(available_species, number_of_species)
 
 
-def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed=None):
+def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group):
     """
     Creates a list of group sizes for orthogroups, such that the maximum group size is less than or equal to
     the specified maximum species per group and the total number of orthogroups matches the specified number
@@ -42,7 +42,6 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     Parameters:
         number_of_orthogous_groups (int): The total number of orthogroups.
         max_species_per_group (int): The maximum number of species per orthogroup.
-        seed (int, optional): Random seed for reproducibility. Defaults to None.
 
     Returns:
         numpy.ndarray: A numpy array containing the group size for each orthogroup.
@@ -51,7 +50,7 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
         raise ValueError("Number of orthogroups must be greater than 0.")
     model = get_pymc_model()
     with model:
-        orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
+        orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'])
     orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
     scaled_orthogroups = orthogroups * (max_species_per_group / np.max(orthogroups))
     scaled_orthogroups = np.minimum(np.ceil(scaled_orthogroups), max_species_per_group)
@@ -275,7 +274,7 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier):
+                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier, lock_genes_only_seed):
     """
     Writes the simulation parameters to the result_file.
 
@@ -313,6 +312,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
         result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
+        result_file.write(f"Lock genes only seed: {lock_genes_only_seed}")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
