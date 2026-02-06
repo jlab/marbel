@@ -117,7 +117,7 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species, seed):
     return sampled_groups
 
 
-def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, force, seed):
+def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, seed, force):
     """
     Draws orthologous groups based on actual occurences in the dataset, instead of rates based on the pdf.
     Given a dataframe slice of orthologous groups, a number of orthologous groups to be drawn, and a list of species,
@@ -128,9 +128,9 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, forc
         orthogroup_slice (pandas.DataFrame): The orthologous group dataframe.
         number_of_orthogous_groups (int): The number of orthologous groups to be drawn.
         species (list): A list of species.
+        seed (int): Random seed for reproducibility.
         force (bool): If True, returns all available orthogroups when there aren't enough to satisfy the request.
                       If False, exits with an error message when there aren't enough orthogroups.
-        seed (int): Random seed for reproducibility.
 
     Returns:
         pandas.DataFrame: A randomly sampled dataframe of orthologous groups based on their actual occurences and filtered by species.
