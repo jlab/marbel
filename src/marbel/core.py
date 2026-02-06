@@ -30,24 +30,26 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     random.seed(seed)
     np.random.seed(seed)
+    np.random.default_rng(seed)
+
     if group_orthology_level == OrthologyLevel.normal:
-        species = dg.draw_random_species(number_of_species)
+        species = dg.draw_random_species(number_of_species, seed)
     elif group_orthology_level == OrthologyLevel.very_low or group_orthology_level == OrthologyLevel.low:
-        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.minimize)
+        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.minimize, seed)
     else:
-        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.maximize)
-    ortho_group_rates = dg.create_ortholgous_group_rates(number_of_orthogroups, number_of_species)
+        species = select_species_with_criterion(number_of_species, threads, SelectionCriterion.maximize, seed)
+    ortho_group_rates = dg.create_ortholgous_group_rates(number_of_orthogroups, number_of_species, seed)
     filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     if group_orthology_level == OrthologyLevel.very_low:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=True, force=force_creation)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, seed, minimize=True, force=force_creation)
     elif group_orthology_level == OrthologyLevel.very_high:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, minimize=False, force=force_creation)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, seed, minimize=False, force=force_creation)
     elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
-        selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, force=force_creation)
+        selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force=force_creation)
     else:
-        selected_ortho_groups = dg.draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species)
+        selected_ortho_groups = dg.draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species, seed)
         if selected_ortho_groups is None:
-            selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, force=force_creation)
+            selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force=force_creation)
 
     bar_next(bar)
     species_abundances = dg.generate_species_abundance(number_of_species, seed)
@@ -58,21 +60,21 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     gene_summary_df = dg.aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
 
-    dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes)
+    dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes, seed)
     bar_next(bar)
     gene_summary_df["simulation_fold_change"] = dge_factors
     if dge_ratio == 0:
-        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
+        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
         gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
     else:
-        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
+        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
-        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1)
+        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
     # TODO: make a list what lenghts there are for the differing error models
-    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
+    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample), seed)
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
 
@@ -84,7 +86,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
 
     # ensure at least one orthogroup survives filtering
-    add_counts_to_large_orthogroups(gene_summary_df, number_of_species)
+    add_counts_to_large_orthogroups(gene_summary_df, number_of_species, seed)
 
     # filter all zero genes
     all_zero_genes = dg.get_all_zero_genes(gene_summary_df)
