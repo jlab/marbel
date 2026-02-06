@@ -45,11 +45,11 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     elif group_orthology_level == OrthologyLevel.very_high:
         selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, seed, minimize=False, force=force_creation)
     elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
-        selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force=force_creation)
+        selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force_creation)
     else:
         selected_ortho_groups = dg.draw_orthogroups_by_rate(filtered_orthog_groups, ortho_group_rates, species, seed)
         if selected_ortho_groups is None:
-            selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force=force_creation)
+            selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, seed, force_creation)
 
     bar_next(bar)
     species_abundances = dg.generate_species_abundance(number_of_species, seed)
