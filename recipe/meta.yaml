@@ -43,6 +43,7 @@ requirements:
     - pysam
     - requests
     - threadpoolctl
+    - polars-u64-idx
 
 test:
   commands:

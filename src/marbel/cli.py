@@ -4,6 +4,8 @@ from typing_extensions import Annotated
 import typer
 import os
 import sys
+import shutil
+
 
 from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
 from marbel.core import generate_dataset
@@ -42,6 +44,16 @@ def checknegative(value: float):
 def sample_callback(value: Optional[Tuple[int, int]]):
     if value[0] < 1 or value[1] < 1:
         raise typer.BadParameter("The minimum number of samples has to be 1")
+    return value
+
+
+def check_error_multiplier(value, error_model):
+    if value < 0:
+        raise typer.BadParameter("Error multiplier cannot be negative")
+    if value < 0.01 and value > 100:
+        print(f"Info: Error multiplier: {value} is very large or small, might distort error introduction.", file=sys.stderr)
+    if value == 1.0 and error_model == ErrorModel.perfect:
+        print("Warning: The error multiplier will be ignored, as perfect does not introduce read errors.", file=sys.stderr)
     return value
 
 
@@ -109,6 +121,15 @@ def limitthreads(value: int):
     return value
 
 
+def check_outdir(outdir, force_creation):
+    if os.path.exists(outdir) and os.path.isdir(outdir):
+        if force_creation:
+            print(f"Info: The output directory {outdir} already exists. Overwriting the existing directory because of force.", file=sys.stderr)
+            shutil.rmtree(outdir)
+            return
+        raise typer.BadParameter(f"The output directory {outdir} already exists. Please choose a different directory or remove the existing one.")
+
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help=f"Number of species to be drawn for the metatranscriptomic in silico dataset. Maximum value: {MAX_SPECIES}.")] = 20,
@@ -136,12 +157,13 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
          library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
-         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto detection. Uppler limit: 128.")] = 10,
+         threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto detection. Upper limit: 128.")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
          deseq_dispersion_parameter_a1: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: Gene mean dependent dispersion of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A1,
          min_sparsity: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Will archive the minimum specified sparcity by zeroing count values randomly.")] = 0,
          force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
          min_overlap: Annotated[int, typer.Option(help="Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome. Accounts for kmer size.")] = 16,
+         error_multiplier: Annotated[float, typer.Option(help="Error multiplier for the error model. This is a multiplier for the error rate of the sequencing model. Accepting alues between 0.01 and 100.")] = 1.0,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     if error_model == ErrorModel.basic or error_model == ErrorModel.perfect:
@@ -152,11 +174,15 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
             else:
                 raise typer.BadParameter('Read length must be specified when using --error-model "basic" or "perfect".')
 
+    check_error_multiplier(error_multiplier, error_model)
+
+    check_outdir(outdir, force_creation)
+
     library_size_distribution = library_size_distribution_callback(library_size_distribution)
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
                      error_model, compressed, read_length, library_size, library_size_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
-                     min_sparsity, force_creation, min_overlap)
+                     min_sparsity, force_creation, min_overlap, error_multiplier)
 
 
 if __name__ == "__main__":
