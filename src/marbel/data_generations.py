@@ -10,6 +10,7 @@ from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
 import sys
+from marbel.helpers import switch_pm_version
 
 from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
 from marbel.presets import ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
@@ -52,7 +53,7 @@ def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_gr
     model = get_pymc_model()
     with model:
         orthologues_samples = pm.sample_prior_predictive(number_of_orthogous_groups, var_names=['ortho'], random_seed=seed)
-    orthogroups = orthologues_samples.to_dataframe()["ortho"].to_numpy()
+    orthogroups = switch_pm_version(orthologues_samples, "ortho", np=True)
     scaled_orthogroups = orthogroups * (max_species_per_group / np.max(orthogroups))
     scaled_orthogroups = np.minimum(np.ceil(scaled_orthogroups), max_species_per_group)
     return scaled_orthogroups
@@ -173,7 +174,7 @@ def generate_species_abundance(number_of_species, seed=None):
     model = get_pymc_model()
     with model:
         species_samples = pm.sample_prior_predictive(number_of_species, var_names=['species'], random_seed=seed)
-    return species_samples.to_dataframe()['species'].to_list()
+    return switch_pm_version(species_samples, "species")
 
 
 def generate_read_mean_counts(number_of_reads, seed=None):
@@ -190,7 +191,7 @@ def generate_read_mean_counts(number_of_reads, seed=None):
     model = get_pymc_model()
     with model:
         reads = pm.sample_prior_predictive(number_of_reads, var_names=['read_counts'], random_seed=seed)
-    return reads.to_dataframe()["read_counts"].to_list()
+    return switch_pm_version(reads, "read_counts")
 
 
 def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
