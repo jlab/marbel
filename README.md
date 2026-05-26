@@ -1,4 +1,5 @@
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/marbel/badges/version.svg)](https://anaconda.org/bioconda/marbel) [![Integration Tests & Code Style](https://github.com/jlab/marbel/actions/workflows/github_tests.yml/badge.svg)](https://github.com/jlab/marbel/actions/workflows/github_tests.yml) [![Coverage Status](https://coveralls.io/repos/github/jlab/marbel/badge.svg?branch=master)](https://coveralls.io/github/jlab/marbel?branch=master)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20157775.svg)](https://doi.org/10.5281/zenodo.20157775)
 
 # Marbel
 
