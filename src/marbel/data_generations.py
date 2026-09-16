@@ -18,7 +18,7 @@ from marbel.presets import ErrorModel, LibrarySizeDistribution, __version__, Sel
 from marbel.preload import get_pg_overview, get_species_tree, get_species_stats_dict, get_pymc_model
 
 
-def draw_random_species(number_of_species):
+def draw_random_species(number_of_species, rng):
     """
     Draws a random sample of species from the list of available species set in the presets.
 
@@ -31,10 +31,14 @@ def draw_random_species(number_of_species):
     if number_of_species < 1 or number_of_species > MAX_SPECIES:
         raise ValueError(f"Number of species must be between 1 and {MAX_SPECIES}.")
     available_species = pl.read_parquet(PANGENOME_OVERVIEW).columns[:MAX_SPECIES]
-    return random.sample(available_species, number_of_species)
+    return rng.choice(
+        available_species,
+        size=number_of_species,
+        replace=False
+    )
 
 
-def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed=None):
+def create_ortholgous_group_rates(number_of_orthogous_groups, max_species_per_group, seed):
     """
     Creates a list of group sizes for orthogroups, such that the maximum group size is less than or equal to
     the specified maximum species per group and the total number of orthogroups matches the specified number
@@ -84,7 +88,7 @@ def filter_by_seq_id_and_phylo_dist(max_phylo_distance=None, min_identity=None):
 
 
 # randomization based on rates calculated from the pdf
-def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
+def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species, rng):
     """
     Draws orthologous groups based on their rates. Given a dataframe slice of orthologous groups,
     a list of rates for each orthologous group, and a list of species, randomly samples orthologous groups
@@ -111,12 +115,12 @@ def draw_orthogroups_by_rate(orthogroup_slice, orthogroup_rates, species):
         if len(subset_orthogroups) < value_counts[index]:
             print(f"Warning: Not enough orthogroups with size {index} to satisfy the rate, switching to sampling the orthogroups without the gamma function rates.")
             return None
-        subset_orthogroups = subset_orthogroups.sample(value_counts[index])
+        subset_orthogroups = subset_orthogroups.sample(value_counts[index], random_state=rng)
         sampled_groups = pd.concat([sampled_groups, subset_orthogroups])
     return sampled_groups
 
 
-def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, force):
+def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, rng, force):
     """
     Draws orthologous groups based on actual occurences in the dataset, instead of rates based on the pdf.
     Given a dataframe slice of orthologous groups, a number of orthologous groups to be drawn, and a list of species,
@@ -141,7 +145,7 @@ def draw_orthogroups(orthogroup_slice, number_of_orthogous_groups, species, forc
     if check_force_result is not None:
         return check_force_result
 
-    orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups)
+    orthogroups_sample = orthogroups.sample(n=number_of_orthogous_groups, random_state=rng)
     return orthogroups_sample
 
 
@@ -368,7 +372,7 @@ def move_column(df, col_name, new_pos):
     return df[cols]
 
 
-def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1):
+def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1, seed):
     """
     Generates a sparse matrix of sample values based on DESeq2 dispersion assumptions.
 
@@ -396,7 +400,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
 
     with pm.Model() as _:
         _ = pm.NegativeBinomial(f"{group}_counts", mu=means, alpha=dispersions, shape=len(means))
-        prior_predictive = pm.sample_prior_predictive(draws=number_of_samples)
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_samples, random_seed=seed)
 
     simulated_counts = prior_predictive.prior[f"{group}_counts"].values[0]
 
@@ -557,7 +561,7 @@ def get_all_zero_genes(gene_summary_df):
     return set(all_zero_genes)
 
 
-def draw_dge_factors(dge_ratio, number_of_selected_genes):
+def draw_dge_factors(dge_ratio, number_of_selected_genes, seed):
     """"
     Draws the log2 DGE factors from a normal distribution adjusted to the specified ratio of up and downregulated genes.
     We use the normal and log2 because it is easier to calculate and then transform with exp2 to get the actual fold changes
@@ -582,7 +586,7 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes):
 
     with pm.Model() as _:
         _ = pm.Normal("dge_ratios", mu=0, sigma=sigma)
-        prior_predictive = pm.sample_prior_predictive(draws=number_of_selected_genes)
+        prior_predictive = pm.sample_prior_predictive(draws=number_of_selected_genes, random_seed=seed)
 
     simulated_ratios = prior_predictive.prior['dge_ratios'].values[0]
     simulated_ratios = np.exp2(simulated_ratios)
@@ -605,7 +609,7 @@ def minimize(x, y):
     return x < y
 
 
-def select_species_with_criterion(number_of_species, number_of_threads, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
+def select_species_with_criterion(number_of_species, number_of_threads, seed, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
     if selection_criterion not in SelectionCriterion:
         raise ValueError(f"Invalid selection criterion: {selection_criterion}. Must be one of {list(SelectionCriterion)}")
     match selection_criterion:
@@ -616,8 +620,8 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
             comparator = minimize
             initial_best_value = 10000
 
-    # TODO: question: should I make it random or should I start with the highest pair? -> ask Stefan
-    random_species = random.randint(0, MAX_SPECIES)
+    rng = random.Random(seed)
+    random_species = rng.randrange(MAX_SPECIES)
     chosen_species = [random_species]
     # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
     pg_overview = get_pg_overview()
@@ -642,13 +646,13 @@ def select_species_with_criterion(number_of_species, number_of_threads, selectio
     return [index_species_dict[species] for species in chosen_species]
 
 
-def select_orthogroups(orthogroup_slice, species, number_of_groups, minimize=True, force=False):
+def select_orthogroups(orthogroup_slice, species, number_of_groups, seed, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
     number_of_species = len(species)
     orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - (x == "-").sum(), axis=1)
     orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    orthogroups = orthogroups.sample(frac=1).reset_index(drop=True)
-    orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize)
+    orthogroups = orthogroups.sample(frac=1, random_state=seed).reset_index(drop=True)
+    orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize, kind="stable")
     check_force_result = check_enough_orthogroups(orthogroups, number_of_groups, force)
     if check_force_result is not None:
         return check_force_result
@@ -661,7 +665,7 @@ def calc_zero_ratio(df):
     return (df == 0).sum().sum() / df.size
 
 
-def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
+def add_extra_sparsity(gene_summary_df, sparsity_target, rng):
     """"
     Adds more zeros to dataframe to reach sparsity target. Will avoid all-zero rows. This means target sparsity may not be reached.
 
@@ -686,7 +690,6 @@ def add_extra_sparsity(gene_summary_df, sparsity_target, seed):
     if n_to_zero <= 0:
         return gene_summary_df.to_pandas()
 
-    rng = np.random.default_rng(seed)
     safe_indices = []
 
     for i, row in enumerate(df_np):
@@ -733,7 +736,7 @@ def add_actual_log2fc(gene_summary_df):
     return gene_summary_df.to_pandas()
 
 
-def add_counts_to_large_orthogroups(gene_summary, species_count):
+def add_counts_to_large_orthogroups(gene_summary, species_count, rng):
     og_sizes = gene_summary["orthogroup"].value_counts()
     large_orthogroups = og_sizes[og_sizes == species_count].index.to_list()
 
@@ -741,7 +744,7 @@ def add_counts_to_large_orthogroups(gene_summary, species_count):
         print("Info: No orthogroups with the specified number of species found. Skipping count addition.", file=sys.stderr)
         return
 
-    og_to_modify = random.choice(large_orthogroups)
+    og_to_modify = rng.choice(large_orthogroups)
 
     filtered_gene_summary = gene_summary[gene_summary["orthogroup"] == og_to_modify]
 
@@ -753,5 +756,5 @@ def add_counts_to_large_orthogroups(gene_summary, species_count):
             row_indices.append(row[0])
 
     for row_index in row_indices:
-        sample_to_one = random.choice(count_cols)
+        sample_to_one = rng.choice(count_cols)
         gene_summary.at[row_index, sample_to_one] = 1

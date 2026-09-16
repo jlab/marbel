@@ -40,6 +40,7 @@ class ErrorModel(str, Enum):
     HiSeq = "HiSeq"
     NextSeq = "NextSeq"
     NovaSeq = "NovaSeq"
+    Miseq = "Miseq"
     Miseq_20 = "Miseq-20"
     Miseq_24 = "Miseq-24"
     Miseq_28 = "Miseq-28"

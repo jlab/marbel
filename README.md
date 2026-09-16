@@ -149,7 +149,7 @@ Note that large datasets may require days to run. Therefore, cluster or cloud ba
   Seed for sampling. Set for reproducibility.  
   **[default: None]**
 
-- `--error-model` **[basic|perfect|HiSeq|NextSeq|NovaSeq|Miseq-20|Miseq-24|Miseq-28|Miseq-32]**  
+- `--error-model` **[basic|perfect|HiSeq|NextSeq|NovaSeq|Miseq|Miseq-20|Miseq-24|Miseq-28|Miseq-32]**  
   Sequencer model for the reads. Use `basic` or `perfect` (no errors) for custom read length.  
   **[default: HiSeq]**
 
