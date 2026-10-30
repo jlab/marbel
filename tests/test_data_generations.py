@@ -1,6 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
+import random
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
 from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups
 from marbel import data_generations as dg
@@ -8,59 +9,62 @@ from marbel.presets import MAX_SPECIES, ErrorModel
 from marbel.preload import get_pg_overview
 
 # Tests for draw_random_species
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+RNG = np.random.default_rng(SEED)
 
 
 def test_correct_length():
     number_of_species = 5
-    result = draw_random_species(number_of_species)
+    result = draw_random_species(number_of_species, rng=RNG)
     assert len(result) == number_of_species
 
 
 def test_unique_species():
     number_of_species = 5
-    result = draw_random_species(number_of_species)
+    result = draw_random_species(number_of_species, rng=RNG)
     assert len(result) == len(set(result))
 
 
 def test_too_many_species():
     number_of_species = MAX_SPECIES + 1
     with pytest.raises(ValueError):
-        draw_random_species(number_of_species)
+        draw_random_species(number_of_species, rng=RNG)
 
 
 def test_too_few_species():
     number_of_species = 0
     with pytest.raises(ValueError):
-        draw_random_species(number_of_species)
+        draw_random_species(number_of_species, rng=RNG)
 
 
 def test_correct_number_of_orthogroups():
     number_of_orthogroups = 10
     max_species = 5
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
     assert len(result) == number_of_orthogroups, f"Expected {number_of_orthogroups}, but got {len(result)}"
 
 
 def test_max_species_per_group_respected():
     number_of_orthogroups = 20
     max_species = 7
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
     assert np.all(result <= max_species), f"Some orthogroups exceed the max species of {max_species}"
 
 
 def test_non_negative_groups():
     number_of_orthogroups = 15
     max_species = 8
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
     assert np.all(result >= 0), "There are negative values in the orthogroup sizes"
 
 
 def test_random_seed_reproducibility():
     number_of_orthogroups = 5
     max_species = 10
-    seed = 42
-    result_1 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=seed)
-    result_2 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=seed)
+    result_1 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
+    result_2 = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
     np.testing.assert_array_equal(result_1, result_2, err_msg="Results are not identical for the same seed")
 
 
@@ -75,7 +79,7 @@ def test_different_seed_variation():
 def test_scaled_orthogroups_not_exceed_max():
     number_of_orthogroups = 10
     max_species = 12
-    result = create_ortholgous_group_rates(number_of_orthogroups, max_species)
+    result = create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
 
     assert np.max(result) <= max_species, f"Max species per group exceeded: {np.max(result)}"
 
@@ -84,7 +88,7 @@ def test_empty_orthogroups():
     number_of_orthogroups = 0
     max_species = 5
     with pytest.raises(ValueError):
-        create_ortholgous_group_rates(number_of_orthogroups, max_species)
+        create_ortholgous_group_rates(number_of_orthogroups, max_species, seed=SEED)
 
 
 # Tests for filter_by_seq_id_and_phylo_dist
@@ -133,7 +137,7 @@ def test_no_matching_records():
     (0.4, 150),
 ])
 def test_draw_dge_factors_output_shape(dge_ratio, num_genes):
-    result = draw_dge_factors(dge_ratio, num_genes)
+    result = draw_dge_factors(dge_ratio, num_genes, seed=SEED)
     assert isinstance(result, np.ndarray)
     assert result.shape[0] == num_genes
 
@@ -141,32 +145,32 @@ def test_draw_dge_factors_output_shape(dge_ratio, num_genes):
 @pytest.mark.parametrize("dge_ratio", [-1, -0.01, 1.0, 1.5, 2.0])
 def test_draw_dge_factors_ratio_outdie_threshold_raises_value_error(dge_ratio):
     with pytest.raises(ValueError):
-        draw_dge_factors(dge_ratio, 100)
+        draw_dge_factors(dge_ratio, 100, seed=SEED)
 
 
 def test_draw_dge_factors_valid_ratio_range():
     with pytest.raises(ValueError):
-        draw_dge_factors(-0.1, 100)
+        draw_dge_factors(-0.1, 100, seed=SEED)
     with pytest.raises(ValueError):
-        draw_dge_factors(1.1, 100)
+        draw_dge_factors(1.1, 100, seed=SEED)
 
 
 @pytest.mark.parametrize("dge_ratio", [0.1, 0.25, 0.49])
 @pytest.mark.parametrize("num_genes", [10, 100, 1000])
 def test_draw_dge_factors_distribution_properties(dge_ratio, num_genes):
-    result = draw_dge_factors(dge_ratio, num_genes)
+    result = draw_dge_factors(dge_ratio, num_genes, seed=SEED)
     assert np.all(result > 0)
     assert not np.any(np.isnan(result))
 
 
 def test_draw_dge_factors_extreme_case():
-    result = draw_dge_factors(0.01, 10)
+    result = draw_dge_factors(0.01, 10, seed=SEED)
     assert isinstance(result, np.ndarray)
     assert len(result) == 10
 
 
 def test_draw_dge_factors_empty_output():
-    result = draw_dge_factors(0.49, 0)
+    result = draw_dge_factors(0.49, 0, seed=SEED)
     assert result.size == 0
 
 
@@ -198,7 +202,7 @@ def test_add_counts_to_large_orthogroups():
     }
     df = pd.DataFrame(data)
 
-    add_counts_to_large_orthogroups(df, 2)
+    add_counts_to_large_orthogroups(df, 2, rng=RNG)
     all_zero_genes = get_all_zero_genes(df)
 
     assert all_zero_genes == {"geneC"}, f"Expected to filter {{'geneC'}}, not {all_zero_genes}"
