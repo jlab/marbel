@@ -10,6 +10,10 @@ from marbel.preload import get_pg_overview
 
 # Tests for draw_random_species
 SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+RNG = np.random.default_rng(SEED)
+
 RNG = random.Random(SEED)
 
 
