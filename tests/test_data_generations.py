@@ -1,6 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
+import random
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
 from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups
 from marbel import data_generations as dg
@@ -8,30 +9,31 @@ from marbel.presets import MAX_SPECIES, ErrorModel
 from marbel.preload import get_pg_overview
 
 # Tests for draw_random_species
+rng = random.Random(42)
 
 
 def test_correct_length():
     number_of_species = 5
-    result = draw_random_species(number_of_species)
+    result = draw_random_species(number_of_species, rng)
     assert len(result) == number_of_species
 
 
 def test_unique_species():
     number_of_species = 5
-    result = draw_random_species(number_of_species)
+    result = draw_random_species(number_of_species, rng)
     assert len(result) == len(set(result))
 
 
 def test_too_many_species():
     number_of_species = MAX_SPECIES + 1
     with pytest.raises(ValueError):
-        draw_random_species(number_of_species)
+        draw_random_species(number_of_species, rng)
 
 
 def test_too_few_species():
     number_of_species = 0
     with pytest.raises(ValueError):
-        draw_random_species(number_of_species)
+        draw_random_species(number_of_species, rng)
 
 
 def test_correct_number_of_orthogroups():
