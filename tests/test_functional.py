@@ -185,7 +185,7 @@ def test_tree(fp_basedir, genes):
         join(fp_basedir, 'summary', 'species_tree.newick'), format='newick')
     og_counts = pd.pivot_table(
         data=genes, index='origin_species', columns='orthogroup',
-        values='read_mean_count').applymap(lambda x: 1 if pd.notnull(x) else 0)
+        values='read_mean_count').map(lambda x: 1 if pd.notnull(x) else 0)
 
     # TreeNode.read converts underscore to space?!
     og_counts.index = list(map(lambda x: x.replace('_', ' '), og_counts.index))
