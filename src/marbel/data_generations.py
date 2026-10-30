@@ -625,9 +625,9 @@ def select_species_with_criterion(number_of_species, number_of_threads, seed, se
     chosen_species = [random_species]
     # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
     pg_overview = get_pg_overview()
-    id_sets = [
+    id_sets = pd.Series([
         frozenset(np.flatnonzero(row))
-        for row in (pg_overview.iloc[:, :MAX_SPECIES].to_numpy() != "-")]
+        for row in (pg_overview.iloc[:, :MAX_SPECIES].to_numpy() != "-")])
 
     for _ in range(number_of_species - 1):
         species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
