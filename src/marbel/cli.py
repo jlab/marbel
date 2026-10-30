@@ -138,15 +138,15 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                help=f"Number of orthologous groups to be drawn for the metatranscriptomic in silico dataset. Maximum value: {MAX_ORTHO_GROUPS}.")] = 1000,
          n_samples: Annotated[Tuple[int, int],
                               typer.Option(callback=sample_callback,
-                                           help="Number of samples to be created for the metatranscriptomic in silico dataset"
-                                           + "the first number is the number of samples for group 1 and"
+                                           help="Number of samples to be created for the metatranscriptomic in silico dataset "
+                                           + "the first number is the number of samples for group 1 and "
                                            + "the second number is the number of samples for group 2"
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
-         max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups."
-                                                          + "specify stricter limit, if you want to avoid orthologous groups"
+         max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
+                                                          + "Specify stricter limit, if you want to avoid orthologous groups "
                                                           + "with a more diverse phylogenetic distance.")] = None,
-         min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups."
+         min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups. "
                                                           + "Specify for more ")] = None,
          dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."
                                                   "This is a random drawing process from normal distribution, so the actual ratio might vary.")] = 0.2,
