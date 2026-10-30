@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 
 
+SEED = 42
+RNG = np.random.default_rng(SEED)
+
 def generate_sparse_df(rows, cols, init_sparsity, seed):
     rng = np.random.default_rng(seed)
     total = rows * cols
@@ -29,7 +32,7 @@ def test_add_extra_sparsity_random_seed(rows, cols, init_sparsity, target_sparsi
     max_possible_sparsity = (df.shape[0] * df.shape[1] - df.shape[0]) / df.size
 
     try:
-        result = add_extra_sparsity(df.copy(), target_sparsity, seed)
+        result = add_extra_sparsity(df.copy(), target_sparsity, RNG)
         new_sparsity = calc_zero_ratio(result)
 
         assert result.shape == df.shape

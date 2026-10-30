@@ -14,8 +14,6 @@ random.seed(SEED)
 np.random.seed(SEED)
 RNG = np.random.default_rng(SEED)
 
-RNG = random.Random(SEED)
-
 
 def test_correct_length():
     number_of_species = 5
@@ -204,7 +202,7 @@ def test_add_counts_to_large_orthogroups():
     }
     df = pd.DataFrame(data)
 
-    add_counts_to_large_orthogroups(df, 2, rng=rng)
+    add_counts_to_large_orthogroups(df, 2, rng=RNG)
     all_zero_genes = get_all_zero_genes(df)
 
     assert all_zero_genes == {"geneC"}, f"Expected to filter {{'geneC'}}, not {all_zero_genes}"
