@@ -650,7 +650,7 @@ def select_species_with_criterion(number_of_species, number_of_threads, seed, se
     for _ in range(number_of_species - 1):
         species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
         results = [calculate_species_identity(species_id, chosen_species, id_sets, species_to_rows)
-                   for species_id in species_left[:5]]
+                   for species_id in species_left]
         best_value = initial_best_value
         best_species = -1
         for species_id, average_group_identity in results:
