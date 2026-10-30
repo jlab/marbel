@@ -10,6 +10,7 @@ from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
 import sys
+from collections import defaultdict
 from marbel.helpers import switch_pm_version
 
 from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
@@ -594,10 +595,23 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes, seed):
     return simulated_ratios
 
 
-def calculate_species_identity(species_id, chosen_species, id_sets):
-    combined_species = chosen_species + [species_id]
-    filtered_id_sets = id_sets[id_sets.apply(lambda x: any(s_id in x for s_id in combined_species))]
-    average_group_identity = filtered_id_sets.apply(lambda x: sum(s_id in x for s_id in combined_species)).mean()
+def calculate_species_identity(species_id, chosen_species, id_sets, species_to_rows):
+    combined_species = set(chosen_species)
+    combined_species.add(species_id)
+
+    relevant_rows = set()
+    for species in combined_species:
+        relevant_rows.update(species_to_rows[species])
+
+    if not relevant_rows:
+        return species_id, float("nan")
+
+    identity_sum = sum(
+        len(combined_species.intersection(id_sets.iloc[i]))
+        for i in relevant_rows
+    )
+    average_group_identity = identity_sum / len(relevant_rows)
+
     return species_id, average_group_identity
 
 
@@ -628,14 +642,15 @@ def select_species_with_criterion(number_of_species, number_of_threads, seed, se
     id_sets = pd.Series([
         frozenset(np.flatnonzero(row))
         for row in (pg_overview.iloc[:, :MAX_SPECIES].to_numpy() != "-")])
+    species_to_rows = defaultdict(set)
+    for row_idx, species_set in enumerate(id_sets):
+        for species in species_set:
+            species_to_rows[species].add(row_idx)
 
     for _ in range(number_of_species - 1):
         species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
-        # i hope id_sets is thread safe, as i only view it
-        results = Parallel(n_jobs=number_of_threads)(
-            delayed(calculate_species_identity)(species_id, chosen_species, id_sets)
-            for species_id in species_left
-        )
+        results = [calculate_species_identity(species_id, chosen_species, id_sets, species_to_rows)
+                   for species_id in species_left[:5]]
         best_value = initial_best_value
         best_species = -1
         for species_id, average_group_identity in results:
