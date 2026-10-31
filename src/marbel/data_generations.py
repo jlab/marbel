@@ -6,9 +6,9 @@ import os
 import random
 import argparse
 from insilicoseq_marbeldep.app import generate_reads
-from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
+from scipy import sparse
 import sys
 from marbel.helpers import switch_pm_version
 
@@ -594,13 +594,6 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes, seed):
     return simulated_ratios
 
 
-def calculate_species_identity(species_id, chosen_species, id_sets):
-    combined_species = chosen_species + [species_id]
-    filtered_id_sets = id_sets[id_sets.apply(lambda x: any(s_id in x for s_id in combined_species))]
-    average_group_identity = filtered_id_sets.apply(lambda x: sum(s_id in x for s_id in combined_species)).mean()
-    return species_id, average_group_identity
-
-
 def maximize(x, y):
     return x > y
 
@@ -609,41 +602,60 @@ def minimize(x, y):
     return x < y
 
 
-def select_species_with_criterion(number_of_species, number_of_threads, seed, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
+def build_presence_matrix(pg_overview, max_species):
+    """Current data contain 614 species and 364.118 genes, but since this
+       matrix is space, use a spase data structure for speed!"""
+    data = pg_overview.iloc[:, :max_species]
+    indices, indptr = [], [0]
+    for j in range(max_species):
+        rows = np.flatnonzero(data.iloc[:, j].to_numpy() != "-")
+        indices.append(rows)
+        indptr.append(indptr[-1] + len(rows))
+    indices = np.concatenate(indices).astype(np.int32)
+    return sparse.csc_matrix(
+        (np.ones(len(indices)), indices, np.array(indptr)),
+        shape=(len(data), max_species),
+    )
+
+
+def select_species_with_criterion(number_of_species, seed, selection_criterion: SelectionCriterion = SelectionCriterion.maximize):
     if selection_criterion not in SelectionCriterion:
-        raise ValueError(f"Invalid selection criterion: {selection_criterion}. Must be one of {list(SelectionCriterion)}")
-    match selection_criterion:
-        case SelectionCriterion.maximize:
-            comparator = maximize
-            initial_best_value = 0
-        case SelectionCriterion.minimize:
-            comparator = minimize
-            initial_best_value = 10000
+        raise ValueError(f"Invalid selection criterion: {selection_criterion}. "
+                         f"Must be one of {list(SelectionCriterion)}")
+    maximize_ = selection_criterion == SelectionCriterion.maximize
 
     rng = random.Random(seed)
-    random_species = rng.randrange(MAX_SPECIES)
-    chosen_species = [random_species]
-    # this takes about 2 minutes 38sec, so it could be precomputed, would increase load on LFS and increase precompution steps
+    chosen = [rng.randrange(MAX_SPECIES)]
+
     pg_overview = get_pg_overview()
-    id_sets = pg_overview.apply(lambda x: frozenset([i for i in range(0, MAX_SPECIES) if x.iloc[i] != "-"]), axis=1)
+    M = build_presence_matrix(pg_overview, MAX_SPECIES)
+    col_sum = np.diff(M.indptr).astype(float)
+    MT = M.T.tocsr()
+
+    counts = np.zeros(M.shape[0])
+
+    def add(j):
+        counts[M.indices[M.indptr[j]:M.indptr[j + 1]]] += 1
+
+    add(chosen[0])
 
     for _ in range(number_of_species - 1):
-        species_left = [i for i in range(0, MAX_SPECIES) if i not in chosen_species]
-        # i hope id_sets is thread safe, as i only view it
-        results = Parallel(n_jobs=number_of_threads)(
-            delayed(calculate_species_identity)(species_id, chosen_species, id_sets)
-            for species_id in species_left
-        )
-        best_value = initial_best_value
-        best_species = -1
-        for species_id, average_group_identity in results:
-            if comparator(average_group_identity, best_value):
-                best_value = average_group_identity
-                best_species = species_id
-        chosen_species.append(best_species)
+        covered = (counts > 0).astype(float)
+        overlap = MT @ covered
+        total = counts.sum() + col_sum
+        n_rel = covered.sum() + col_sum - overlap
+        with np.errstate(divide="ignore", invalid="ignore"):
+            avg = total / n_rel                      # NaN, if n_rel == 0
 
-    index_species_dict = dict(zip(range(0, MAX_SPECIES), pg_overview.columns[:MAX_SPECIES]))
-    return [index_species_dict[species] for species in chosen_species]
+        bad = np.isnan(avg)
+        bad[chosen] = True
+        score = np.where(bad, -np.inf if maximize_ else np.inf, avg)
+        best = int(np.argmax(score) if maximize_ else np.argmin(score))
+        chosen.append(best)
+        add(best)
+
+    names = pg_overview.columns[:MAX_SPECIES]
+    return [names[i] for i in chosen]
 
 
 def select_orthogroups(orthogroup_slice, species, number_of_groups, seed, minimize=True, force=False):
