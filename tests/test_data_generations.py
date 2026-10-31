@@ -1,9 +1,10 @@
 import pytest
 import pandas as pd
 import numpy as np
+import os
 import random
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
-from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups, select_species_with_criterion
+from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups, select_species_with_criterion, select_orthogroups
 from marbel import data_generations as dg
 from marbel.presets import MAX_SPECIES, ErrorModel, SelectionCriterion
 from marbel.preload import get_pg_overview
@@ -215,8 +216,8 @@ def test_determine_mode_and_model():
     assert dg.determine_mode_and_model(ErrorModel.NextSeq, None) == ("kde", ErrorModel.NextSeq)
 
 
-def test_speedup_select_species_with_criterion():
-    exp_2449615081 = [
+EXP_SPECIES = {
+    2449615081: [
         'ALL_Companilactobacillus_futsaii_strain_Y97_NZ_CP040736',
         'Latilactobacillus_curvatus_strain_WiKim52_NZ_CP016602',
         'Ligilactobacillus_agilis_strain_AM_LB8_NZ_CP104397',
@@ -246,11 +247,8 @@ def test_speedup_select_species_with_criterion():
         'Streptococcus_suis_strain_NCTC10234_chromosome_1_NZ_LS483418',
         'Streptococcus_anginosus_strain_J4211_NZ_CP012805',
         'Streptococcus_mitis_strain_OT25_NZ_JYGP01000003',
-        'Streptococcus_oralis_strain_FDAARGOS_1075_NZ_CP066041']
-    obs = select_species_with_criterion(number_of_species=30, seed=2449615081, selection_criterion=SelectionCriterion.maximize)
-    assert exp_2449615081 == obs
-
-    exp_2802522352 = [
+        'Streptococcus_oralis_strain_FDAARGOS_1075_NZ_CP066041'],
+    2802522352: [
         'ALL_Staphylococcus_haemolyticus_strain_S167_NZ_CP013911',
         'ALL_Staphylococcus_hominis_strain_FDAARGOS_575_NZ_CP033732',
         'ALL_Staphylococcus_capitis_strain_FDAARGOS_378_NZ_CP023966',
@@ -280,11 +278,8 @@ def test_speedup_select_species_with_criterion():
         'Streptococcus_sinensis_strain_HKU4_NZ_JPEN01000059',
         'ALL_Streptococcus_pneumoniae_strain_Hu17_NZ_CP020549',
         'Streptococcus_sanguinis_strain_NCTC11085_chromosome_1_NZ_LS483346',
-        'ALL_Streptococcus_mutans_strain_NCH105_NZ_CP044221']
-    obs = select_species_with_criterion(number_of_species=30, seed=2802522352, selection_criterion=SelectionCriterion.maximize)
-    assert exp_2802522352 == obs
-
-    exp_3813447723 = [
+        'ALL_Streptococcus_mutans_strain_NCH105_NZ_CP044221'],
+    3813447723: [
         'Francisella_tularensis_strain_Schu_S4_249_NZ_CP073129',
         'Candidatus_Baumannia_cicadellinicola_strain_BGSS_NZ_CP008985',
         'Haemophilus_ducreyi_strain_VAN2_NZ_CP015425',
@@ -314,6 +309,18 @@ def test_speedup_select_species_with_criterion():
         'ALL_Yersinia_enterocolitica_strain_NW56_NZ_CP107102',
         'ALL_Hafnia_alvei_strain_A23BA_NZ_CP050150',
         'Enterobacter_sp_S_33_NZ_CP117838',
-        'ALL_Enterobacter_asburiae_strain_17Nkhm_UP2_NZ_AP019630']
-    obs = select_species_with_criterion(number_of_species=30, seed=3813447723, selection_criterion=SelectionCriterion.maximize)
-    assert exp_3813447723 == obs
+        'ALL_Enterobacter_asburiae_strain_17Nkhm_UP2_NZ_AP019630']}
+
+@pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
+def test_speedup_select_species_with_criterion(seed):
+    obs = select_species_with_criterion(number_of_species=30, seed=seed, selection_criterion=SelectionCriterion.maximize)
+    assert EXP_SPECIES[seed] == obs
+
+@pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
+def test_select_orthogroups(seed):
+    exp = pd.read_csv(os.path.dirname(__file__) + '/data/orthogroups_high.tsv', sep="\t").set_index(['Seed', 'axis'])
+
+    filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(None, None)
+    obs = select_orthogroups(filtered_orthog_groups, EXP_SPECIES[seed], 10000, seed, minimize=False, force=True)
+    assert all(exp.loc[seed, 'species'] == (obs.iloc[:, :-1] != '-').sum().describe())
+    assert all(exp.loc[seed, 'genes'] == (obs.iloc[:, :-1] != '-').sum(axis=1).describe())
