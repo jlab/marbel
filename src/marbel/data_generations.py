@@ -6,7 +6,6 @@ import os
 import random
 import argparse
 from insilicoseq_marbeldep.app import generate_reads
-from joblib import Parallel, delayed
 import polars as pl
 import pymc as pm
 from scipy import sparse
@@ -657,6 +656,7 @@ def select_species_with_criterion(number_of_species, seed, selection_criterion: 
 
     names = pg_overview.columns[:MAX_SPECIES]
     return [names[i] for i in chosen]
+
 
 def select_orthogroups(orthogroup_slice, species, number_of_groups, seed, minimize=True, force=False):
     orthogroups = orthogroup_slice[species].copy()
