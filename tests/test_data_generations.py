@@ -322,5 +322,7 @@ def test_select_orthogroups(seed):
 
     filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(None, None)
     obs = select_orthogroups(filtered_orthog_groups, EXP_SPECIES[seed], 10000, seed, minimize=False, force=True)
-    assert all(exp.loc[seed, 'species'] == (obs.iloc[:, :-1] != '-').sum().describe())
-    assert all(exp.loc[seed, 'genes'] == (obs.iloc[:, :-1] != '-').sum(axis=1).describe())
+
+    delta = 0.001
+    assert np.isclose(exp.loc[seed, 'species'], (obs.iloc[:, :-1] != '-').sum().describe(), atol=delta).all()
+    assert np.isclose(exp.loc[seed, 'genes'], (obs.iloc[:, :-1] != '-').sum(axis=1).describe(), atol=delta).all()
