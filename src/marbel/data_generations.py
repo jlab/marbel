@@ -659,17 +659,37 @@ def select_species_with_criterion(number_of_species, seed, selection_criterion: 
 
 
 def select_orthogroups(orthogroup_slice, species, number_of_groups, seed, minimize=True, force=False):
-    orthogroups = orthogroup_slice[species].copy()
-    number_of_species = len(species)
-    orthogroups["group_size"] = orthogroups.apply(lambda x: number_of_species - (x == "-").sum(), axis=1)
-    orthogroups = orthogroups[orthogroups["group_size"] > 0]
-    orthogroups = orthogroups.sample(frac=1, random_state=seed).reset_index(drop=True)
-    orthogroups = orthogroups.sort_values(by="group_size", ascending=minimize, kind="stable")
-    check_force_result = check_enough_orthogroups(orthogroups, number_of_groups, force)
+    orthogroups = orthogroup_slice[species]
+
+    # Vectorized instead of apply(axis=1): number of non-empty cells per row
+    group_size = (orthogroups.to_numpy() != "-").sum(axis=1)
+
+    # Drop empty groups (positional indices into the original frame)
+    keep = np.flatnonzero(group_size > 0)
+
+    # Same permutation as DataFrame.sample(frac=1, random_state=seed):
+    # pandas uses RandomState(seed).permutation(n) internally
+    shuffled = np.random.RandomState(seed).permutation(len(keep))
+    keep = keep[shuffled]
+
+    # Stable sort by group size; ties keep their shuffled order.
+    # Negated sizes give descending order while preserving tie order,
+    # which matches sort_values(ascending=False, kind="stable").
+    sizes = group_size[keep]
+    order = np.argsort(sizes if minimize else -sizes, kind="stable")
+
+    # Build the result once. The index holds the positions in the shuffled
+    # frame (the original called reset_index before sorting), so it is
+    # intentionally not reset after the sort.
+    result = orthogroups.iloc[keep[order]].copy()
+    result["group_size"] = sizes[order]
+    result.index = order
+
+    check_force_result = check_enough_orthogroups(result, number_of_groups, force)
     if check_force_result is not None:
         return check_force_result
 
-    return orthogroups.head(number_of_groups)
+    return result.head(number_of_groups)
 
 
 def calc_zero_ratio(df):
