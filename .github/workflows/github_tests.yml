@@ -9,6 +9,9 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout Repo
@@ -26,7 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda env update --file environment.yml --name base
+          conda env update --file environment.yml --name marbel
 
       - name: Install modified insilicoseq
         run: |
@@ -48,6 +51,9 @@ jobs:
 
   simulate-data:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout Repo
