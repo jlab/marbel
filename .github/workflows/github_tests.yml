@@ -33,7 +33,7 @@ jobs:
           $CONDA/bin/python -m pip install v0.1.1.marbeldep.tar.gz
       - name: Install the package
         run: |
-          pip install -e .
+          $CONDA/bin/python -m pip install -e .
       - name: Lint with flake8
         run: |
           $CONDA/bin/flake8 src/marbel/
@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Simulate reads
         run: |
-          marbel --seed 1511067075 --n-species 10 --n-orthogroups 200 --n-samples 5 10 --library-size 10000 --outdir run_spec10_orth200_samp5-10/
+          $CONDA/bin/marbel --seed 1511067075 --n-species 10 --n-orthogroups 200 --n-samples 5 10 --library-size 10000 --outdir run_spec10_orth200_samp5-10/
       - name: Archive simulation results
         uses: actions/upload-artifact@v4
         with:
