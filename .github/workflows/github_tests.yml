@@ -9,42 +9,9 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-        with:
-          lfs: true
-      - name: Checkout LFS objects
-        run: git lfs checkout
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-
-      - name: Install dependencies
-        run: |
-          $CONDA/bin/conda env update --file environment.yml --name base
-
-      - name: Install modified insilicoseq
-        run: |
-          wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
-          $CONDA/bin/python -m pip install v0.1.1.marbeldep.tar.gz
-
-      - name: Lint with flake8
-        run: |
-          $CONDA/bin/flake8 src/marbel/
-
-      - name: Run tests with pytest
-        run: |
-          $CONDA/bin/pytest . --ignore=tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=lcov
-      - name: Send coverage report to Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: "coverage.lcov"
-
-  simulate-data:
-    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout Repo
@@ -58,18 +25,57 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: marbel
-          python-version: "3.10"
-          auto-activate-base: false
-          channels: conda-forge,defaults
-          use-mamba: true
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          conda env update --file environment.yml --name marbel
 
       - name: Install modified insilicoseq
         run: |
           wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
-          pip install v0.1.1.marbeldep.tar.gz
+          python -m pip install v0.1.1.marbeldep.tar.gz
+
+      - name: Lint with flake8
+        run: |
+          flake8 src/marbel/
+
+      - name: Run tests with pytest
+        run: |
+          pytest . --ignore=tests/test_functional.py --doctest-modules --cov=src/marbel --cov-report=lcov
+      - name: Send coverage report to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: "coverage.lcov"
+
+  simulate-data:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: marbel
+          python-version: "3.13"
+
+      - name: Install modified insilicoseq
+        run: |
+          wget https://github.com/jlab/InSilicoSeq/archive/refs/tags/v0.1.1.marbeldep.tar.gz
+          python -m pip install v0.1.1.marbeldep.tar.gz
       - name: Install the package
         run: |
-          pip install -e .
+          python -m pip install -e .
       - name: Simulate reads
         run: |
           marbel --seed 1511067075 --n-species 10 --n-orthogroups 200 --n-samples 5 10 --library-size 10000 --outdir run_spec10_orth200_samp5-10/
@@ -91,9 +97,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
-      - name: Create conda test-env
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: marbel-tests
+          python-version: "3.13"
+      - name: Install test dependencies
         run: |
-          conda create -n marbel-tests scikit-bio biopython
+          conda install -y -c conda-forge scikit-bio biopython
       - name: Download simulated data
         uses: actions/download-artifact@v4
         with:
@@ -101,7 +112,4 @@ jobs:
           path: run_spec10_orth200_samp5-10/
       - name: Execute functional tests
         run: |
-          conda init
-          eval "$(conda shell.bash hook)"
-          conda activate marbel-tests
-          python tests/test_functional.py run_spec10_orth200_samp5-10/
+          python tests/test_functional.py run_spec10_orth200_samp5-10
