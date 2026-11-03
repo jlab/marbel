@@ -35,9 +35,9 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     if group_orthology_level == OrthologyLevel.normal:
         species = dg.draw_random_species(number_of_species, rng)
     elif group_orthology_level == OrthologyLevel.very_low or group_orthology_level == OrthologyLevel.low:
-        species = select_species_with_criterion(number_of_species, threads, seed, SelectionCriterion.minimize)
+        species = select_species_with_criterion(number_of_species, seed, SelectionCriterion.minimize)
     else:
-        species = select_species_with_criterion(number_of_species, threads, seed, SelectionCriterion.maximize)
+        species = select_species_with_criterion(number_of_species, seed, SelectionCriterion.maximize)
     ortho_group_rates = dg.create_ortholgous_group_rates(number_of_orthogroups, number_of_species, seed)
     filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     if group_orthology_level == OrthologyLevel.very_low:
