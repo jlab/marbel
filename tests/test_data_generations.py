@@ -6,7 +6,7 @@ import random
 from marbel.data_generations import draw_random_species, create_ortholgous_group_rates, filter_by_seq_id_and_phylo_dist, draw_dge_factors
 from marbel.data_generations import calc_zero_ratio, get_all_zero_genes, add_counts_to_large_orthogroups, select_species_with_criterion, select_orthogroups
 from marbel import data_generations as dg
-from marbel.presets import MAX_SPECIES, ErrorModel, SelectionCriterion
+from marbel.presets import MAX_SPECIES, ErrorModel, SelectionCriterion, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1
 from marbel.preload import get_pg_overview
 
 # Tests for draw_random_species
@@ -326,3 +326,32 @@ def test_select_orthogroups(seed):
     delta = 0.001
     assert np.isclose(exp.loc[seed, 'species'], (obs.iloc[:, :-1] != '-').sum().describe(), atol=delta).all()
     assert np.isclose(exp.loc[seed, 'genes'], (obs.iloc[:, :-1] != '-').sum(axis=1).describe(), atol=delta).all()
+
+def test_odd_DGE_distribution():
+    seed = 2449615081
+    species = EXP_SPECIES[seed]
+    filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(None, None)
+    selected_ortho_groups = select_orthogroups(filtered_orthog_groups, EXP_SPECIES[seed], 10000, seed, minimize=False, force=True)
+    species_abundances = dg.generate_species_abundance(len(EXP_SPECIES[seed]), seed)
+    number_of_selected_genes = selected_ortho_groups["group_size"].sum()
+    read_mean_counts = dg.generate_read_mean_counts(number_of_selected_genes, seed)
+    gene_summary_df = dg.aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
+
+    # issue is in this random number generation
+    dge_factors = draw_dge_factors(0.1, number_of_selected_genes, seed)
+
+    gene_summary_df["simulation_fold_change"] = dge_factors
+    sample_group_1 = dg.create_sample_values(gene_summary_df, 10, True, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, seed)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
+    sample_group_2 = dg.create_sample_values(gene_summary_df, 10, False, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, seed)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
+
+    # for diagnosis
+    gene_summary_df['counts_group1'] = gene_summary_df[[c for c in gene_summary_df.columns if 'group_1_sample_' in c]].sum(axis=1)
+    gene_summary_df['counts_group2'] = gene_summary_df[[c for c in gene_summary_df.columns if 'group_2_sample_' in c]].sum(axis=1)
+    gene_summary_df['counts_all'] = gene_summary_df[['counts_group1', 'counts_group2']].sum(axis=1)
+    nonzero_genes = gene_summary_df[gene_summary_df['counts_all'] > 0]
+    simulated_up_regulated_genes = sum(nonzero_genes["simulation_fold_change"] >= 2.0)
+    simulated_down_regulated_genes = sum(nonzero_genes["simulation_fold_change"] <= 0.5)
+
+    assert abs((simulated_up_regulated_genes / (simulated_up_regulated_genes + simulated_down_regulated_genes)) - 0.5) < 0.1, 'odd distribution of non-negative DGE genes'
