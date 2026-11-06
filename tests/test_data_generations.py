@@ -355,3 +355,12 @@ def test_odd_DGE_distribution():
     simulated_down_regulated_genes = sum(nonzero_genes["simulation_fold_change"] <= 0.5)
 
     assert abs((simulated_up_regulated_genes / (simulated_up_regulated_genes + simulated_down_regulated_genes)) - 0.5) < 0.1, 'odd distribution of non-negative DGE genes'
+
+def test_reproducibility_draw_dge_factors():
+    seed = 2449615081
+    exp = [0.87732211, 0.44726487, 0.97142211,
+           1.76762386, 1.01358227, 1.48619408]
+
+    obs = draw_dge_factors(0.1, 10000, seed)
+    assert np.allclose(list(obs)[:3], exp[:3])
+    assert np.allclose(list(obs)[-3:], exp[-3:])
