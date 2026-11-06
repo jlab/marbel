@@ -584,12 +584,13 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes, seed):
     z_score = stats.norm.ppf(1 - dge_ratio)
     sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
 
-    with pm.Model() as _:
-        _ = pm.Normal("dge_ratios", mu=0, sigma=sigma)
-        prior_predictive = pm.sample_prior_predictive(draws=number_of_selected_genes, random_seed=seed)
+    # One random seed per selected gene, reproducible via the master seed
+    master_rng = np.random.default_rng(seed)
+    gene_seeds = master_rng.integers(0, 2**31 - 1, size=number_of_selected_genes)
 
-    simulated_ratios = prior_predictive.prior['dge_ratios'].values[0]
-    simulated_ratios = np.exp2(simulated_ratios)
+    simulated_ratios = np.exp2(np.array([
+        np.random.default_rng(int(s)).normal(0, sigma) for s in gene_seeds
+    ]))
 
     return simulated_ratios
 

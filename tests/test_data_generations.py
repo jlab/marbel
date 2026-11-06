@@ -358,8 +358,8 @@ def test_odd_DGE_distribution():
 
 def test_reproducibility_draw_dge_factors():
     seed = 2449615081
-    exp = [0.87732211, 0.44726487, 0.97142211,
-           1.76762386, 1.01358227, 1.48619408]
+    exp = [1.89881746, 1.01504712, 0.64452119,
+           1.23521799, 0.75808235, 1.30313138]
 
     obs = draw_dge_factors(0.1, 10000, seed)
     assert np.allclose(list(obs)[:3], exp[:3])
