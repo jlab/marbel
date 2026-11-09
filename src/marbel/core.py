@@ -28,22 +28,20 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     if not seed:
         seed = random.randint(0, 2**32 - 1)
 
-    random.seed(seed)
-    np.random.seed(seed)
     rng = np.random.default_rng(seed)
 
     if group_orthology_level == OrthologyLevel.normal:
         species = dg.draw_random_species(number_of_species, rng)
     elif group_orthology_level == OrthologyLevel.very_low or group_orthology_level == OrthologyLevel.low:
-        species = select_species_with_criterion(number_of_species, seed, SelectionCriterion.minimize)
+        species = select_species_with_criterion(number_of_species, rng, SelectionCriterion.minimize)
     else:
-        species = select_species_with_criterion(number_of_species, seed, SelectionCriterion.maximize)
-    ortho_group_rates = dg.create_ortholgous_group_rates(number_of_orthogroups, number_of_species, seed)
+        species = select_species_with_criterion(number_of_species, rng, SelectionCriterion.maximize)
+    ortho_group_rates = dg.create_ortholgous_group_rates(number_of_orthogroups, number_of_species, rng)
     filtered_orthog_groups = dg.filter_by_seq_id_and_phylo_dist(max_phylo_distance, min_identity)
     if group_orthology_level == OrthologyLevel.very_low:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, seed, minimize=True, force=force_creation)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, rng, minimize=True, force=force_creation)
     elif group_orthology_level == OrthologyLevel.very_high:
-        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, seed, minimize=False, force=force_creation)
+        selected_ortho_groups = select_orthogroups(filtered_orthog_groups, species, number_of_orthogroups, rng, minimize=False, force=force_creation)
     elif group_orthology_level == OrthologyLevel.high or group_orthology_level == OrthologyLevel.low:
         selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, rng, force=force_creation)
     else:
@@ -52,24 +50,24 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
             selected_ortho_groups = dg.draw_orthogroups(filtered_orthog_groups, number_of_orthogroups, species, rng, force=force_creation)
 
     bar_next(bar)
-    species_abundances = dg.generate_species_abundance(number_of_species, seed)
+    species_abundances = dg.generate_species_abundance(number_of_species, rng)
     bar_next(bar)
     number_of_selected_genes = selected_ortho_groups["group_size"].sum()
-    read_mean_counts = dg.generate_read_mean_counts(number_of_selected_genes, seed)
+    read_mean_counts = dg.generate_read_mean_counts(number_of_selected_genes, rng)
     bar_next(bar)
 
     gene_summary_df = dg.aggregate_gene_data(species, species_abundances, selected_ortho_groups, read_mean_counts)
 
-    dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes, seed)
+    dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes, rng)
     bar_next(bar)
     gene_summary_df["simulation_fold_change"] = dge_factors
     if dge_ratio == 0:
-        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
+        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
         gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
     else:
-        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
+        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
-        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, seed)
+        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
         gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
@@ -97,7 +95,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     dg.filter_genes_from_ground(gene_summary_df["gene_name"].to_list(), paths["cds_ref_fasta"], paths["ref_gtf"])
 
     mode, model = dg.determine_mode_and_model(error_model, read_length)
-    dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, seed, read_length, threads, error_multiplier, bar)
+    #dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, rng, read_length, threads, error_multiplier, bar)
 
     gene_summary_df = dg.add_actual_log2fc(gene_summary_df)
     dg.generate_report(paths["summary_dir"], gene_summary_df, len(all_zero_genes), n_orthogroups)
@@ -120,7 +118,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     blocks_df.write_csv(paths["bed"], separator="\t", include_header=False)
     write_block_gtf(blocks_df, paths["gtf"])
-
+    sys.exit(0)
     # use bedtools if available for speed up
     if is_bedtools_available():
         write_blocks_fasta_bedtools(paths["bed"], paths["blocks_fasta"], paths["cds_ref_fasta"])

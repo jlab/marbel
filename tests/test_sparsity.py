@@ -26,7 +26,9 @@ def generate_sparse_df(rows, cols, init_sparsity, seed):
 @pytest.mark.parametrize("target_sparsity", [0.2, 0.3, 0.5, 0.7])
 def test_add_extra_sparsity_random_seed(rows, cols, init_sparsity, target_sparsity):
     seed = np.random.randint(0, 1_000_000)
-    df = generate_sparse_df(rows, cols, init_sparsity, seed)
+    rng = np.random.default_rng(seed)
+
+    df = generate_sparse_df(rows, cols, init_sparsity, rng)
     df = df[(df != 0).any(axis=1)]
     init_sparsity_val = calc_zero_ratio(df)
     max_possible_sparsity = (df.shape[0] * df.shape[1] - df.shape[0]) / df.size
