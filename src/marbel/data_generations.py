@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from Bio import SeqIO
-import os
 import argparse
 from insilicoseq_marbeldep.app import generate_reads
 import polars as pl
@@ -413,7 +412,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads, error_multiplier):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads, error_multiplier, debug_dir):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -427,6 +426,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         seed (int): The seed for the simulation. Can be None.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
+        debug_dir (str): The directory for storing insilicoseq log files
     """
     read_count_file = f"{output_dir}/{sample_name}.tsv"
     number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
@@ -462,10 +462,11 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         error_multiplier=error_multiplier
     )
     generate_reads(args)
-    if os.path.exists(read_count_file):
-        os.remove(read_count_file)
+    read_count_file = Path(read_count_file)
+    if read_count_file.exists():
+        read_count_file.rename(Path(debug_dir) / read_count_file.name)
     else:
-        print(f"Warning: Could not remove {read_count_file}.")
+        print(f"Warning: Could not move {read_count_file}.")
 
 
 def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
@@ -546,8 +547,8 @@ def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng,
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         seed = int(rng.integers(0, 2**32, dtype=np.uint32))
         with open(seed_file, "a") as f:
-            f.write(f"Seed passed for {sample}: {seed}")
-        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier)
+            f.write(f"Seed passed for {sample}: {seed}\n")
+        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier, debug_dir)
         bar.next()
     bar.finish()
 
