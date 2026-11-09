@@ -3,14 +3,15 @@ import pandas as pd
 from scipy import stats
 from Bio import SeqIO
 import os
-import random
 import argparse
 from insilicoseq_marbeldep.app import generate_reads
 import polars as pl
 import pymc as pm
 from scipy import sparse
 import sys
+import pickle
 from marbel.helpers import switch_pm_version
+from pathlib import Path
 
 from marbel.presets import MAX_SPECIES, PATH_TO_GROUND_GENES_INDEX, DGE_LOG_2_CUTOFF_VALUE, PANGENOME_OVERVIEW
 from marbel.presets import ErrorModel, LibrarySizeDistribution, __version__, SelectionCriterion
@@ -534,10 +535,18 @@ def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng,
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
     """
+    debug_dir = f"{outdir}/.insilico_seq_debug"
+    Path(debug_dir).mkdir(parents=True, exist_ok=True)
+    seed_file = f"{debug_dir}/seeds.txt"
+
     for sample in [col for col in gene_summary_df.columns if "sample" in col]:
+        with open(f"{debug_dir}/rng_start_state_before_{sample}.pkl", "wb") as f:
+            pickle.dump(rng.bit_generator.state, f)
         sample_copy = gene_summary_df[["gene_name", sample]].copy()
         sample_copy.rename(columns={sample: "absolute_numbers"}, inplace=True)
         seed = int(rng.integers(0, 2**32, dtype=np.uint32))
+        with open(seed_file, "a") as f:
+            f.write(f"Seed passed for {sample}: {seed}")
         create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier)
         bar.next()
     bar.finish()
