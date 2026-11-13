@@ -280,9 +280,9 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier):
+                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier, group_orthology_level):
     """
-    Writes the simulation parameters to the result_file.
+    Writes the simulation parameters into the summary dir.
 
     Args:
         number_of_orthogous_groups (int): The number of orthologous groups.
@@ -295,7 +295,9 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         seed (int): The seed for the simulation.
         compressed (bool): Compression of files.
         read_length (int): The read length.
-        result_file (file): The file to write the summary to.
+        summary_dir (str): The path to the directory for the summary.
+        error_multiplier (float): An option to multiply the error of the profile.
+        group_orthology_level (OrthologyLevel): Orthology level of the dataset.
     """
     with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
         result_file.write(f"Marbel version: {__version__}\n")
@@ -318,6 +320,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
         result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
+        result_file.write(f"Orthology level: {OrthologyLevel}\n")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):

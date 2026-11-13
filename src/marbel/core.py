@@ -102,7 +102,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier)
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier, group_orthology_level)
 
     # use cat for better performance if available
     if is_cat_available():
