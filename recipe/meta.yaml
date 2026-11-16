@@ -30,7 +30,7 @@ requirements:
   run:
     - python
     - arviz
-    - pymc
+    - pymc >=4.4.0
     - typer
     - biopython
     - pyarrow
