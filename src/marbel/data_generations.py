@@ -320,7 +320,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
         result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
-        result_file.write(f"Orthology level: {OrthologyLevel}\n")
+        result_file.write(f"Orthology level: {group_orthology_level}\n")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
