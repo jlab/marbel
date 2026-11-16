@@ -72,7 +72,7 @@ def sample_read_count_distribution_callback(value):
     if value[0] == "negative_binomial":
         if len(value[1:]) > 2 or len(value[1:]) == 1:
             raise typer.BadParameter("Negative binomial distribution requires two parameters")
-        if value[1:] == 2:
+        if len(value[1:]) == 2:
             try:
                 value[1] = int(value[1])
                 value[2] = float(value[2])
