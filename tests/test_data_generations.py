@@ -324,7 +324,7 @@ def test_speedup_select_species_with_criterion(seed):
 
 
 @pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
-def test_select_species_rng(seed):
+def test_select_species_rng_maximize(seed):
     rng1 = np.random.default_rng(seed)
     rng2 = np.random.default_rng(seed)
     initial_state = copy.deepcopy(rng1.bit_generator.state)
@@ -348,7 +348,7 @@ def test_select_species_rng(seed):
 
 
 @pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
-def test_select_species_rng(seed):
+def test_select_species_rng_minimize(seed):
     rng1 = np.random.default_rng(seed)
     rng2 = np.random.default_rng(seed)
     initial_state = copy.deepcopy(rng1.bit_generator.state)
