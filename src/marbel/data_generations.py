@@ -516,7 +516,14 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes, rng):
     # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
     for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
         counts = gene_summary_df[sample].to_numpy()
-        probabilities = counts / counts.sum()
+        total_counts = counts.sum()
+        if total == 0:
+            raise ValueError(
+                f"Sample {sample} contains only zero counts. "
+                "Cannot scale to the requested library size."
+            )
+        probabilities = counts / total_counts
+
         gene_summary_df[sample] = rng.multinomial(
             int(round(sample_library_size)),
             probabilities
