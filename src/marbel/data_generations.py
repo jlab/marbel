@@ -312,9 +312,9 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"File compression: {output_format}\n")
         result_file.write(f"Model used: {error_model}\n")
         result_file.write(f"Read length: {read_length}\n")
-        result_file.write(f"Average read count per sample: {library_size}\n")
+        result_file.write(f"Average read pair count per sample: {library_size}\n")
         result_file.write(f"Read count distribution: {library_distribution}\n")
-        result_file.write(f"Chosen read counts per sample: {library_sizes}\n")
+        result_file.write(f"Chosen read pair counts per sample: {library_sizes}\n")
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
@@ -480,7 +480,7 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
         library_size (int): The base library size.
         library_size_distribution (LibrarySizeDistribution): The distribution of the library sizes.
         number_of_samples (int): The number of samples, this is how many library sizes will be drawn.
-        rng: np Random number generator for reproducibility. Defaults to None.
+        rng: np Random number generator for reproducibility.
 
     Returns:
         list: The library sizes for each sample.
@@ -498,7 +498,7 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     return sample_library_sizes
 
 
-def scale_fastq_samples(gene_summary_df, sample_library_sizes):
+def scale_fastq_samples(gene_summary_df, sample_library_sizes, rng):
     """
     Scales each sample in the gene_summary_df to scaled library size.
 
@@ -507,6 +507,7 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
         sample_library_sizes (list): The library sizes for each sample.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
+        rng: np Random number generator for reproducibility.
     Returns:
         pandas.DataFrame: The filtered dataframe with all-zero columns removed.
         """
@@ -514,8 +515,12 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
     gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
     # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
     for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
-        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
-        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+        counts = gene_summary_df[sample].to_numpy()
+        probabilities = counts / counts.sum()
+        gene_summary_df[sample] = rng.multinomial(
+            int(round(sample_library_size)),
+            probabilities
+        )
 
     return gene_summary_df
 

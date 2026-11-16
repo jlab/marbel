@@ -77,7 +77,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
         gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, rng)
 
     # scale to library size
-    gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
+    gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes, rng)
 
     # ensure at least one orthogroup survives filtering
     add_counts_to_large_orthogroups(gene_summary_df, number_of_species, rng)
