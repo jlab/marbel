@@ -782,7 +782,7 @@ def add_actual_log2fc(gene_summary_df):
         pl.sum_horizontal(sample_cols_group_1).alias("sum_group1"),
         pl.sum_horizontal(sample_cols_group_2).alias("sum_group2"),
     ]).with_columns([
-        (pl.col("sum_group2") / (pl.col("sum_group1"))).alias("fold_change")
+        ((pl.col("sum_group2") / len(sample_cols_group_2)) / ((pl.col("sum_group1") / len(sample_cols_group_1)))).alias("fold_change")
     ]).with_columns([
         pl.col("fold_change").log(2).alias("actual_log2fc"),
     ]).drop(["sum_group1", "sum_group2", "fold_change"])

@@ -143,7 +143,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                            + "the second number is the number of samples for group 2"
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
-         max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
+         max_phylo_distance: Annotated[str, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
                                                           + "Specify stricter limit, if you want to avoid orthologous groups "
                                                           + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups. "
