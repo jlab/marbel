@@ -594,8 +594,11 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes, rng):
     if number_of_selected_genes == 0:
         return np.array([])
 
-    if not (0 < dge_ratio < 0.5):
-        raise ValueError("dge_ratio must be between 0 and 0.5 (exclusive)")
+    if dge_ratio == 0:
+        return np.ones(number_of_selected_genes)
+
+    if not (0 <= dge_ratio < 0.5):
+        raise ValueError("dge_ratio must be between 0 (inclusive) and 0.5 (exclusive)")
 
     z_score = stats.norm.ppf(1 - dge_ratio)
     sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
