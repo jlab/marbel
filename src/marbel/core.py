@@ -25,7 +25,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     number_of_sample = n_samples
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
-    if not seed:
+    if seed is None:
         seed = random.randint(0, 2**32 - 1)
 
     rng = np.random.default_rng(seed)
