@@ -472,7 +472,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         print(f"Warning: Could not move {read_count_file}.")
 
 
-def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
+def draw_library_sizes(library_size, library_size_distribution, number_of_samples, rng):
     """
     Draws the library sizes for each sample according to the specified distribution.
 
@@ -480,6 +480,7 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
         library_size (int): The base library size.
         library_size_distribution (LibrarySizeDistribution): The distribution of the library sizes.
         number_of_samples (int): The number of samples, this is how many library sizes will be drawn.
+        rng: np Random number generator for reproducibility. Defaults to None.
 
     Returns:
         list: The library sizes for each sample.
@@ -487,13 +488,13 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     match library_size_distribution.distribution_name:
         case LibrarySizeDistribution.poisson:
             poisson_lambda = library_size_distribution.poisson
-            sample_library_sizes = library_size * (np.random.poisson(poisson_lambda, number_of_samples) / poisson_lambda)
+            sample_library_sizes = library_size * (rng.poisson(poisson_lambda, number_of_samples) / poisson_lambda)
         case LibrarySizeDistribution.uniform:
             sample_library_sizes = [library_size] * number_of_samples
         case LibrarySizeDistribution.negative_binomial:
             nbin_n, nbin_p = library_size_distribution.nbin_n, library_size_distribution.nbin_p
             expected_mean = nbin_n * (1 - nbin_p) / nbin_p
-            sample_library_sizes = (library_size * (np.random.negative_binomial(nbin_n, nbin_p, number_of_samples) / expected_mean)).round()
+            sample_library_sizes = (library_size * (rng.negative_binomial(nbin_n, nbin_p, number_of_samples) / expected_mean)).round()
     return sample_library_sizes
 
 

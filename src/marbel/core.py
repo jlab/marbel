@@ -72,7 +72,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     bar.next()
 
     # TODO: make a list what lenghts there are for the differing error models
-    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
+    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample), rng)
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
 
