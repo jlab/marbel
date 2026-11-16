@@ -61,14 +61,10 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes, rng)
     bar_next(bar)
     gene_summary_df["simulation_fold_change"] = dge_factors
-    if dge_ratio == 0:
-        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
-    else:
-        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
-        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
+    sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
+    sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
     # TODO: make a list what lenghts there are for the differing error models
