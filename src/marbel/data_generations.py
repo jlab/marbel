@@ -767,8 +767,8 @@ def add_extra_sparsity(gene_summary_df, sparsity_target, rng):
 
 def add_actual_log2fc(gene_summary_df):
     gene_summary_df = pl.DataFrame(gene_summary_df)
-    sample_cols_group_1 = [col for col in gene_summary_df.columns if "group_1" in col]
-    sample_cols_group_2 = [col for col in gene_summary_df.columns if "group_2" in col]
+    sample_cols_group_1 = [col for col in gene_summary_df.columns if col.startswith("group_1_sample_")]
+    sample_cols_group_2 = [col for col in gene_summary_df.columns if col.startswith("group_2_sample_")]
 
     gene_summary_df = gene_summary_df.with_columns([
         pl.sum_horizontal(sample_cols_group_1).alias("sum_group1"),
