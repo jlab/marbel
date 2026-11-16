@@ -530,7 +530,7 @@ def determine_mode_and_model(model, read_length):
     return mode, model
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng, read_length, threads, error_multiplier, bar):
+def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng, read_length, threads, error_multiplier, bar, summary_dir):
     """
     Calls the create_fastq_file function for each sample in the gene_summary_df.
     Parameters:
@@ -539,7 +539,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng,
         model (ErrorModel): The error model for the reads (Illumina).
         seed (int): The seed for the simulation. Can be None.
     """
-    debug_dir = f"{outdir}/.insilico_seq_debug"
+    debug_dir = f"{summary_dir}/seed_and_rng_states_for_fastq_checkpoints"
     Path(debug_dir).mkdir(parents=True, exist_ok=True)
     seed_file = f"{debug_dir}/seeds.txt"
 

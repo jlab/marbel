@@ -95,7 +95,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     dg.filter_genes_from_ground(gene_summary_df["gene_name"].to_list(), paths["cds_ref_fasta"], paths["ref_gtf"])
 
     mode, model = dg.determine_mode_and_model(error_model, read_length)
-    dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, rng, read_length, threads, error_multiplier, bar)
+    dg.create_fastq_samples(gene_summary_df, outdir, compressed, mode, model, rng, read_length, threads, error_multiplier, bar, paths["summary_dir"])
 
     gene_summary_df = dg.add_actual_log2fc(gene_summary_df)
     dg.generate_report(paths["summary_dir"], gene_summary_df, len(all_zero_genes), n_orthogroups)
