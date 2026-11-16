@@ -65,7 +65,7 @@ def dge_ratio_callback(value: float):
     return value
 
 
-def library_size_distribution_callback(value):
+def sample_read_count_distribution_callback(value):
     value = value.split(",")
     if value[0] not in LibrarySizeDistribution.possible_distributions:
         raise typer.BadParameter(f"Library size distribution {value[0]} is not a valid distribution. Choose from {LibrarySizeDistribution.possible_distributions}")
@@ -178,9 +178,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     check_outdir(outdir, force_creation)
 
-    library_size_distribution = library_size_distribution_callback(library_size_distribution)
+    sample_read_count_distribution = sample_read_count_distribution_callback(sample_read_count_distribution)
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
-                     error_model, compressed, read_length, library_size, library_size_distribution,
+                     error_model, compressed, read_length, average_sample_read_count, sample_read_count_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
                      min_sparsity, force_creation, min_overlap, error_multiplier)
 
