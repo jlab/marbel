@@ -229,7 +229,7 @@ def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
             "gene_id {}; transcript_id {};",
             pl.col("cds"), pl.col("cds")
         ).alias("attributes"),
-        (pl.col("block_start") + 1).alias("gtf_start"),
+        (pl.col("block_start")).alias("gtf_start"),
     )
 
     blocks_df.select([
