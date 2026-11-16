@@ -86,6 +86,15 @@ If you already cloned the repo, remove it, install git-lfs and clone again.
 sudo apt-get install g++
 ```
 
+#### Install custom dependency
+
+```
+git clone https://github.com/jlab/InSilicoSeq.git
+cd InSilicoSeq
+pip install -e .
+cd ..
+```
+
 #### Clone repository
 
 ```
