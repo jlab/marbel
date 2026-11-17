@@ -130,6 +130,13 @@ def check_outdir(outdir, force_creation):
         raise typer.BadParameter(f"The output directory {outdir} already exists. Please choose a different directory or remove the existing one.")
 
 
+def compression_level_callback(value: int):
+    possible_compression_levels = list(range(0, 10)) + [11]
+    if value in possible_compression_levels:
+        return value
+    raise typer.BadParameter(f"Invalid value for pigz compression-level, available levels: {possible_compression_levels}.")
+
+
 @app.command()
 def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                                 help=f"Number of species to be drawn for the metatranscriptomic in silico dataset. Maximum value: {MAX_SPECIES}.")] = 20,
@@ -164,6 +171,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          force_creation: Annotated[bool, typer.Option(help="Force the creation of the dataset, even if available orthogroups do not suffice for specified number of orthogroups.")] = False,
          min_overlap: Annotated[int, typer.Option(help="Minimum overlap for the blocks. Use this to evaluate overlap blocks, i.e. uninterrupted parts covered with reads that overlap on the genome. Accounts for kmer size.")] = 16,
          error_multiplier: Annotated[float, typer.Option(help="Error multiplier for the error model. This is a multiplier for the error rate of the sequencing model. Accepting alues between 0.01 and 100.")] = 1.0,
+         compression_level: Annotated[int, typer.Option(callback=compression_level_callback, help="Compression level for pigz, only used if pigz is available in the environment. Higher values correspond to higher compression at the expense of speed.")] = 3,
          _: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,):
 
     if error_model == ErrorModel.basic or error_model == ErrorModel.perfect:
@@ -182,7 +190,7 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
                      error_model, compressed, read_length, average_sample_read_count, sample_read_count_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
-                     min_sparsity, force_creation, min_overlap, error_multiplier)
+                     min_sparsity, force_creation, min_overlap, error_multiplier, compression_level)
 
 
 if __name__ == "__main__":
