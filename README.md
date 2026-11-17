@@ -86,6 +86,15 @@ If you already cloned the repo, remove it, install git-lfs and clone again.
 sudo apt-get install g++
 ```
 
+#### Install custom dependency
+
+```
+git clone https://github.com/jlab/InSilicoSeq.git
+cd InSilicoSeq
+pip install -e .
+cd ..
+```
+
 #### Clone repository
 
 ```
@@ -161,12 +170,12 @@ Note that large datasets may require days to run. Therefore, cluster or cloud ba
   Read length for the generated reads. Only available when using `error_model` basic or perfect.  
   **[default: None]**
 
-- `--library-size` **INTEGER**  
-  Library size for the reads.  
+- `--average-sample-read-count` **INTEGER**  
+  Average amount of reads per sample.
   **[default: 100000]**
 
-- `--library-size-distribution` **[poisson|uniform|negative_binomial]**  
-  Distribution for the library size.  
+- `--sample-read-count-distribution` **[poisson|uniform|negative_binomial]**  
+  Distribution of the the amount of reads per sample.
   **[default: uniform]**
 
 

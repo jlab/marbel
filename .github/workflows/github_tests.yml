@@ -78,7 +78,7 @@ jobs:
           python -m pip install -e .
       - name: Simulate reads
         run: |
-          marbel --seed 1511067075 --n-species 10 --n-orthogroups 200 --n-samples 5 10 --library-size 10000 --outdir run_spec10_orth200_samp5-10/
+          marbel --seed 1511067075 --n-species 10 --n-orthogroups 200 --n-samples 5 10 --average-sample-read-count 10000 --outdir run_spec10_orth200_samp5-10/
       - name: Archive simulation results
         uses: actions/upload-artifact@v4
         with:

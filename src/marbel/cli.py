@@ -7,7 +7,7 @@ import sys
 import shutil
 
 
-from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
 from marbel.core import generate_dataset
 
 app = typer.Typer()
@@ -65,14 +65,14 @@ def dge_ratio_callback(value: float):
     return value
 
 
-def library_size_distribution_callback(value):
+def sample_read_count_distribution_callback(value):
     value = value.split(",")
     if value[0] not in LibrarySizeDistribution.possible_distributions:
         raise typer.BadParameter(f"Library size distribution {value[0]} is not a valid distribution. Choose from {LibrarySizeDistribution.possible_distributions}")
     if value[0] == "negative_binomial":
         if len(value[1:]) > 2 or len(value[1:]) == 1:
             raise typer.BadParameter("Negative binomial distribution requires two parameters")
-        if value[1:] == 2:
+        if len(value[1:]) == 2:
             try:
                 value[1] = int(value[1])
                 value[2] = float(value[2])
@@ -143,9 +143,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                            + "the second number is the number of samples for group 2"
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
-         max_phylo_distance: Annotated[Rank, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
-                                                          + "Specify stricter limit, if you want to avoid orthologous groups "
-                                                          + "with a more diverse phylogenetic distance.")] = None,
+         max_phylo_distance: Annotated[str, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
+                                                         + "Specify stricter limit, if you want to avoid orthologous groups "
+                                                         + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups. "
                                                           + "Specify for more ")] = None,
          dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."
@@ -154,8 +154,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
          error_model: Annotated[ErrorModel, typer.Option(help="Sequencer model for the reads, use basic or perfect (no errors) for custom read length. Note that read lenght must be set when using basic or perfect.")] = ErrorModel.HiSeq,
          compressed: Annotated[bool, typer.Option(help="Compress the output fastq files")] = True,
          read_length: Annotated[int, typer.Option(help="Read length for the reads. Only available when using error_model basic or perfect")] = None,
-         library_size: Annotated[int, typer.Option(help="Library size for the reads.")] = 100000,
-         library_size_distribution: Annotated[str, typer.Option(help=f"Distribution for the library size. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
+         average_sample_read_count: Annotated[int, typer.Option(help="Average amount of reads per sample.")] = 100000,
+         sample_read_count_distribution: Annotated[str, typer.Option(help=f"Distribution of the the amount of reads per sample. Select from: {LibrarySizeDistribution.possible_distributions}.")] = "uniform",
          group_orthology_level: Annotated[OrthologyLevel, typer.Option(help="Determines the level of orthology in groups. If you use this, use it with a lot of threads. Takes a long time.")] = OrthologyLevel.normal,
          threads: Annotated[int, typer.Option(callback=limitthreads, help="Number of threads to be used. Use 0 or -1 for auto detection. Upper limit: 128.")] = 10,
          deseq_dispersion_parameter_a0: Annotated[float, typer.Option(callback=checknegative, help="For generating sampling: General dispersion estimation of DESeq2. Only set when you have knowledge of DESeq2 dispersion.")] = DESEQ2_FITTED_A0,
@@ -178,9 +178,9 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
 
     check_outdir(outdir, force_creation)
 
-    library_size_distribution = library_size_distribution_callback(library_size_distribution)
+    sample_read_count_distribution = sample_read_count_distribution_callback(sample_read_count_distribution)
     generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_distance, min_identity, dge_ratio, seed,
-                     error_model, compressed, read_length, library_size, library_size_distribution,
+                     error_model, compressed, read_length, average_sample_read_count, sample_read_count_distribution,
                      group_orthology_level, threads, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1,
                      min_sparsity, force_creation, min_overlap, error_multiplier)
 

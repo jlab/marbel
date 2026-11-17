@@ -324,7 +324,7 @@ def test_speedup_select_species_with_criterion(seed):
 
 
 @pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
-def test_select_species_rng(seed):
+def test_select_species_rng_maximize(seed):
     rng1 = np.random.default_rng(seed)
     rng2 = np.random.default_rng(seed)
     initial_state = copy.deepcopy(rng1.bit_generator.state)
@@ -348,7 +348,7 @@ def test_select_species_rng(seed):
 
 
 @pytest.mark.parametrize("seed", list(EXP_SPECIES.keys()))
-def test_select_species_rng(seed):
+def test_select_species_rng_minimize(seed):
     rng1 = np.random.default_rng(seed)
     rng2 = np.random.default_rng(seed)
     initial_state = copy.deepcopy(rng1.bit_generator.state)
@@ -424,3 +424,22 @@ def test_reproducibility_draw_dge_factors():
     obs = draw_dge_factors(0.1, 10000, rng)
     assert np.allclose(list(obs)[:3], exp[:3])
     assert np.allclose(list(obs)[-3:], exp[-3:])
+
+
+def test_actual_log2fc_unequal_group_sizes():
+    # 5 samples in group 1, 10 samples in group 2
+    # Both groups have identical mean expression (100 counts/sample)
+    data = {"gene_name": ["gene1"]}
+
+    for i in range(5):
+        data[f"group_1_sample_{i+1}"] = [100]
+
+    for i in range(10):
+        data[f"group_2_sample_{i+1}"] = [100]
+
+    df = pd.DataFrame(data)
+
+    result = dg.add_actual_log2fc(df)
+
+    # Equal mean expression means log2FC must be zero
+    assert np.isclose(result.loc[0, "actual_log2fc"], 0.0)

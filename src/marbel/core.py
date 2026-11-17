@@ -25,7 +25,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     number_of_sample = n_samples
     # maybe change to synthetic species later on, for now just use the available species
     # generate some plots so the user can see the distribution
-    if not seed:
+    if seed is None:
         seed = random.randint(0, 2**32 - 1)
 
     rng = np.random.default_rng(seed)
@@ -61,18 +61,14 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
     dge_factors = draw_dge_factors(dge_ratio, number_of_selected_genes, rng)
     bar_next(bar)
     gene_summary_df["simulation_fold_change"] = dge_factors
-    if dge_ratio == 0:
-        sample_group = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group, on="gene_name")
-    else:
-        sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
-        sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
-        gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
+    sample_group_1 = dg.create_sample_values(gene_summary_df, number_of_sample[0], True, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_1, on="gene_name")
+    sample_group_2 = dg.create_sample_values(gene_summary_df, number_of_sample[1], False, deseq_dispersion_parameter_a0, deseq_dispersion_parameter_a1, rng)
+    gene_summary_df = pd.merge(gene_summary_df, sample_group_2, on="gene_name")
     bar.next()
 
     # TODO: make a list what lenghts there are for the differing error models
-    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample))
+    sample_library_sizes = dg.draw_library_sizes(library_size, library_size_distribution, sum(number_of_sample), rng)
     bar.finish()
     bar = Bar('Creating fastq files', max=sum(number_of_sample))
 
@@ -81,7 +77,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
         gene_summary_df = add_extra_sparsity(gene_summary_df, min_sparsity, rng)
 
     # scale to library size
-    gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes)
+    gene_summary_df = dg.scale_fastq_samples(gene_summary_df, sample_library_sizes, rng)
 
     # ensure at least one orthogroup survives filtering
     add_counts_to_large_orthogroups(gene_summary_df, number_of_species, rng)
@@ -102,7 +98,7 @@ def generate_dataset(n_species, n_orthogroups, n_samples, outdir, max_phylo_dist
 
     write_parameter_summary(number_of_orthogroups, number_of_species, number_of_sample, outdir, max_phylo_distance, min_identity,
                             dge_ratio, seed, compressed, error_model, read_length, library_size, library_size_distribution, sample_library_sizes, min_sparsity,
-                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier)
+                            force_creation, selected_ortho_groups.shape[0], min_overlap, paths["summary_dir"], error_multiplier, group_orthology_level)
 
     # use cat for better performance if available
     if is_cat_available():

@@ -174,3 +174,57 @@ def test_calculate_overlap_blocks():
     with pl.Config(tbl_rows=-1, tbl_cols=-1):
         print(result)
     assert result.sort(result.columns).to_dicts() == expected.sort(expected.columns).to_dicts()
+
+
+def test_nested_overlap_blocks():
+    df = pl.DataFrame({
+        "species": ["bac1"] * 3,
+        "chr": ["chr1"] * 3,
+        "genomic_start": [0] * 3,
+        "block_start": [0, 20, 40],
+        "block_end": [100, 30, 50],
+        "fragment_count": [1] * 3,
+        "block_name": ["block1", "block2", "block3"],
+        "cds": ["cds1", "cds2", "cds3"],
+    })
+
+    result = calculate_overlap_blocks(df, min_overlap=0)
+
+    assert result.height == 1
+    assert result["block_count"][0] == 3
+    assert result["overlap_block_start"][0] == 0
+    assert result["overlap_block_end"][0] == 100
+
+
+def test_write_overlap_blocks_fasta_no_duplication(tmp_path, monkeypatch):
+    # Two CDS sequences overlapping by 4 bp
+    dummy_db = {
+        "cds1": SeqRecord(Seq("AAAACCCC"), id="cds1"),
+        "cds2": SeqRecord(Seq("CCCCGGGG"), id="cds2"),
+    }
+
+    monkeypatch.setattr(
+        marbel.block_generation.SeqIO,
+        "index_db",
+        lambda _: dummy_db
+    )
+
+    overlap_blocks_df = pl.DataFrame({
+        "overlap_block_name": ["overlap_1"],
+        "overlap_cds_names": [["cds1", "cds2"]],
+        "blocks_start": [["0", "0"]],
+        "blocks_end": [["8", "8"]],
+        "overlap_lengths": [["-1", "4"]],
+    })
+
+    output = tmp_path / "overlap.fasta"
+
+    marbel.block_generation.write_overlap_blocks_fasta(
+        overlap_blocks_df, str(output)
+    )
+
+    result = list(SeqIO.parse(output, "fasta"))
+
+    assert len(result) == 1
+    assert str(result[0].seq) == "AAAACCCCGGGG"
+    assert len(result[0].seq) == 12

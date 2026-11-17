@@ -97,18 +97,27 @@ def calculate_overlap_blocks(blocks_with_genomic, min_overlap):
         )
         # sort so the blocks are in order
         .sort(["species", "chr", "genomic_start"])
+        # Maximum endpoint of all preceding blocks on this chromosome
+        .with_columns(
+            pl.col("genomic_end")
+            .cum_max()
+            .shift(1)
+            .over(["species", "chr"])
+            .fill_null(-1)
+            .alias("previous_max_end")
+        )
         # create a new overlap block index for each overlapping block block
         .with_columns([
             (
                 # return true if the start block is starting at least with minimum overlap
-                (pl.col("genomic_start") > pl.col("genomic_end").shift(1).fill_null(-1) - min_overlap)
+                (pl.col("genomic_start") > pl.col("previous_max_end") - min_overlap)
                 # true is treated as 1, false as 0, so the cumalative sum is incremented when a new block starts
                 .cum_sum()
                 # ensure this is only done for each chromosome
                 .over(["species", "chr"])
             ).alias("overlap_block_index"),
             # calulate overlap for merging the fasta sequnces
-            (pl.col("genomic_end").shift(1).over(["species", "chr"]).fill_null(-1) - pl.col("genomic_start")).alias("overlap_length"),
+            (pl.col("previous_max_end") - pl.col("genomic_start")).alias("overlap_length"),
         ])
         .with_columns([
             (pl.col("species") + "_" + pl.col("chr") + "_block" + pl.col("overlap_block_index").cast(pl.Utf8)).alias("overlap_block_name")
@@ -159,7 +168,7 @@ def write_overlap_blocks_fasta(overlap_blocks_df, fasta_out):
 
         for i in range(1, len(cds_names)):
             seq = all_genes.get(cds_names[i])
-            start = block_starts[i] - block_overlaps[i]
+            start = block_starts[i] + block_overlaps[i]
             end = block_ends[i]
             overlap_seq += seq.seq[max(start, 0):end]
 

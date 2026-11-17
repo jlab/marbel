@@ -229,7 +229,7 @@ def filter_genes_from_ground(gene_list, output_fasta, gtf_path):
             "gene_id {}; transcript_id {};",
             pl.col("cds"), pl.col("cds")
         ).alias("attributes"),
-        (pl.col("block_start") + 1).alias("gtf_start"),
+        (pl.col("block_start")).alias("gtf_start"),
     )
 
     blocks_df.select([
@@ -280,9 +280,9 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier):
+                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier, group_orthology_level):
     """
-    Writes the simulation parameters to the result_file.
+    Writes the simulation parameters into the summary dir.
 
     Args:
         number_of_orthogous_groups (int): The number of orthologous groups.
@@ -295,7 +295,9 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         seed (int): The seed for the simulation.
         compressed (bool): Compression of files.
         read_length (int): The read length.
-        result_file (file): The file to write the summary to.
+        summary_dir (str): The path to the directory for the summary.
+        error_multiplier (float): An option to multiply the error of the profile.
+        group_orthology_level (OrthologyLevel): Orthology level of the dataset.
     """
     with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
         result_file.write(f"Marbel version: {__version__}\n")
@@ -310,14 +312,15 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"File compression: {output_format}\n")
         result_file.write(f"Model used: {error_model}\n")
         result_file.write(f"Read length: {read_length}\n")
-        result_file.write(f"Library size: {library_size}\n")
-        result_file.write(f"Library size distribution: {library_distribution}\n")
-        result_file.write(f"Library sizes for samples: {library_sizes}\n")
+        result_file.write(f"Average read pair count per sample: {library_size}\n")
+        result_file.write(f"Read count distribution: {library_distribution}\n")
+        result_file.write(f"Chosen read pair counts per sample: {library_sizes}\n")
         result_file.write(f"Minimum sparsity: {min_sparsity}\n")
         result_file.write(f"Forced creation: {force}\n")
         result_file.write(f"Actual orthogroups (if force was used): {actual_orthogroups}\n")
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
         result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
+        result_file.write(f"Orthology level: {group_orthology_level}\n")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
@@ -469,7 +472,7 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         print(f"Warning: Could not move {read_count_file}.")
 
 
-def draw_library_sizes(library_size, library_size_distribution, number_of_samples):
+def draw_library_sizes(library_size, library_size_distribution, number_of_samples, rng):
     """
     Draws the library sizes for each sample according to the specified distribution.
 
@@ -477,6 +480,7 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
         library_size (int): The base library size.
         library_size_distribution (LibrarySizeDistribution): The distribution of the library sizes.
         number_of_samples (int): The number of samples, this is how many library sizes will be drawn.
+        rng: np Random number generator for reproducibility.
 
     Returns:
         list: The library sizes for each sample.
@@ -484,17 +488,17 @@ def draw_library_sizes(library_size, library_size_distribution, number_of_sample
     match library_size_distribution.distribution_name:
         case LibrarySizeDistribution.poisson:
             poisson_lambda = library_size_distribution.poisson
-            sample_library_sizes = library_size * (np.random.poisson(poisson_lambda, number_of_samples) / poisson_lambda)
+            sample_library_sizes = library_size * (rng.poisson(poisson_lambda, number_of_samples) / poisson_lambda)
         case LibrarySizeDistribution.uniform:
             sample_library_sizes = [library_size] * number_of_samples
         case LibrarySizeDistribution.negative_binomial:
             nbin_n, nbin_p = library_size_distribution.nbin_n, library_size_distribution.nbin_p
             expected_mean = nbin_n * (1 - nbin_p) / nbin_p
-            sample_library_sizes = (library_size * (np.random.negative_binomial(nbin_n, nbin_p, number_of_samples) / expected_mean)).round()
+            sample_library_sizes = (library_size * (rng.negative_binomial(nbin_n, nbin_p, number_of_samples) / expected_mean)).round()
     return sample_library_sizes
 
 
-def scale_fastq_samples(gene_summary_df, sample_library_sizes):
+def scale_fastq_samples(gene_summary_df, sample_library_sizes, rng):
     """
     Scales each sample in the gene_summary_df to scaled library size.
 
@@ -503,6 +507,7 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
         sample_library_sizes (list): The library sizes for each sample.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
+        rng: np Random number generator for reproducibility.
     Returns:
         pandas.DataFrame: The filtered dataframe with all-zero columns removed.
         """
@@ -510,8 +515,19 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes):
     gene_summary_df["gene_mean_scaled_to_library_size"] = (gene_summary_df["read_mean_count"] / gene_summary_df["read_mean_count"].sum()) * sample_library_sizes[0]
     # multiply each sample with scaled library size, scaling and ceiling results to avoid float values
     for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
-        gene_summary_df[sample] = (gene_summary_df[sample] / gene_summary_df[sample].sum()) * sample_library_size
-        gene_summary_df[sample] = np.ceil(gene_summary_df[sample]).astype(int)
+        counts = gene_summary_df[sample].to_numpy()
+        total_counts = counts.sum()
+        if total_counts == 0:
+            raise ValueError(
+                f"Sample {sample} contains only zero counts. "
+                "Cannot scale to the requested library size."
+            )
+        probabilities = counts / total_counts
+
+        gene_summary_df[sample] = rng.multinomial(
+            int(round(sample_library_size)),
+            probabilities
+        )
 
     return gene_summary_df
 
@@ -590,8 +606,11 @@ def draw_dge_factors(dge_ratio, number_of_selected_genes, rng):
     if number_of_selected_genes == 0:
         return np.array([])
 
-    if not (0 < dge_ratio < 0.5):
-        raise ValueError("dge_ratio must be between 0 and 0.5 (exclusive)")
+    if dge_ratio == 0:
+        return np.ones(number_of_selected_genes)
+
+    if not (0 <= dge_ratio < 0.5):
+        raise ValueError("dge_ratio must be between 0 (inclusive) and 0.5 (exclusive)")
 
     z_score = stats.norm.ppf(1 - dge_ratio)
     sigma = DGE_LOG_2_CUTOFF_VALUE / z_score
@@ -763,14 +782,14 @@ def add_extra_sparsity(gene_summary_df, sparsity_target, rng):
 
 def add_actual_log2fc(gene_summary_df):
     gene_summary_df = pl.DataFrame(gene_summary_df)
-    sample_cols_group_1 = [col for col in gene_summary_df.columns if "group_1" in col]
-    sample_cols_group_2 = [col for col in gene_summary_df.columns if "group_2" in col]
+    sample_cols_group_1 = [col for col in gene_summary_df.columns if col.startswith("group_1_sample_")]
+    sample_cols_group_2 = [col for col in gene_summary_df.columns if col.startswith("group_2_sample_")]
 
     gene_summary_df = gene_summary_df.with_columns([
         pl.sum_horizontal(sample_cols_group_1).alias("sum_group1"),
         pl.sum_horizontal(sample_cols_group_2).alias("sum_group2"),
     ]).with_columns([
-        (pl.col("sum_group2") / (pl.col("sum_group1"))).alias("fold_change")
+        ((pl.col("sum_group2") / len(sample_cols_group_2)) / ((pl.col("sum_group1") / len(sample_cols_group_1)))).alias("fold_change")
     ]).with_columns([
         pl.col("fold_change").log(2).alias("actual_log2fc"),
     ]).drop(["sum_group1", "sum_group2", "fold_change"])
