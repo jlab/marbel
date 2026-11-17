@@ -280,7 +280,7 @@ def aggregate_gene_data(species, species_abundances, selected_ortho_groups, read
 
 def write_parameter_summary(number_of_orthogous_groups, number_of_species, number_of_sample, outdir, max_phylo_distance,
                             min_identity, deg_ratio, seed, output_format, error_model, read_length, library_size, library_distribution, library_sizes, min_sparsity,
-                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier, group_orthology_level):
+                            force, actual_orthogroups, min_overlap, summary_dir, error_multiplier, group_orthology_level, compression_level):
     """
     Writes the simulation parameters into the summary dir.
 
@@ -298,6 +298,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         summary_dir (str): The path to the directory for the summary.
         error_multiplier (float): An option to multiply the error of the profile.
         group_orthology_level (OrthologyLevel): Orthology level of the dataset.
+        compression_level: (int): Compression level for pigz
     """
     with open(f"{summary_dir}/marbel_params.txt", "w") as result_file:
         result_file.write(f"Marbel version: {__version__}\n")
@@ -321,6 +322,7 @@ def write_parameter_summary(number_of_orthogous_groups, number_of_species, numbe
         result_file.write(f"Minimum overlap for Overlap Blocks: {min_overlap}\n")
         result_file.write(f"Error multiplier for InSilicoSeq Error Model: {error_multiplier}\n")
         result_file.write(f"Orthology level: {group_orthology_level}\n")
+        result_file.write(f"Compression level for pigz: {compression_level}\n")
 
 
 def generate_report(summary_dir, gene_summary, number_of_dropped_genes, specified_orthogroups):
@@ -415,7 +417,7 @@ def create_sample_values(gene_summary_df, number_of_samples, first_group, a0, a1
     return sample_disp_df
 
 
-def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads, error_multiplier, debug_dir):
+def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, seed, read_length, threads, error_multiplier, debug_dir, compression_level):
     """
     Creates a fastq file for the sample using the InSilicoSeq (iss) package.
 
@@ -429,7 +431,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         seed (int): The seed for the simulation. Can be None.
         read_length (int): The read length. Will only be used if the model is 'basic' or 'perfect'.
         threads (int): The number of threads to use.
-        debug_dir (str): The directory for storing insilicoseq log files
+        debug_dir (str): The directory for storing insilicoseq log files.
+        compression_level (int): Compression level for pigz.
     """
     read_count_file = f"{output_dir}/{sample_name}.tsv"
     number_of_pairs = sample_df[["gene_name", "absolute_numbers"]].copy()
@@ -462,7 +465,8 @@ def create_fastq_file(sample_df, sample_name, output_dir, gzip, mode, model, see
         compress=gzip,
         debug=True,
         quiet=False,
-        error_multiplier=error_multiplier
+        error_multiplier=error_multiplier,
+        compression_level=compression_level
     )
     generate_reads(args)
     read_count_file = Path(read_count_file)
@@ -543,7 +547,7 @@ def determine_mode_and_model(model, read_length):
     return mode, model
 
 
-def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng, read_length, threads, error_multiplier, bar, summary_dir):
+def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng, read_length, threads, error_multiplier, bar, summary_dir, compression_level):
     """
     Calls the create_fastq_file function for each sample in the gene_summary_df.
     Parameters:
@@ -564,7 +568,7 @@ def create_fastq_samples(gene_summary_df, outdir, compression, mode, model, rng,
         seed = int(rng.integers(0, 2**32, dtype=np.uint32))
         with open(seed_file, "a") as f:
             f.write(f"Seed passed for {sample}: {seed}\n")
-        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier, debug_dir)
+        create_fastq_file(sample_copy, sample, outdir, compression, mode, model, seed, read_length, threads, error_multiplier, debug_dir, compression_level)
         bar.next()
     bar.finish()
 
