@@ -7,7 +7,7 @@ import sys
 import shutil
 
 
-from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, Rank, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
+from marbel.presets import __version__, MAX_SPECIES, MAX_ORTHO_GROUPS, rank_distance, LibrarySizeDistribution, ErrorModel, DESEQ2_FITTED_A0, DESEQ2_FITTED_A1, OrthologyLevel
 from marbel.core import generate_dataset
 
 app = typer.Typer()
@@ -144,8 +144,8 @@ def main(n_species: Annotated[int, typer.Option(callback=species_callback,
                                            )] = [10, 10],
          outdir: Annotated[str, typer.Option(help="Output directory for the metatranscriptomic in silico dataset")] = "simulated_reads",
          max_phylo_distance: Annotated[str, typer.Option(callback=rank_species_callback, help="Maximimum mean phylogenetic distance for orthologous groups. "
-                                                          + "Specify stricter limit, if you want to avoid orthologous groups "
-                                                          + "with a more diverse phylogenetic distance.")] = None,
+                                                         + "Specify stricter limit, if you want to avoid orthologous groups "
+                                                         + "with a more diverse phylogenetic distance.")] = None,
          min_identity: Annotated[float, typer.Option(help="Minimum mean sequence identity score for an orthologous groups. "
                                                           + "Specify for more ")] = None,
          dge_ratio: Annotated[float, typer.Option(callback=dge_ratio_callback, help="Ratio of up and down regulated genes. Must be between 0 and 1."

@@ -517,7 +517,7 @@ def scale_fastq_samples(gene_summary_df, sample_library_sizes, rng):
     for sample, sample_library_size in zip([col for col in gene_summary_df.columns if "sample" in col], sample_library_sizes):
         counts = gene_summary_df[sample].to_numpy()
         total_counts = counts.sum()
-        if total == 0:
+        if total_counts == 0:
             raise ValueError(
                 f"Sample {sample} contains only zero counts. "
                 "Cannot scale to the requested library size."
